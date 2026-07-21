@@ -1,0 +1,312 @@
+<title>MetaXperts RMS — System Overview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: hsl(38 30% 98%); --panel: #fff; --ink: hsl(28 14% 13%); --muted: hsl(30 6% 44%);
+    --line: hsl(34 16% 89%); --primary: hsl(22 90% 46%); --primary-ink: #fff;
+    --emerald: hsl(153 58% 34%); --emerald-bg: hsl(152 52% 93%);
+    --sky: hsl(202 68% 40%); --sky-bg: hsl(202 72% 94%);
+    --amber: hsl(34 78% 42%); --amber-bg: hsl(40 88% 92%);
+    --violet: hsl(262 48% 50%); --violet-bg: hsl(262 55% 95%);
+    --rose: hsl(348 62% 48%); --rose-bg: hsl(350 76% 95%);
+    --shadow: 0 1px 2px hsl(28 30% 20% /.05), 0 4px 16px hsl(28 30% 20% /.04);
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: hsl(28 12% 8%); --panel: hsl(28 10% 12%); --ink: hsl(38 22% 93%); --muted: hsl(34 8% 60%);
+      --line: hsl(28 8% 20%); --primary: hsl(26 92% 56%);
+      --emerald: hsl(150 52% 62%); --emerald-bg: hsl(152 40% 16%);
+      --sky: hsl(202 66% 66%); --sky-bg: hsl(202 44% 17%);
+      --amber: hsl(40 82% 62%); --amber-bg: hsl(36 50% 16%);
+      --violet: hsl(262 62% 74%); --violet-bg: hsl(262 34% 20%);
+      --rose: hsl(350 76% 70%); --rose-bg: hsl(348 40% 19%);
+      --shadow: 0 1px 2px hsl(0 0% 0% /.3), 0 6px 20px hsl(0 0% 0% /.25); }
+  }
+  :root[data-theme="light"] { --bg: hsl(38 30% 98%); --panel:#fff; --ink: hsl(28 14% 13%); --muted: hsl(30 6% 44%); --line: hsl(34 16% 89%); --primary: hsl(22 90% 46%);
+    --emerald:hsl(153 58% 34%);--emerald-bg:hsl(152 52% 93%);--sky:hsl(202 68% 40%);--sky-bg:hsl(202 72% 94%);--amber:hsl(34 78% 42%);--amber-bg:hsl(40 88% 92%);--violet:hsl(262 48% 50%);--violet-bg:hsl(262 55% 95%);--rose:hsl(348 62% 48%);--rose-bg:hsl(350 76% 95%); --shadow:0 1px 2px hsl(28 30% 20% /.05),0 4px 16px hsl(28 30% 20% /.04); }
+  :root[data-theme="dark"] { --bg: hsl(28 12% 8%); --panel: hsl(28 10% 12%); --ink: hsl(38 22% 93%); --muted: hsl(34 8% 60%); --line: hsl(28 8% 20%); --primary: hsl(26 92% 56%);
+    --emerald:hsl(150 52% 62%);--emerald-bg:hsl(152 40% 16%);--sky:hsl(202 66% 66%);--sky-bg:hsl(202 44% 17%);--amber:hsl(40 82% 62%);--amber-bg:hsl(36 50% 16%);--violet:hsl(262 62% 74%);--violet-bg:hsl(262 34% 20%);--rose:hsl(350 76% 70%);--rose-bg:hsl(348 40% 19%); --shadow:0 1px 2px hsl(0 0% 0% /.3),0 6px 20px hsl(0 0% 0% /.25); }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 28px clamp(14px, 3vw, 30px) 60px; }
+  .tnum { font-variant-numeric: tabular-nums; }
+  h2 { font-size: clamp(18px, 2.4vw, 22px); letter-spacing: -.01em; margin: 44px 0 4px; text-wrap: balance; }
+  h2 + .sub { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
+  .eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: 11px; font-weight: 700; color: var(--primary); }
+
+  /* Masthead */
+  .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; gap: 14px; align-items: center; }
+  .logo { width: 52px; height: 52px; border-radius: 14px; background: var(--primary); color: var(--primary-ink); display: grid; place-items: center; flex-shrink: 0; box-shadow: var(--shadow); }
+  .brand h1 { font-size: clamp(22px, 3.4vw, 30px); margin: 0; letter-spacing: -.02em; }
+  .brand p { margin: 2px 0 0; color: var(--muted); font-size: 14px; max-width: 52ch; }
+  .live { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; color: var(--emerald); background: var(--emerald-bg); border-radius: 999px; padding: 6px 12px; }
+  .live .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--emerald); position: relative; }
+  .live .dot::after { content:""; position:absolute; inset:0; border-radius:999px; background: var(--emerald); animation: ping 1.5s cubic-bezier(0,0,.2,1) infinite; }
+  @keyframes ping { 75%,100% { transform: scale(2.4); opacity: 0; } }
+  .themebtn { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 10px; padding: 7px 12px; font-size: 13px; cursor: pointer; box-shadow: var(--shadow); }
+
+  /* KPI band */
+  .kpis { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-top: 24px; }
+  @media (min-width: 640px){ .kpis { grid-template-columns: repeat(3,1fr);} }
+  @media (min-width: 960px){ .kpis { grid-template-columns: repeat(6,1fr);} }
+  .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 15px; box-shadow: var(--shadow); }
+  .kpi .lbl { font-size: 12px; color: var(--muted); }
+  .kpi .val { font-size: clamp(20px, 2.6vw, 26px); font-weight: 800; letter-spacing: -.02em; margin-top: 3px; }
+  .kpi .hint { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .kpi.hero { grid-column: span 2; background: linear-gradient(135deg, var(--primary), hsl(14 84% 46%)); color:#fff; border: 0; }
+  .kpi.hero .lbl, .kpi.hero .hint { color: hsl(0 0% 100% / .8); }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+  .grid { display: grid; gap: 14px; }
+  .cols-2 { grid-template-columns: 1fr; } @media (min-width:820px){ .cols-2 { grid-template-columns: 1fr 1fr; } }
+  .cols-3 { grid-template-columns: 1fr; } @media (min-width:720px){ .cols-3 { grid-template-columns: repeat(3,1fr);} }
+  .cols-4 { grid-template-columns: repeat(2,1fr);} @media (min-width:820px){ .cols-4 { grid-template-columns: repeat(4,1fr);} }
+
+  /* Stack layers */
+  .layer { padding: 16px; }
+  .layer h3 { margin: 0 0 3px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .layer .tag { font-size: 11px; color: var(--muted); }
+  .layer ul { margin: 10px 0 0; padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .layer li { font-size: 13px; display: flex; gap: 8px; align-items: baseline; }
+  .layer li::before { content: ""; width: 5px; height: 5px; border-radius: 999px; background: var(--primary); flex-shrink: 0; transform: translateY(-2px); }
+  .chip { display:inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+  .c-emerald{background:var(--emerald-bg);color:var(--emerald);} .c-sky{background:var(--sky-bg);color:var(--sky);}
+  .c-amber{background:var(--amber-bg);color:var(--amber);} .c-violet{background:var(--violet-bg);color:var(--violet);} .c-rose{background:var(--rose-bg);color:var(--rose);}
+
+  /* Money loop */
+  .loop { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; }
+  .loop .step { flex: 1 1 120px; min-width: 120px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; position: relative; }
+  .loop .step .n { font-size: 10px; font-weight: 800; color: var(--primary); }
+  .loop .step .t { font-size: 13px; font-weight: 700; margin-top: 2px; }
+  .loop .step .d { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .jv { margin-top: 14px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .jv table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: var(--mono); }
+  .jv th { text-align: left; background: var(--bg); color: var(--muted); font-size: 11px; font-weight: 600; padding: 7px 12px; font-family: var(--sans); }
+  .jv td { padding: 6px 12px; border-top: 1px solid var(--line); }
+  .jv td.num { text-align: right; }
+  .jv tr.total td { font-weight: 800; border-top: 2px solid var(--line); }
+
+  /* App cards */
+  .app { padding: 16px; display: flex; flex-direction: column; gap: 6px; }
+  .app .ico { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; margin-bottom: 4px; }
+  .app h3 { margin: 0; font-size: 15px; }
+  .app p { margin: 0; font-size: 12.5px; color: var(--muted); flex: 1; }
+  .app .flow { font-size: 11px; color: var(--primary); font-weight: 600; }
+
+  /* AI */
+  .ai { padding: 16px; }
+  .ai h3 { margin: 0 0 2px; font-size: 15px; }
+  .ai .algo { font-size: 11.5px; color: var(--muted); }
+  .ai .out { margin-top: 12px; background: var(--bg); border-radius: 10px; padding: 11px 13px; font-family: var(--mono); font-size: 12px; }
+  .ai .out .big { font-size: 20px; font-weight: 800; color: var(--ink); font-family: var(--sans); }
+
+  /* Phase timeline */
+  .phases { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
+  @media (min-width:640px){ .phases { grid-template-columns: repeat(3,1fr);} }
+  @media (min-width:960px){ .phases { grid-template-columns: repeat(6,1fr);} }
+  .phase { border: 1px solid var(--line); border-radius: 11px; padding: 11px; background: var(--panel); }
+  .phase.done { background: var(--emerald-bg); border-color: transparent; }
+  .phase.todo { opacity: .7; border-style: dashed; }
+  .phase .p { font-size: 10px; font-weight: 800; letter-spacing: .05em; color: var(--muted); }
+  .phase.done .p { color: var(--emerald); }
+  .phase .n { font-size: 13px; font-weight: 700; margin-top: 3px; line-height: 1.25; }
+  .phase .s { font-size: 10.5px; margin-top: 4px; }
+
+  .foot { margin-top: 44px; border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-wrap: wrap; gap: 18px 28px; justify-content: space-between; align-items: center; }
+  .stats { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+  .stats b { font-size: 17px; font-weight: 800; } .stats span { font-size: 11px; color: var(--muted); display: block; }
+  .note { font-size: 12px; color: var(--muted); max-width: 46ch; }
+  svg.i { width: 1em; height: 1em; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="logo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-3 5v6c0 1.1.9 2 2 2h1Zm0 0v7"/></svg></div>
+      <div>
+        <h1>MetaXperts RMS</h1>
+        <p>A restaurant management system built as a vertical module of the MetaXperts ERP — one backend, a web console, four native apps, and an AI service. Every number below is read live from the running system.</p>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center">
+      <span class="live"><span class="dot"></span> live snapshot · Karahi Point (demo)</span>
+      <button class="themebtn" id="themeBtn">🌙 Theme</button>
+    </div>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi hero">
+      <div class="lbl">Settled revenue</div>
+      <div class="val tnum">PKR 5,430</div>
+      <div class="hint">3 bills · 87.3% gross margin</div>
+    </div>
+    <div class="kpi"><div class="lbl">COGS (real)</div><div class="val tnum" style="color:var(--rose)">PKR 692</div><div class="hint">from recipe → inventory</div></div>
+    <div class="kpi"><div class="lbl">Orders</div><div class="val tnum">11</div><div class="hint">POS · web · apps</div></div>
+    <div class="kpi"><div class="lbl">Menu</div><div class="val tnum">7</div><div class="hint">5 categories · all with photos</div></div>
+    <div class="kpi"><div class="lbl">GL journals</div><div class="val tnum" style="color:var(--emerald)">3</div><div class="hint">balanced, auto-posted</div></div>
+  </div>
+
+  <!-- ── THE STACK ─────────────────────────────────────────── -->
+  <h2>One system, four surfaces</h2>
+  <div class="sub">A modular monolith backend feeds a web console, four Flutter apps, and a Python AI service — all sharing one tenant-isolated database.</div>
+  <div class="grid cols-4">
+    <div class="card layer">
+      <h3><span class="chip c-emerald">Backend</span></h3>
+      <div class="tag">NestJS · TypeScript · Postgres</div>
+      <ul>
+        <li>25 tenant tables, all RLS-protected</li>
+        <li>Order → KDS → settle lifecycle</li>
+        <li>Transactional outbox → RabbitMQ</li>
+        <li>Recipe → inventory → COGS → GL</li>
+        <li>Dynamic PRA/FBR fiscal provider</li>
+      </ul>
+    </div>
+    <div class="card layer">
+      <h3><span class="chip c-sky">Web console</span></h3>
+      <div class="tag">Next.js · Tailwind · shadcn</div>
+      <ul>
+        <li>POS take-order + settle</li>
+        <li>Menu, recipes &amp; modifiers</li>
+        <li>Floor designer (drag)</li>
+        <li>Live KDS board</li>
+        <li>Deliveries &amp; reservations</li>
+      </ul>
+    </div>
+    <div class="card layer">
+      <h3><span class="chip c-amber">Mobile</span></h3>
+      <div class="tag">Flutter · 4 native apps</div>
+      <ul>
+        <li>Waiter — take &amp; fire orders</li>
+        <li>Manager — live dashboard</li>
+        <li>Driver — GPS + OTP delivery</li>
+        <li>Customer — order &amp; track</li>
+      </ul>
+    </div>
+    <div class="card layer">
+      <h3><span class="chip c-violet">AI service</span></h3>
+      <div class="tag">Python · FastAPI</div>
+      <ul>
+        <li>Demand forecasting</li>
+        <li>Prep-time prediction</li>
+        <li>Upsell recommendations</li>
+        <li>Service-token secured</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── MONEY LOOP ─────────────────────────────────────────── -->
+  <h2>The money loop closes itself</h2>
+  <div class="sub">Settling a bill fires a chain that ends in a balanced journal voucher — no accountant in the loop. Proven live on a real ledger.</div>
+  <div class="card" style="padding:16px">
+    <div class="loop">
+      <div class="step"><div class="n">01</div><div class="t">Take order</div><div class="d">POS / app → items priced in minor units</div></div>
+      <div class="step"><div class="n">02</div><div class="t">Fire to kitchen</div><div class="d">KDS tickets routed by station</div></div>
+      <div class="step"><div class="n">03</div><div class="t">Settle</div><div class="d">tender + PRA tax + rounding</div></div>
+      <div class="step"><div class="n">04</div><div class="t">Explode recipe</div><div class="d">deduct valued inventory ledger</div></div>
+      <div class="step"><div class="n">05</div><div class="t">Capture COGS</div><div class="d">weighted-avg cost per line</div></div>
+      <div class="step"><div class="n">06</div><div class="t">Post to GL</div><div class="d">outbox → consumer → journal</div></div>
+    </div>
+    <div class="jv">
+      <table>
+        <thead><tr><th>JV-000003 — Restaurant ORD-000007</th><th class="num">Debit</th><th class="num">Credit</th></tr></thead>
+        <tbody>
+          <tr><td>Cash in Hand</td><td class="num">1,810.00</td><td class="num">—</td></tr>
+          <tr><td>Restaurant Sales</td><td class="num">—</td><td class="num">1,560.00</td></tr>
+          <tr><td>Sales Tax Payable (16%)</td><td class="num">—</td><td class="num">249.60</td></tr>
+          <tr><td>Rounding</td><td class="num">—</td><td class="num">0.40</td></tr>
+          <tr><td>Cost of Goods Sold</td><td class="num">346.00</td><td class="num">—</td></tr>
+          <tr><td>Inventory</td><td class="num">—</td><td class="num">346.00</td></tr>
+          <tr class="total"><td>Balanced</td><td class="num">2,156.00</td><td class="num">2,156.00</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── APPS ─────────────────────────────────────────── -->
+  <h2>Four native apps, all proven live</h2>
+  <div class="sub">One shared API client &amp; theme, built lightweight for the low-end Android devices common in Pakistani restaurants.</div>
+  <div class="grid cols-4">
+    <div class="card app">
+      <div class="ico c-emerald"><svg class="i" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-3 5v6c0 1.1.9 2 2 2h1Z"/></svg></div>
+      <h3>Waiter</h3><p>Floor → take order → fire to kitchen → settle.</p><div class="flow">verified: ORD-000008</div>
+    </div>
+    <div class="card app">
+      <div class="ico c-sky"><svg class="i" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+      <h3>Manager</h3><p>Live KPIs, KDS board &amp; sales — auto-refresh.</p><div class="flow">PKR 5,430 settled</div>
+    </div>
+    <div class="card app">
+      <div class="ico c-amber"><svg class="i" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm-3.5 11.5L9 9l-2 2"/></svg></div>
+      <h3>Driver</h3><p>Runs → pick up → share GPS → deliver with OTP.</p><div class="flow">DLV-000003 delivered ✓</div>
+    </div>
+    <div class="card app">
+      <div class="ico c-rose"><svg class="i" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg></div>
+      <h3>Customer</h3><p>Browse photos → cart → order → track live.</p><div class="flow">ORD-000011 placed</div>
+    </div>
+  </div>
+
+  <!-- ── AI ─────────────────────────────────────────── -->
+  <h2>AI that runs the pass</h2>
+  <div class="sub">Three models over the live restaurant data — no external calls, all computed from the tenant's own history.</div>
+  <div class="grid cols-3">
+    <div class="card ai">
+      <h3>📈 Demand forecast</h3>
+      <div class="algo">ARIMA with a naive fallback, per menu item</div>
+      <div class="out">Chicken Karahi · next 7 days<br><span class="big">≈ 42 plates</span> &nbsp;(6/day)</div>
+    </div>
+    <div class="card ai">
+      <h3>⏱️ Prep-time prediction</h3>
+      <div class="algo">historical cook time × recipe × live queue load</div>
+      <div class="out">Chicken Karahi · 7 tickets ahead<br><span class="big">18.6 min</span> &nbsp;ETA</div>
+    </div>
+    <div class="card ai">
+      <h3>🍽️ Upsell</h3>
+      <div class="algo">market-basket confidence + lift</div>
+      <div class="out">with Chicken Karahi →<br><span class="big">Garlic Naan</span> &nbsp;83% confidence</div>
+    </div>
+  </div>
+
+  <!-- ── PHASES ─────────────────────────────────────────── -->
+  <h2>A 12-phase build — all shipped</h2>
+  <div class="sub">Architecture-first, then services, UI, mobile, AI, and a green 22-check acceptance gate.</div>
+  <div class="phases" id="phases"></div>
+
+  <!-- ── FOOTER ─────────────────────────────────────────── -->
+  <div class="foot">
+    <div class="stats">
+      <div><b class="tnum">25</b><span>RLS tables</span></div>
+      <div><b class="tnum">304</b><span>backend tests</span></div>
+      <div><b class="tnum">7</b><span>menu items</span></div>
+      <div><b class="tnum">5</b><span>recipes</span></div>
+      <div><b class="tnum">19</b><span>KDS tickets</span></div>
+      <div><b class="tnum">37</b><span>outbox events</span></div>
+      <div><b class="tnum">4</b><span>mobile apps</span></div>
+      <div><b class="tnum">22</b><span>acceptance checks ✓</span></div>
+    </div>
+    <div class="note">Modular monolith · Postgres 16 + RLS · RabbitMQ outbox · integer minor-unit money · multi-tenant. Standalone-sell = ship the ERP with only the <code>restaurant</code> feature entitled.</div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const PHASES = [
+  ["01","Architecture & ADR","done"],["02","Schema · 25 RLS tables","done"],["03","Menu & floor services","done"],
+  ["04","Orders · KDS · realtime","done"],["05","Dynamic PRA/FBR fiscal","done"],["06","Delivery + tracking","done"],
+  ["07","Reservations","done"],["08","Web console","done"],["09","4 Flutter apps","done"],
+  ["10","AI / ML service","done"],["11","Acceptance & E2E","done"],["12","Ops · seed & docs","done"],
+];
+const ph = document.getElementById('phases');
+for (const [p,n,s] of PHASES) {
+  const el = document.createElement('div');
+  el.className = 'phase ' + s;
+  el.innerHTML = `<div class="p">PHASE ${p}</div><div class="n">${n}</div><div class="s">${s==='done'?'<span class="chip c-emerald">shipped</span>':'<span class="chip c-amber">next</span>'}</div>`;
+  ph.appendChild(el);
+}
+const btn = document.getElementById('themeBtn');
+btn.onclick = () => {
+  const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light');
+  document.documentElement.dataset.theme = cur === 'dark' ? 'light' : 'dark';
+};
+</script>

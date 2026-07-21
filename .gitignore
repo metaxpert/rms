@@ -1,0 +1,26 @@
+# Flutter / Dart
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/generated_plugin_registrant.*
+**/*.iml
+**/.idea/
+**/.pub-cache/
+**/.pub/
+
+# Python (ML deps installed locally)
+**/.pydeps/
+**/__pycache__/
+**/.venv/
+**/*.pyc
+
+# OS / editor
+.DS_Store
+*.swp
+.vscode/
+
+# Local env / secrets (never commit)
+**/.env
+**/.env.local

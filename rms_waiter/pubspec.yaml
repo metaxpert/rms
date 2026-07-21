@@ -1,0 +1,31 @@
+name: rms_waiter
+description: "MetaXperts RMS — Waiter app. Take orders, fire to the kitchen, settle bills."
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Lightweight HTTP — chosen over dio to keep the APK small for low-end
+  # Tecno/Infinix devices common in Pakistani restaurants.
+  http: ^1.2.0
+
+  # Money/date formatting.
+  intl: ">=0.19.0 <0.21.0"
+
+  # Persist the auth token + API base between launches.
+  shared_preferences: ^2.2.0
+
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
