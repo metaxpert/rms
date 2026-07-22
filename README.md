@@ -81,6 +81,16 @@ On the sign-in screen open **Server settings** and point it at your API
 
 ---
 
+## Documentation
+
+| Doc | For |
+| --- | --- |
+| **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** | **Deploying to a real server** — production install, standalone vs. integrating with an existing ERP, first-run setup, running the restaurant, operations. Start here for a live deployment. |
+| [docs/GUIDE.md](docs/GUIDE.md) | Developer / local setup — spin the whole thing up on your laptop to evaluate or hack on it. |
+| [docs/overview.html](docs/overview.html) | Visual system-overview dashboard (open in a browser). |
+
+---
+
 ## Quick start (with the ERP backend)
 
 ```bash
