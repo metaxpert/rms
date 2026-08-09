@@ -62,6 +62,8 @@ TOK=$(login "$ADMIN_EMAIL" "$ADMIN_PW"); [ -n "$TOK" ] || { echo "demo-admin log
 H="authorization: Bearer $TOK"; CT='content-type: application/json'
 post() { curl -s -X POST "$API_URL/$1" -H "$H" -H "$CT" -d "$2"; }
 put()  { curl -s -X PUT  "$API_URL/$1" -H "$H" -H "$CT" -d "$2"; }
+patch(){ curl -s -X PATCH "$API_URL/$1" -H "$H" -H "$CT" -d "$2"; }
+get()  { curl -s "$API_URL/$1" -H "$H"; }
 idof() { jget data.id; }
 ownerq() { psql "$OWNER_URL" -tAc "$1"; }
 
@@ -116,6 +118,9 @@ I_TIK=$(item "$C_BBQ" "Chicken Tikka" TK-01 86000 13 GRILL "$IMG/wyxwsp148697982
 I_NAN=$(item "$C_BRD" "Garlic Naan" NAN-02 12000 6 TANDOOR "$IMG/lmc6r51764365554.jpg")
 I_ROT=$(item "$C_BRD" "Tandoori Roti" ROT-01 5000 5 TANDOOR "$IMG/hx335q1619789561.jpg")
 I_CHA=$(item "$C_BEV" "Kashmiri Chai" BEV-04 22000 5 BEVERAGE "$IMG/vussxq1511882648.jpg")
+# A bottled drink carries a real barcode so the POS scan-to-add path has something to scan.
+I_COL=$(item "$C_BEV" "Cola 500ml" BEV-10 12000 0 BEVERAGE "$IMG/uttupv1511815050.jpg")
+patch "restaurant/items/$I_COL" '{"barcode":"5449000000996"}' >/dev/null
 
 # ── 5. recipes (drive COGS) — quantities in grams ────────────────────────────
 say "recipes → inventory COGS"
@@ -151,5 +156,67 @@ mkorder "$T7" "{\"items\":[{\"itemId\":\"$I_NIH\",\"qty\":3},{\"itemId\":\"$I_TI
 # settle one so revenue + COGS + a GL journal exist
 TOT=$(curl -s "$API_URL/restaurant/orders" -H "$H" | python3 -c "import sys,json;print([o['total']['amountMinor'] for o in json.load(sys.stdin)['data'] if o['id']=='$O1'][0])")
 post "restaurant/orders/$O1/settle" "{\"payments\":[{\"method\":\"CASH\",\"amountMinor\":$TOT}]}" >/dev/null
+
+# ── 8. multi-branch (multi-outlet) demo ──────────────────────────────────────
+# One tenant, several physical outlets. Each branch gets its own restaurant_config
+# (cloned from head office on provision), its own floor + orders/KDS. The menu and
+# recipes above stay shared across all branches.
+say "branches (outlets) + per-branch config"
+branch() { post branches "$1" | idof; }
+BR_GLB=$(branch '{"name":"Karahi Point — Gulberg","code":"KP-GLB","city":"Lahore","isHeadOffice":true}')
+BR_DHA=$(branch '{"name":"Karahi Point — DHA","code":"KP-DHA","city":"Lahore"}')
+# Provision each outlet's config (clones head-office warehouse + PKR + 16% tax so it can trade).
+for BR in "$BR_GLB" "$BR_DHA"; do
+  [ -n "$BR" ] && post "restaurant/branches/$BR/provision" '{}' >/dev/null
+done
+# DHA adds a 5% service charge — proves configuration is per-branch, not tenant-wide.
+[ -n "$BR_DHA" ] && put restaurant/config "{\"branchId\":\"$BR_DHA\",\"serviceChargeBp\":500}" >/dev/null
+
+# Branch-scoped floor + one live order per outlet (proves branch isolation of tables/orders/KDS).
+barea()  { post restaurant/areas  "{\"name\":\"$2\",\"kind\":\"INDOOR\",\"branchId\":\"$1\"}" | idof; }
+btable() { post restaurant/tables "{\"areaId\":\"$2\",\"branchId\":\"$1\",\"code\":\"$3\",\"capacity\":$4,\"shape\":\"RECT\",\"posX\":$5,\"posY\":24,\"width\":88,\"height\":64}" | idof; }
+border() { # branchId tableId mainItemId
+  local oid; oid=$(post restaurant/orders "{\"channel\":\"DINE_IN\",\"branchId\":\"$1\",\"tableId\":\"$2\",\"guestCount\":2}" | idof)
+  post "restaurant/orders/$oid/items" "{\"items\":[{\"itemId\":\"$3\",\"qty\":1},{\"itemId\":\"$I_NAN\",\"qty\":2}]}" >/dev/null
+  post "restaurant/orders/$oid/place" '{}' >/dev/null
+}
+if [ -n "$BR_GLB" ]; then
+  GA=$(barea "$BR_GLB" "Gulberg Hall"); GT=$(btable "$BR_GLB" "$GA" G1 4 24); btable "$BR_GLB" "$GA" G2 2 150 >/dev/null
+  border "$BR_GLB" "$GT" "$I_KAR"
+fi
+if [ -n "$BR_DHA" ]; then
+  DA=$(barea "$BR_DHA" "DHA Hall"); DT=$(btable "$BR_DHA" "$DA" D1 6 24); btable "$BR_DHA" "$DA" D2 4 150 >/dev/null
+  border "$BR_DHA" "$DT" "$I_NIH"
+fi
+say "2 outlets seeded: Gulberg (HQ) + DHA — each with its own floor + live order"
+
+
+# ── 9. peripherals: receipt/kitchen printers + table QR stickers ──────────────
+say "printers (till + kitchen stations) and table QR codes"
+printer() { # key name kind connection host station charsPerLine [branchId]
+  local body="{\"key\":\"$1\",\"name\":\"$2\",\"kind\":\"$3\",\"connection\":\"$4\",\"host\":\"$5\",\"charsPerLine\":$7"
+  [ -n "$6" ] && body="$body,\"stationKey\":\"$6\""
+  [ -n "${8:-}" ] && body="$body,\"branchId\":\"$8\""
+  post restaurant/printers "$body}" | idof
+}
+# The till prints guest bills and kicks the cash drawer; each hot station gets its own KOT printer.
+P_TILL=$(printer till-1 "Front Till (80mm)" RECEIPT NETWORK 192.168.1.50 "" 42)
+[ -n "$P_TILL" ] && patch "restaurant/printers/$P_TILL" '{"cashDrawer":true,"isDefault":true}' >/dev/null
+printer kitchen-hot "Hot Kitchen" KITCHEN NETWORK 192.168.1.51 HOT_KITCHEN 32 >/dev/null
+printer kitchen-grill "Grill" KITCHEN NETWORK 192.168.1.52 GRILL 32 >/dev/null
+printer kitchen-tandoor "Tandoor" KITCHEN NETWORK 192.168.1.53 TANDOOR 32 >/dev/null
+
+# Receipt branding + auto-print behaviour (KOTs fire automatically; bills print on demand at the till).
+# Config is PER BRANCH, and the outlets above were already provisioned from the head-office template —
+# so apply the branding to each of them as well, not just the head-office row.
+BRANDING='{"autoPrintKot":true,"autoPrintBill":false,"receiptFooter":"Shukriya! Aap ka din acha guzray.","taxNumber":"1234567-8"}'
+put restaurant/config "$BRANDING" >/dev/null
+for BR in "$BR_GLB" "$BR_DHA"; do
+  [ -n "$BR" ] && put restaurant/config "$(python3 -c "import json,sys;d=json.loads(sys.argv[1]);d['branchId']=sys.argv[2];print(json.dumps(d))" "$BRANDING" "$BR")" >/dev/null
+done
+
+# Issue a QR sticker for every table — scanning one opens that table's tab.
+for T in "$T1" "$T4" "$T7"; do [ -n "$T" ] && get "restaurant/tables/$T/qr" >/dev/null; done
+say "printers registered (run scripts/print-agent.js on the till to actually print)"
 
 say "done. Login at the web console or apps with:  $ADMIN_EMAIL / $ADMIN_PW"
