@@ -122,7 +122,15 @@ The full path is covered by a repeatable end-to-end gate in the ERP repo
 - delivery lifecycle with **OTP** (wrong → 422, correct → delivered)
 - reservation seating
 - **RLS tenant isolation** (a second tenant gets 404 on the first's order)
+- **printing**: station routing, agent claim, ESC/POS byte stream, receipt arithmetic, failure retry
+- **scanning**: table QR issue/rotate, bill lookup, barcode scan-to-add
+- **code generation**: internal EAN-13 minting (valid check digit, GS1 in-store range), QR/barcode
+  images (SVG + PNG), printed labels with a native EAN-13 command
+- **cross-module barcodes**: menu items and inventory products draw from one tenant-wide counter, so a
+  scanned code can never resolve to the wrong catalogue; bulk minting and printable label sheets on both
 - dynamic fiscal (PRA) configuration
+
+`RESULT: 94 passed, 0 failed`.
 
 ---
 

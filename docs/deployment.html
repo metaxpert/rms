@@ -1,0 +1,427 @@
+<title>MetaXperts RMS — Deployment Guide</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --bg: hsl(38 30% 98%); --panel: #fff; --panel-2: hsl(38 30% 96.5%); --ink: hsl(28 14% 13%); --muted: hsl(30 6% 44%);
+    --line: hsl(34 16% 89%); --primary: hsl(22 90% 46%); --primary-ink: #fff; --primary-deep: hsl(14 84% 44%);
+    --emerald: hsl(153 58% 34%); --emerald-bg: hsl(152 52% 93%);
+    --sky: hsl(202 68% 40%); --sky-bg: hsl(202 72% 94%);
+    --amber: hsl(34 78% 42%); --amber-bg: hsl(40 88% 92%);
+    --violet: hsl(262 48% 50%); --violet-bg: hsl(262 55% 95%);
+    --rose: hsl(348 62% 48%); --rose-bg: hsl(350 76% 95%);
+    --shadow: 0 1px 2px hsl(28 30% 20% /.05), 0 4px 16px hsl(28 30% 20% /.04);
+    --shadow-lg: 0 2px 4px hsl(28 30% 20% /.06), 0 12px 34px hsl(28 30% 20% /.08);
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: hsl(28 12% 8%); --panel: hsl(28 10% 12%); --panel-2: hsl(28 10% 14.5%); --ink: hsl(38 22% 93%); --muted: hsl(34 8% 60%);
+      --line: hsl(28 8% 20%); --primary: hsl(26 92% 56%); --primary-deep: hsl(16 86% 52%);
+      --emerald: hsl(150 52% 62%); --emerald-bg: hsl(152 40% 16%);
+      --sky: hsl(202 66% 66%); --sky-bg: hsl(202 44% 17%);
+      --amber: hsl(40 82% 62%); --amber-bg: hsl(36 50% 16%);
+      --violet: hsl(262 62% 74%); --violet-bg: hsl(262 34% 20%);
+      --rose: hsl(350 76% 70%); --rose-bg: hsl(348 40% 19%);
+      --shadow: 0 1px 2px hsl(0 0% 0% /.3), 0 6px 20px hsl(0 0% 0% /.25);
+      --shadow-lg: 0 2px 6px hsl(0 0% 0% /.4), 0 16px 40px hsl(0 0% 0% /.35); }
+  }
+  :root[data-theme="light"] { --bg: hsl(38 30% 98%); --panel:#fff; --panel-2: hsl(38 30% 96.5%); --ink: hsl(28 14% 13%); --muted: hsl(30 6% 44%); --line: hsl(34 16% 89%); --primary: hsl(22 90% 46%); --primary-deep: hsl(14 84% 44%);
+    --emerald:hsl(153 58% 34%);--emerald-bg:hsl(152 52% 93%);--sky:hsl(202 68% 40%);--sky-bg:hsl(202 72% 94%);--amber:hsl(34 78% 42%);--amber-bg:hsl(40 88% 92%);--violet:hsl(262 48% 50%);--violet-bg:hsl(262 55% 95%);--rose:hsl(348 62% 48%);--rose-bg:hsl(350 76% 95%); --shadow:0 1px 2px hsl(28 30% 20% /.05),0 4px 16px hsl(28 30% 20% /.04); --shadow-lg: 0 2px 4px hsl(28 30% 20% /.06), 0 12px 34px hsl(28 30% 20% /.08); }
+  :root[data-theme="dark"] { --bg: hsl(28 12% 8%); --panel: hsl(28 10% 12%); --panel-2: hsl(28 10% 14.5%); --ink: hsl(38 22% 93%); --muted: hsl(34 8% 60%); --line: hsl(28 8% 20%); --primary: hsl(26 92% 56%); --primary-deep: hsl(16 86% 52%);
+    --emerald:hsl(150 52% 62%);--emerald-bg:hsl(152 40% 16%);--sky:hsl(202 66% 66%);--sky-bg:hsl(202 44% 17%);--amber:hsl(40 82% 62%);--amber-bg:hsl(36 50% 16%);--violet:hsl(262 62% 74%);--violet-bg:hsl(262 34% 20%);--rose:hsl(350 76% 70%);--rose-bg:hsl(348 40% 19%); --shadow:0 1px 2px hsl(0 0% 0% /.3),0 6px 20px hsl(0 0% 0% /.25); --shadow-lg: 0 2px 6px hsl(0 0% 0% /.4), 0 16px 40px hsl(0 0% 0% /.35); }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 26px clamp(14px, 3vw, 30px) 64px; }
+  .tnum { font-variant-numeric: tabular-nums; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; padding: 1px 5px; }
+  a { color: var(--primary); }
+
+  h2 { font-size: clamp(19px, 2.4vw, 23px); letter-spacing: -.015em; margin: 52px 0 4px; text-wrap: balance; }
+  h2 + .sub { color: var(--muted); font-size: 14.5px; margin-bottom: 20px; max-width: 68ch; }
+  .eyebrow { text-transform: uppercase; letter-spacing: .13em; font-size: 11px; font-weight: 700; color: var(--primary); }
+
+  /* Masthead */
+  .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; gap: 15px; align-items: center; }
+  .logo { width: 54px; height: 54px; border-radius: 15px; background: linear-gradient(150deg, var(--primary), var(--primary-deep)); color: var(--primary-ink); display: grid; place-items: center; flex-shrink: 0; box-shadow: var(--shadow-lg); }
+  .brand h1 { font-size: clamp(23px, 3.4vw, 32px); margin: 4px 0 0; letter-spacing: -.025em; }
+  .brand .kick { font-size: 12px; }
+  .brand p { margin: 6px 0 0; color: var(--muted); font-size: 14.5px; max-width: 56ch; }
+  .themebtn { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 10px; padding: 8px 13px; font-size: 13px; cursor: pointer; box-shadow: var(--shadow); }
+  .themebtn:hover { border-color: var(--primary); }
+
+  /* Orienting stat band */
+  .band { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin-top: 26px; }
+  @media (min-width: 720px){ .band { grid-template-columns: repeat(4,1fr);} }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 15px 16px; box-shadow: var(--shadow); }
+  .stat .v { font-size: clamp(19px, 2.5vw, 24px); font-weight: 800; letter-spacing: -.02em; }
+  .stat .l { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+  .grid { display: grid; gap: 14px; }
+  .cols-2 { grid-template-columns: 1fr; } @media (min-width:820px){ .cols-2 { grid-template-columns: 1fr 1fr; } }
+  .cols-3 { grid-template-columns: 1fr; } @media (min-width:720px){ .cols-3 { grid-template-columns: repeat(3,1fr);} }
+  .cols-5 { grid-template-columns: repeat(2,1fr);} @media (min-width:900px){ .cols-5 { grid-template-columns: repeat(5,1fr);} }
+
+  .chip { display:inline-block; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; letter-spacing: .01em; }
+  .c-emerald{background:var(--emerald-bg);color:var(--emerald);} .c-sky{background:var(--sky-bg);color:var(--sky);}
+  .c-amber{background:var(--amber-bg);color:var(--amber);} .c-violet{background:var(--violet-bg);color:var(--violet);} .c-rose{background:var(--rose-bg);color:var(--rose);}
+  .c-primary{background:hsl(22 90% 46% /.12);color:var(--primary);}
+
+  /* Included pieces */
+  .piece { padding: 15px; display: flex; flex-direction: column; gap: 6px; }
+  .piece .ico { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; }
+  .piece h3 { margin: 4px 0 0; font-size: 14.5px; }
+  .piece p { margin: 0; font-size: 12.5px; color: var(--muted); }
+  .piece .where { font-size: 11px; color: var(--muted); margin-top: auto; padding-top: 4px; }
+  .piece .where b { color: var(--ink); font-weight: 600; }
+
+  /* Two-path comparison — the thesis */
+  .paths { display: grid; gap: 16px; grid-template-columns: 1fr; } @media (min-width: 840px){ .paths { grid-template-columns: 1fr 1fr; } }
+  .path { padding: 20px; position: relative; overflow: hidden; }
+  .path.pa { border-top: 3px solid var(--emerald); }
+  .path.pb { border-top: 3px solid var(--sky); }
+  .path .ph { display: flex; align-items: center; gap: 10px; }
+  .path .pn { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .path h3 { margin: 4px 0 0; font-size: 18px; letter-spacing: -.01em; }
+  .path dl { margin: 16px 0 0; display: grid; gap: 12px; }
+  .path dt { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 700; }
+  .path dd { margin: 3px 0 0; font-size: 13.5px; }
+  .unify { margin-top: 16px; display: flex; gap: 12px; align-items: flex-start; background: var(--panel-2); border: 1px solid var(--line); border-radius: 14px; padding: 15px 17px; }
+  .unify .k { font-size: 22px; line-height: 1; }
+  .unify p { margin: 0; font-size: 13.5px; }
+  .unify b { color: var(--primary); }
+
+  /* Install steps — a real sequence */
+  .steps { display: grid; gap: 12px; counter-reset: step; }
+  .step { display: grid; grid-template-columns: auto 1fr; gap: 15px; align-items: start; padding: 16px 18px; }
+  .step .num { counter-increment: step; width: 30px; height: 30px; border-radius: 9px; background: var(--primary); color: var(--primary-ink); font-weight: 800; font-size: 14px; display: grid; place-items: center; }
+  .step .num::before { content: counter(step); }
+  .step h3 { margin: 3px 0 0; font-size: 15px; }
+  .step p { margin: 5px 0 0; font-size: 13px; color: var(--muted); }
+  pre { margin: 10px 0 0; background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; overflow-x: auto; font-family: var(--mono); font-size: 12.5px; line-height: 1.6; color: var(--ink); }
+  pre .cm { color: var(--muted); }
+  pre .fl { color: var(--primary); font-weight: 600; }
+
+  .callout { display: flex; gap: 12px; align-items: flex-start; border: 1px solid var(--line); border-left: 3px solid var(--amber); background: var(--amber-bg); border-radius: 12px; padding: 14px 16px; margin-top: 16px; }
+  .callout .k { font-size: 18px; line-height: 1.2; }
+  .callout p { margin: 0; font-size: 13px; }
+
+  /* Integrate compact */
+  .quick { display: grid; gap: 10px; }
+  .quick .q { display: grid; grid-template-columns: auto 1fr; gap: 13px; align-items: baseline; }
+  .quick .q .b { width: 22px; height: 22px; border-radius: 7px; background: var(--sky-bg); color: var(--sky); font-weight: 800; font-size: 12px; display: grid; place-items: center; }
+  .quick .q p { margin: 0; font-size: 13.5px; }
+  .quick .q b { font-weight: 700; }
+
+  /* Money loop (from the system palette) */
+  .loop { display: flex; flex-wrap: wrap; gap: 8px; }
+  .loop .st { flex: 1 1 130px; min-width: 130px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+  .loop .st .n { font-size: 10px; font-weight: 800; color: var(--primary); }
+  .loop .st .t { font-size: 13px; font-weight: 700; margin-top: 2px; }
+  .loop .st .d { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .jv { margin-top: 14px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .jv .scr { overflow-x: auto; }
+  .jv table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: var(--mono); min-width: 360px; }
+  .jv th { text-align: left; background: var(--panel-2); color: var(--muted); font-size: 11px; font-weight: 600; padding: 8px 14px; font-family: var(--sans); }
+  .jv th.num, .jv td.num { text-align: right; }
+  .jv td { padding: 6px 14px; border-top: 1px solid var(--line); }
+  .jv tr.total td { font-weight: 800; border-top: 2px solid var(--line); }
+  .jv tr.total td:first-child { color: var(--emerald); }
+
+  /* Config + ops lists */
+  .checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+  .checklist li { display: grid; grid-template-columns: auto 1fr; gap: 11px; align-items: baseline; font-size: 13.5px; }
+  .checklist li .tick { color: var(--emerald); font-weight: 800; }
+  .checklist li b { font-weight: 700; }
+  .checklist li .m { color: var(--muted); }
+
+  .ops { padding: 16px; }
+  .ops h3 { margin: 0 0 3px; font-size: 14.5px; display: flex; align-items: center; gap: 8px; }
+  .ops p { margin: 0; font-size: 12.5px; color: var(--muted); }
+  .ops code { font-size: 11.5px; }
+
+  .golive { padding: 18px 20px; }
+  .golive .row { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: baseline; padding: 9px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .golive .row:first-child { border-top: 0; }
+  .golive .box { width: 16px; height: 16px; border: 2px solid var(--primary); border-radius: 5px; flex-shrink: 0; }
+
+  .foot { margin-top: 52px; border-top: 1px solid var(--line); padding-top: 20px; display: flex; flex-wrap: wrap; gap: 14px 26px; justify-content: space-between; align-items: center; }
+  .foot .links { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; }
+  .foot .note { font-size: 12px; color: var(--muted); max-width: 44ch; }
+  svg.i { width: 1em; height: 1em; }
+  @media (prefers-reduced-motion: reduce){ * { animation: none !important; transition: none !important; } }
+  :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 4px; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="logo"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-3 5v6c0 1.1.9 2 2 2h1Zm0 0v7"/></svg></div>
+      <div>
+        <div class="eyebrow kick">MetaXperts RMS · Deployment &amp; operator's guide</div>
+        <h1>Putting the restaurant live</h1>
+        <p>What it takes to run the RMS on a real server — the two ways to adopt it, what a deployment includes, and what it takes to keep it running. Written for the person making the call, not just the one at the keyboard.</p>
+      </div>
+    </div>
+    <button class="themebtn" id="themeBtn" aria-label="Toggle light and dark theme">🌙 Theme</button>
+  </header>
+
+  <div class="band">
+    <div class="stat"><div class="v">One server</div><div class="l">≈ 4 vCPU · 8 GB RAM to start</div></div>
+    <div class="stat"><div class="v tnum">~6 commands</div><div class="l">from bare box to live API</div></div>
+    <div class="stat"><div class="v">Same image</div><div class="l">standalone or inside your ERP</div></div>
+    <div class="stat"><div class="v">Books post <span style="color:var(--emerald)">themselves</span></div><div class="l">every settled bill → ledger</div></div>
+  </div>
+
+  <!-- ── WHAT'S INCLUDED ─────────────────────────────────── -->
+  <h2>What a deployment includes</h2>
+  <div class="sub">The RMS isn't one app — it's a shared backend with several front-ends. One command in Docker brings up the server side; the mobile apps are built once and handed to staff.</div>
+  <div class="grid cols-5">
+    <div class="card piece">
+      <div class="ico c-emerald"><svg class="i" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5M3 12a9 3 0 0 0 18 0"/></svg></div>
+      <h3>Backend (API)</h3>
+      <p>The brain — menu, orders, kitchen, payments, inventory, accounting, delivery.</p>
+      <div class="where"><b>Runs in Docker</b></div>
+    </div>
+    <div class="card piece">
+      <div class="ico c-sky"><svg class="i" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg></div>
+      <h3>Web console</h3>
+      <p>The manager's browser cockpit — POS, floor designer, kitchen board, reports.</p>
+      <div class="where"><b>Runs in Docker</b></div>
+    </div>
+    <div class="card piece">
+      <div class="ico c-amber"><svg class="i" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+      <h3>4 mobile apps</h3>
+      <p>Waiter, Manager, Driver, Customer — built once, installed on phones.</p>
+      <div class="where"><b>Built with Flutter</b></div>
+    </div>
+    <div class="card piece">
+      <div class="ico c-violet"><svg class="i" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4c0 1.5 1 2 1 4a5 5 0 0 1-10 0c0-2 1-2.5 1-4a4 4 0 0 1 4-4Z"/><path d="M9 18h6M10 22h4"/></svg></div>
+      <h3>AI service</h3>
+      <p>Optional — demand forecast, prep-time ETA, upsell suggestions.</p>
+      <div class="where"><b>Runs in Docker</b></div>
+    </div>
+    <div class="card piece">
+      <div class="ico c-rose"><svg class="i" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/><path d="M7 7h.01M7 17h.01"/></svg></div>
+      <h3>Data &amp; plumbing</h3>
+      <p>Postgres database, message broker, cache, file storage, monitoring.</p>
+      <div class="where"><b>Runs in Docker</b></div>
+    </div>
+  </div>
+
+  <!-- ── THE TWO PATHS — thesis ──────────────────────────── -->
+  <h2>Two ways to adopt it</h2>
+  <div class="sub">This is the one decision to make up front. The good news: both run the <em>same software</em>. The difference is only which modules are switched on for your company.</div>
+  <div class="paths">
+    <div class="card path pa">
+      <div class="ph"><span class="chip c-emerald">Path A</span><span class="pn">no ERP yet</span></div>
+      <h3>Standalone RMS</h3>
+      <dl>
+        <div><dt>Your situation</dt><dd>You just want a restaurant system. You don't run the MetaXperts ERP for anything else.</dd></div>
+        <div><dt>What you do</dt><dd>Install fresh, then create a company with <b>only Restaurant</b> (plus Inventory, Finance &amp; CRM) switched on.</dd></div>
+        <div><dt>Effort</dt><dd>A full install — roughly six commands, once.</dd></div>
+        <div><dt>Result</dt><dd>A server that behaves like a dedicated restaurant product. Every unrelated screen is simply hidden for that company.</dd></div>
+      </dl>
+    </div>
+    <div class="card path pb">
+      <div class="ph"><span class="chip c-sky">Path B</span><span class="pn">ERP already running</span></div>
+      <h3>Add to an existing ERP</h3>
+      <dl>
+        <div><dt>Your situation</dt><dd>You already run the MetaXperts ERP for accounting, inventory, sales — and want to add the restaurant.</dd></div>
+        <div><dt>What you do</dt><dd>Keep your deployment, update to a build that has the restaurant module, then <b>switch the Restaurant feature on</b> for your company.</dd></div>
+        <div><dt>Effort</dt><dd>An upgrade plus a feature toggle. No new server.</dd></div>
+        <div><dt>Result</dt><dd>A Restaurant section appears beside your existing modules and shares your customers, inventory &amp; books.</dd></div>
+      </dl>
+    </div>
+  </div>
+  <div class="unify">
+    <span class="k">🔀</span>
+    <p><b>Standalone and integrated are the same build.</b> Which modules a company sees is a setting in the database, not a different download. A company with only Restaurant on <em>is</em> a standalone RMS; the same company with HR, Purchasing and Sales added <em>is</em> an integrated one. You can start standalone and light up more later — no redeploy, no migration.</p>
+  </div>
+
+  <!-- ── INSTALL SEQUENCE ────────────────────────────────── -->
+  <h2>What a standalone install looks like</h2>
+  <div class="sub">Done once, on the server, inside the MetaXperts ERP repository. This is the whole thing — annotated so you can see there's no hidden complexity.</div>
+  <div class="steps">
+    <div class="card step">
+      <div class="num"></div>
+      <div>
+        <h3>Get the code &amp; set your secrets</h3>
+        <p>Clone the ERP repo and replace the three placeholder security keys with your own random values. This is the one step you must not skip before real customers.</p>
+        <pre><span class="cm"># three secrets that protect logins and internal calls</span>
+JWT_ACCESS_SECRET=<span class="fl">$(openssl rand -hex 32)</span>
+JWT_REFRESH_SECRET=<span class="fl">$(openssl rand -hex 32)</span>
+SERVICE_AUTH_SECRET=<span class="fl">$(openssl rand -hex 32)</span></pre>
+      </div>
+    </div>
+    <div class="card step">
+      <div class="num"></div>
+      <div>
+        <h3>Start the whole stack</h3>
+        <p>One command brings up the database, broker, cache, storage, the API, the web console, the AI service and monitoring. The accounting workers are already on in this mode.</p>
+        <pre>docker compose -f infra/docker-compose.prod.yml up -d --build</pre>
+      </div>
+    </div>
+    <div class="card step">
+      <div class="num"></div>
+      <div>
+        <h3>Create the database tables</h3>
+        <p>The stack is up but empty. This builds the schema — safe and idempotent, it only creates what's missing.</p>
+        <pre>bash infra/scripts/migrate-prod.sh
+<span class="cm"># confirm it's healthy:</span>
+curl -s http://127.0.0.1:3300/health/ready   <span class="cm"># → ok</span></pre>
+      </div>
+    </div>
+    <div class="card step">
+      <div class="num"></div>
+      <div>
+        <h3>Create your restaurant company</h3>
+        <p>Provision a company and switch on the restaurant feature bundle. That last loop is what makes it a standalone RMS — everything else stays hidden.</p>
+        <pre><span class="cm"># enable Restaurant and the modules it needs</span>
+for f in inventory finance crm restaurant; do
+  PATCH /tenants/&lt;id&gt;/features/$f  <span class="fl">{ "enabled": true }</span>
+done</pre>
+      </div>
+    </div>
+    <div class="card step">
+      <div class="num"></div>
+      <div>
+        <h3>Put it behind HTTPS</h3>
+        <p>Point your domain at the server; the included Nginx config serves the console and proxies the API. Now staff open <code>https://rms.yourdomain.com</code> and the apps point at <code>…/api</code>.</p>
+      </div>
+    </div>
+    <div class="card step">
+      <div class="num"></div>
+      <div>
+        <h3>Load your menu &amp; go</h3>
+        <p>Set up your accounts, ingredients, menu, floor and recipes (next section), then open for service.</p>
+      </div>
+    </div>
+  </div>
+  <div class="callout">
+    <span class="k">💡</span>
+    <p>Want to see it working before doing it for real? A one-command demo seed builds a fully-worked example restaurant (“Karahi Point”) — log in, click through the console and apps, then create your real company the same way.</p>
+  </div>
+
+  <h2>Adding it to an ERP you already run</h2>
+  <div class="sub">No new server, no data migration of your existing modules — three steps.</div>
+  <div class="card" style="padding:18px 20px">
+    <div class="quick">
+      <div class="q"><span class="b">1</span><p><b>Update your build</b> to a version that includes the restaurant module, and roll it out the way you normally deploy.</p></div>
+      <div class="q"><span class="b">2</span><p><b>Run the new migrations.</b> They only add restaurant tables and links to your existing inventory &amp; customers — nothing existing is altered.</p></div>
+      <div class="q"><span class="b">3</span><p><b>Switch the Restaurant feature on</b> for your company. Within a minute the Restaurant section appears, reusing your customers, inventory and chart of accounts.</p></div>
+    </div>
+  </div>
+
+  <!-- ── MONEY LOOP proof ────────────────────────────────── -->
+  <h2>Why the accounting takes care of itself</h2>
+  <div class="sub">The reason this is more than a POS: settling a bill runs a chain that ends in a balanced ledger entry — no accountant in the loop. Proven live on a real ledger.</div>
+  <div class="card" style="padding:16px">
+    <div class="loop">
+      <div class="st"><div class="n">01</div><div class="t">Take order</div><div class="d">priced to the paisa</div></div>
+      <div class="st"><div class="n">02</div><div class="t">Fire to kitchen</div><div class="d">tickets routed by station</div></div>
+      <div class="st"><div class="n">03</div><div class="t">Settle</div><div class="d">tender + tax + rounding</div></div>
+      <div class="st"><div class="n">04</div><div class="t">Deduct stock</div><div class="d">recipe → valued inventory</div></div>
+      <div class="st"><div class="n">05</div><div class="t">Capture cost</div><div class="d">weighted-avg food cost</div></div>
+      <div class="st"><div class="n">06</div><div class="t">Post to ledger</div><div class="d">balanced journal, automatic</div></div>
+    </div>
+    <div class="jv">
+      <div class="scr">
+      <table>
+        <thead><tr><th>A cash bill — what lands in the books</th><th class="num">Debit</th><th class="num">Credit</th></tr></thead>
+        <tbody>
+          <tr><td>Cash in Hand</td><td class="num">1,810.00</td><td class="num">—</td></tr>
+          <tr><td>Restaurant Sales</td><td class="num">—</td><td class="num">1,560.00</td></tr>
+          <tr><td>Sales Tax Payable (16%)</td><td class="num">—</td><td class="num">249.60</td></tr>
+          <tr><td>Rounding</td><td class="num">—</td><td class="num">0.40</td></tr>
+          <tr><td>Cost of Goods Sold</td><td class="num">346.00</td><td class="num">—</td></tr>
+          <tr><td>Inventory</td><td class="num">—</td><td class="num">346.00</td></tr>
+          <tr class="total"><td>Balanced ✓</td><td class="num">2,156.00</td><td class="num">2,156.00</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FIRST RUN CONFIG ────────────────────────────────── -->
+  <h2>Before you open — first-run setup</h2>
+  <div class="sub">A new restaurant needs a handful of things configured so bills settle and cost correctly. Most is point-and-click in the web console.</div>
+  <div class="grid cols-2">
+    <div class="card" style="padding:18px 20px">
+      <div class="eyebrow" style="color:var(--muted)">One-time links</div>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="tick">✓</span><span><b>Accounting accounts</b> — Cash, Inventory, Sales, Sales Tax, Cost of Goods Sold — then map them to the restaurant. <span class="m">So bills reach the ledger.</span></span></li>
+        <li><span class="tick">✓</span><span><b>Kitchen store &amp; ingredients</b> — stocked in whole units (grams / ml / pieces). <span class="m">The costing engine works in base units.</span></span></li>
+        <li><span class="tick">✓</span><span><b>Tax rate</b> — e.g. 16% for PRA. <span class="m">Applied on every bill.</span></span></li>
+      </ul>
+    </div>
+    <div class="card" style="padding:18px 20px">
+      <div class="eyebrow" style="color:var(--muted)">In the web console</div>
+      <ul class="checklist" style="margin-top:12px">
+        <li><span class="tick">✓</span><span><b>Menu</b> — categories, items, prices, photos, kitchen station, modifiers.</span></li>
+        <li><span class="tick">✓</span><span><b>Floor</b> — draw areas and drag your tables into place.</span></li>
+        <li><span class="tick">✓</span><span><b>Recipes</b> — ingredients per dish. <span class="m">This turns each sale into a real food cost and stock deduction.</span></span></li>
+        <li><span class="tick">✓</span><span><b>Staff accounts</b> — one per person; don't share the owner login.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── RUNNING IT ──────────────────────────────────────── -->
+  <h2>Running it in production</h2>
+  <div class="sub">What it takes to keep it healthy once it's live.</div>
+  <div class="grid cols-3">
+    <div class="card ops"><h3><span class="chip c-emerald">Health</span></h3><p>Point your uptime monitor at <code>/health/ready</code> — green only when the database and cache are reachable, and it steps aside cleanly on restart.</p></div>
+    <div class="card ops"><h3><span class="chip c-sky">Monitoring</span></h3><p>Grafana ships in the stack with live metrics — order and settlement rates, error rates. Change its default password.</p></div>
+    <div class="card ops"><h3><span class="chip c-rose">Backups</span></h3><p>Your whole business is in Postgres. Scheduled backup &amp; restore scripts are included — test a restore before you rely on it.</p></div>
+    <div class="card ops"><h3><span class="chip c-amber">Updates</span></h3><p><code>git pull</code> → rebuild → migrate. Rolling restarts don't drop in-flight orders — the outbox design guarantees it.</p></div>
+    <div class="card ops"><h3><span class="chip c-violet">Multi-branch</span></h3><p>One server can host many companies or branches, each with isolated data and its own switched-on modules.</p></div>
+    <div class="card ops"><h3><span class="chip c-primary">Security</span></h3><p>Rotate the three secrets, serve over HTTPS, restrict the platform super-admin, and give each staff member their own login.</p></div>
+  </div>
+
+  <!-- ── GO LIVE ─────────────────────────────────────────── -->
+  <h2>Go-live checklist</h2>
+  <div class="sub">The short version of everything above — walk it top to bottom and you're open for service.</div>
+  <div class="card golive" id="golive"></div>
+
+  <!-- ── FOOTER ──────────────────────────────────────────── -->
+  <div class="foot">
+    <div class="links">
+      <a href="DEPLOYMENT.md">Full deployment guide (Markdown)</a>
+      <a href="GUIDE.md">Developer setup</a>
+      <a href="overview.html">System overview</a>
+    </div>
+    <div class="note">MetaXperts RMS · a restaurant vertical of the MetaXperts ERP. Multi-tenant · Postgres + row-level security · automatic double-entry accounting. Standalone or integrated — the same software, a switch apart.</div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const GOLIVE = [
+  "Server provisioned, Docker installed, domain pointed at it",
+  "Code cloned and the three security secrets changed",
+  "Stack up (docker compose … prod), all containers healthy",
+  "Database tables created, /health/ready returns ok",
+  "HTTPS configured, allowed web address set",
+  "Super-admin secured, demo reviewed, real company created",
+  "Restaurant + Inventory + Finance + CRM switched on",
+  "Accounts mapped, default store set, ingredients stocked in base units",
+  "Menu, floor and recipes entered in the console",
+  "Staff accounts created, the four apps built and pointed at the API",
+  "Backups scheduled and a restore tested, Grafana password changed",
+  "A full test order run end to end — order → kitchen → settle → ledger entry appears",
+];
+const gl = document.getElementById('golive');
+for (const t of GOLIVE) {
+  const row = document.createElement('div');
+  row.className = 'row';
+  row.innerHTML = '<span class="box"></span><span>' + t + '</span>';
+  gl.appendChild(row);
+}
+const btn = document.getElementById('themeBtn');
+btn.onclick = () => {
+  const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.dataset.theme = cur === 'dark' ? 'light' : 'dark';
+};
+</script>
