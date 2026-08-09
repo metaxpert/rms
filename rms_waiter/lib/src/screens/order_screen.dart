@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../api.dart';
 import '../models.dart';
 import '../theme.dart';
+import 'receipt_sheet.dart';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key, required this.orderId, this.tableCode});
@@ -75,6 +76,63 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
         ok: '${m.name} added',
       );
 
+  /// Scan-to-add. A restaurant's scanner is a keyboard wedge, so this is a plain text field that
+  /// submits on Enter — it works with hardware scanners, and stays usable by typing when one dies.
+  Future<void> _scanAdd(String code) async {
+    final trimmed = code.trim();
+    if (trimmed.isEmpty) return;
+    await _run(
+      () => Api.instance.post('/restaurant/orders/${widget.orderId}/scan-add', {'code': trimmed, 'qty': 1}),
+      ok: 'Scanned in',
+    );
+  }
+
+  Future<void> _openScanner() async {
+    final controller = TextEditingController();
+    final code = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(sheetContext).viewInsets.bottom),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text('Scan a barcode', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                const Text('Point the scanner at the product, or type the code.',
+                    style: TextStyle(fontSize: 12, color: Colors.black54)),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: controller,
+                  autofocus: true,
+                  textInputAction: TextInputAction.done,
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.qr_code_scanner),
+                    hintText: '8964000112233',
+                    border: OutlineInputBorder(),
+                  ),
+                  onSubmitted: (v) => Navigator.pop(sheetContext, v),
+                ),
+                const SizedBox(height: 12),
+                FilledButton(
+                  style: FilledButton.styleFrom(backgroundColor: AppTheme.primary),
+                  onPressed: () => Navigator.pop(sheetContext, controller.text),
+                  child: const Text('Add to ticket'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    controller.dispose();
+    if (code != null) await _scanAdd(code);
+  }
+
   Future<void> _removeLine(OrderLine l) =>
       _run(() => Api.instance.del('/restaurant/orders/${widget.orderId}/items/${l.id}'), ok: 'Removed');
 
@@ -123,7 +181,21 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
-        actions: [if (order != null) Padding(padding: const EdgeInsets.only(right: 12), child: Center(child: StatusChip(order.status)))],
+        actions: [
+          if (order != null && order.isDraft)
+            IconButton(
+              tooltip: 'Scan a barcode',
+              icon: const Icon(Icons.qr_code_scanner),
+              onPressed: _busy ? null : _openScanner,
+            ),
+          if (order != null)
+            IconButton(
+              tooltip: 'Bill',
+              icon: const Icon(Icons.receipt_long_outlined),
+              onPressed: () => ReceiptSheet.show(context, orderId: widget.orderId, orderNo: order.orderNo, settled: order.isSettled),
+            ),
+          if (order != null) Padding(padding: const EdgeInsets.only(right: 12), child: Center(child: StatusChip(order.status))),
+        ],
         bottom: TabBar(
           controller: _tabs,
           labelColor: AppTheme.primary,
@@ -296,8 +368,16 @@ class _OrderScreenState extends State<OrderScreen> with SingleTickerProviderStat
                 Expanded(child: FilledButton(onPressed: _busy ? null : _confirm, child: const Text('Send to kitchen'))),
               if (order.canSettle)
                 Expanded(child: FilledButton(onPressed: _busy ? null : _settle, child: const Text('Settle bill'))),
-              if (order.isSettled)
+              if (order.isSettled) ...[
                 const Expanded(child: Center(child: Text('Paid ✓', style: TextStyle(color: Color(0xFF1B7A4B), fontWeight: FontWeight.w700)))),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => ReceiptSheet.show(context, orderId: widget.orderId, orderNo: order.orderNo, settled: true),
+                    icon: const Icon(Icons.print_outlined, size: 18),
+                    label: const Text('Print bill'),
+                  ),
+                ),
+              ],
             ],
           ),
         ],
