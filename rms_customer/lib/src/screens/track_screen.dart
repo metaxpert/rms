@@ -37,7 +37,7 @@ class _TrackScreenState extends State<TrackScreen> {
       final o = await Api.instance.get('/restaurant/orders/${widget.orderId}') as Map<String, dynamic>;
       Map<String, dynamic>? d;
       if (o['channel'] == 'DELIVERY') {
-        final all = await Api.instance.get('/restaurant/deliveries') as List;
+        final all = await Api.instance.get(Api.instance.branchScoped('/restaurant/deliveries')) as List;
         for (final e in all) {
           if ((e as Map<String, dynamic>)['orderId'] == widget.orderId) { d = e; break; }
         }

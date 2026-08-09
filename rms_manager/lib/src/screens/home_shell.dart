@@ -19,12 +19,39 @@ class _HomeShellState extends State<HomeShell> {
   Snapshot? _snap;
   Object? _error;
   Timer? _timer;
+  List<BranchModel> _branches = [];
 
   @override
   void initState() {
     super.initState();
     _load();
+    _loadBranches();
     _timer = Timer.periodic(_period, (_) => _load(silent: true));
+  }
+
+  Future<void> _loadBranches() async {
+    try {
+      final r = await Api.instance.get('/restaurant/branches');
+      final list = (r as List).cast<Map<String, dynamic>>().map(BranchModel.from).toList();
+      if (mounted) setState(() => _branches = list);
+    } catch (_) {
+      // Non-fatal — the selector simply offers only "All branches".
+    }
+  }
+
+  Future<void> _selectBranch(String? id) async {
+    await Api.instance.setBranch(id);
+    if (mounted) setState(() => _snap = null);
+    await _load();
+  }
+
+  String get _currentBranchName {
+    final id = Api.instance.branchId;
+    if (id == null) return 'All branches';
+    for (final b in _branches) {
+      if (b.id == id) return b.name;
+    }
+    return 'All branches';
   }
 
   @override
@@ -36,11 +63,11 @@ class _HomeShellState extends State<HomeShell> {
   Future<void> _load({bool silent = false}) async {
     try {
       final r = await Future.wait([
-        Api.instance.get('/restaurant/orders'),
-        Api.instance.get('/restaurant/kds/board'),
-        Api.instance.get('/restaurant/tables'),
-        Api.instance.get('/restaurant/deliveries'),
-        Api.instance.get('/restaurant/reservations'),
+        Api.instance.get(Api.instance.branchScoped('/restaurant/orders')),
+        Api.instance.get(Api.instance.branchScoped('/restaurant/kds/board')),
+        Api.instance.get(Api.instance.branchScoped('/restaurant/tables')),
+        Api.instance.get(Api.instance.branchScoped('/restaurant/deliveries')),
+        Api.instance.get(Api.instance.branchScoped('/restaurant/reservations')),
       ]);
       List<Map<String, dynamic>> maps(dynamic x) => (x as List).cast<Map<String, dynamic>>();
       final snap = Snapshot(
@@ -68,8 +95,36 @@ class _HomeShellState extends State<HomeShell> {
     const titles = ['Dashboard', 'Kitchen', 'Sales'];
     return Scaffold(
       appBar: AppBar(
-        title: Row(children: [Text(titles[_tab]), const SizedBox(width: 10), const LiveDot()]),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Row(children: [Text(titles[_tab]), const SizedBox(width: 10), const LiveDot()]),
+            Text(_currentBranchName, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400)),
+          ],
+        ),
         actions: [
+          PopupMenuButton<String?>(
+            tooltip: 'Select outlet',
+            icon: const Icon(Icons.store_mall_directory_outlined),
+            onSelected: (id) => _selectBranch(id == '' ? null : id),
+            itemBuilder: (_) {
+              final current = Api.instance.branchId;
+              return [
+                CheckedPopupMenuItem<String?>(
+                  value: '',
+                  checked: current == null,
+                  child: const Text('All branches'),
+                ),
+                for (final b in _branches)
+                  CheckedPopupMenuItem<String?>(
+                    value: b.id,
+                    checked: current == b.id,
+                    child: Text(b.name),
+                  ),
+              ];
+            },
+          ),
           IconButton(onPressed: () => _load(), icon: const Icon(Icons.refresh)),
           IconButton(
             onPressed: () async {

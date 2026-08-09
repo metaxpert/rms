@@ -41,7 +41,7 @@ class _CartScreenState extends State<CartScreen> {
     final nav = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
     try {
-      final created = await Api.instance.post('/restaurant/orders', {'channel': _channel, 'guestCount': 1});
+      final created = await Api.instance.post('/restaurant/orders', {'channel': _channel, 'guestCount': 1, 'branchId': Api.instance.branchId});
       final orderId = (created as Map<String, dynamic>)['id'] as String;
       final items = cart.lines.entries.map((e) => {'itemId': e.key.id, 'qty': e.value}).toList();
       await Api.instance.post('/restaurant/orders/$orderId/items', {'items': items});

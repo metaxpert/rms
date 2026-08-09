@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../api.dart';
 import '../theme.dart';
-import 'menu_screen.dart';
+import 'branch_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await Api.instance.setBase(_base.text);
       await Api.instance.login(_email.text.trim(), _password.text);
-      nav.pushReplacement(MaterialPageRoute(builder: (_) => const MenuScreen()));
+      nav.pushReplacement(MaterialPageRoute(builder: (_) => const BranchScreen()));
     } on ApiException catch (e) {
       setState(() => _error = e.message);
     } catch (_) {

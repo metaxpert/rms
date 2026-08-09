@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../api.dart';
 import '../models.dart';
 import '../theme.dart';
+import 'branch_screen.dart';
 import 'cart_screen.dart';
 
 class MenuScreen extends StatefulWidget {
@@ -32,7 +33,7 @@ class _MenuScreenState extends State<MenuScreen> {
 
   Future<void> _load() async {
     try {
-      final data = await Api.instance.get('/restaurant/items') as List;
+      final data = await Api.instance.get(Api.instance.branchScoped('/restaurant/items')) as List;
       final list = data.map((e) => MenuItem.from(e as Map<String, dynamic>)).where((m) => m.available).toList();
       if (mounted) setState(() { _items = list; _error = null; });
     } catch (e) {
@@ -49,7 +50,14 @@ class _MenuScreenState extends State<MenuScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Karahi Point'),
-        actions: [IconButton(onPressed: _load, icon: const Icon(Icons.refresh))],
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BranchScreen())),
+            icon: const Icon(Icons.storefront),
+            tooltip: 'Change restaurant',
+          ),
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
+        ],
       ),
       body: items == null
           ? (_error != null ? Center(child: Text('$_error', style: const TextStyle(color: Colors.black54))) : const Center(child: CircularProgressIndicator()))

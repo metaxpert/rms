@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'src/api.dart';
 import 'src/theme.dart';
 import 'src/screens/login_screen.dart';
+import 'src/screens/branch_screen.dart';
 import 'src/screens/tables_screen.dart';
 
 Future<void> main() async {
@@ -19,7 +20,11 @@ class WaiterApp extends StatelessWidget {
       title: 'RMS Waiter',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
-      home: Api.instance.isAuthed ? const TablesScreen() : const LoginScreen(),
+      home: !Api.instance.isAuthed
+          ? const LoginScreen()
+          : Api.instance.branchId == null
+              ? const BranchScreen()
+              : const TablesScreen(),
     );
   }
 }

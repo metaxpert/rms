@@ -18,6 +18,24 @@ class Money {
   }
 }
 
+/// A branch/outlet of the restaurant tenant (from GET /restaurant/branches).
+class BranchModel {
+  BranchModel(this.id, this.name, this.code, this.isHeadOffice, this.configured);
+  final String id;
+  final String name;
+  final String? code;
+  final bool isHeadOffice;
+  final bool configured;
+
+  factory BranchModel.from(Map<String, dynamic> j) => BranchModel(
+        j['id'] as String,
+        j['name'] as String,
+        j['code'] as String?,
+        j['isHeadOffice'] == true,
+        j['configured'] == true,
+      );
+}
+
 class TableModel {
   TableModel(this.id, this.code, this.area, this.capacity, this.status);
   final String id;

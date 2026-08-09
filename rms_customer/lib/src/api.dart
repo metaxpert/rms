@@ -22,14 +22,19 @@ class Api {
 
   String _base = _defaultBase;
   String? _token;
+  String? _branchId;
 
   String get baseUrl => _base;
   bool get isAuthed => _token != null;
+
+  /// The active branch (outlet) this session operates on; null until the customer picks one.
+  String? get branchId => _branchId;
 
   Future<void> load() async {
     final p = await SharedPreferences.getInstance();
     _base = p.getString('api_base') ?? _defaultBase;
     _token = p.getString('token');
+    _branchId = p.getString('branch_id');
   }
 
   Future<void> _save() async {
@@ -40,6 +45,11 @@ class Api {
     } else {
       await p.remove('token');
     }
+    if (_branchId != null) {
+      await p.setString('branch_id', _branchId!);
+    } else {
+      await p.remove('branch_id');
+    }
   }
 
   Future<void> setBase(String base) async {
@@ -47,8 +57,19 @@ class Api {
     await _save();
   }
 
+  /// Pick the branch this session works in; persisted so the app reopens on the same outlet.
+  Future<void> setBranch(String? id) async {
+    _branchId = id;
+    await _save();
+  }
+
+  /// Append the active branch to a path for branch-scoped reads (`/x` → `/x?branchId=…`).
+  String branchScoped(String path) =>
+      _branchId == null ? path : '$path${path.contains('?') ? '&' : '?'}branchId=$_branchId';
+
   Future<void> logout() async {
     _token = null;
+    _branchId = null;
     await _save();
   }
 
@@ -68,6 +89,7 @@ class Api {
     }
     final data = (jsonDecode(res.body)['data'] as Map<String, dynamic>);
     _token = data['accessToken'] as String;
+    _branchId = null; // a fresh login re-picks the branch (may be a different tenant)
     await _save();
   }
 

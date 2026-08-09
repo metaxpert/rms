@@ -14,6 +14,24 @@ class Money {
   String get formatted => fmt(amountMinor, currency);
 }
 
+/// A branch/outlet of the restaurant tenant (from GET /restaurant/branches).
+class BranchModel {
+  BranchModel(this.id, this.name, this.code, this.isHeadOffice, this.configured);
+  final String id;
+  final String name;
+  final String? code;
+  final bool isHeadOffice;
+  final bool configured;
+
+  factory BranchModel.from(Map<String, dynamic> j) => BranchModel(
+        j['id'] as String,
+        j['name'] as String,
+        j['code'] as String?,
+        j['isHeadOffice'] == true,
+        j['configured'] == true,
+      );
+}
+
 class OrderRow {
   OrderRow(this.id, this.orderNo, this.channel, this.status, this.table, this.itemCount, this.total);
   final String id;

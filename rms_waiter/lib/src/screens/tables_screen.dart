@@ -3,6 +3,7 @@ import '../api.dart';
 import '../models.dart';
 import '../theme.dart';
 import 'login_screen.dart';
+import 'branch_screen.dart';
 import 'order_screen.dart';
 
 class TablesScreen extends StatefulWidget {
@@ -21,7 +22,7 @@ class _TablesScreenState extends State<TablesScreen> {
   }
 
   Future<List<TableModel>> _load() async {
-    final data = await Api.instance.get('/restaurant/tables') as List;
+    final data = await Api.instance.get(Api.instance.branchScoped('/restaurant/tables')) as List;
     return data.map((e) => TableModel.from(e as Map<String, dynamic>)).toList();
   }
 
@@ -33,7 +34,7 @@ class _TablesScreenState extends State<TablesScreen> {
     showDialog(context: context, barrierDismissible: false, builder: (_) => const Center(child: CircularProgressIndicator()));
     try {
       // Reuse an open order on this table if one exists, otherwise start a fresh one.
-      final orders = await Api.instance.get('/restaurant/orders?tableId=${t.id}') as List;
+      final orders = await Api.instance.get(Api.instance.branchScoped('/restaurant/orders?tableId=${t.id}')) as List;
       final open = orders.cast<Map<String, dynamic>>().where(
             (o) => !const ['CLOSED', 'VOID', 'SETTLED'].contains(o['status']),
           );
@@ -41,7 +42,7 @@ class _TablesScreenState extends State<TablesScreen> {
       if (open.isNotEmpty) {
         orderId = open.first['id'] as String;
       } else {
-        final created = await Api.instance.post('/restaurant/orders', {'channel': 'DINE_IN', 'tableId': t.id, 'guestCount': t.capacity});
+        final created = await Api.instance.post('/restaurant/orders', {'channel': 'DINE_IN', 'tableId': t.id, 'guestCount': t.capacity, 'branchId': Api.instance.branchId});
         orderId = (created as Map<String, dynamic>)['id'] as String;
       }
       nav.pop(); // close spinner
@@ -59,6 +60,11 @@ class _TablesScreenState extends State<TablesScreen> {
       appBar: AppBar(
         title: const Text('Floor'),
         actions: [
+          IconButton(
+            tooltip: 'Switch outlet',
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const BranchScreen())),
+            icon: const Icon(Icons.storefront),
+          ),
           IconButton(onPressed: _refresh, icon: const Icon(Icons.refresh)),
           IconButton(
             onPressed: () async {

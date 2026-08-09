@@ -17,11 +17,13 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
   Object? _error;
   Timer? _timer;
   bool _showDone = false;
+  List<BranchModel> _branches = [];
 
   @override
   void initState() {
     super.initState();
     _load();
+    _loadBranches();
     _timer = Timer.periodic(const Duration(seconds: 10), (_) => _load(silent: true));
   }
 
@@ -31,9 +33,34 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
     super.dispose();
   }
 
+  Future<void> _loadBranches() async {
+    try {
+      final data = await Api.instance.get('/restaurant/branches') as List;
+      final list = data.map((e) => BranchModel.from(e as Map<String, dynamic>)).toList();
+      if (mounted) setState(() => _branches = list);
+    } catch (_) {
+      // Branch list is best-effort; the "All branches" default still works.
+    }
+  }
+
+  Future<void> _onBranchSelected(String? id) async {
+    await Api.instance.setBranch(id);
+    if (mounted) setState(() => _all = null);
+    await _load();
+  }
+
+  String get _currentBranchName {
+    final id = Api.instance.branchId;
+    if (id == null) return 'All branches';
+    for (final b in _branches) {
+      if (b.id == id) return b.name;
+    }
+    return 'All branches';
+  }
+
   Future<void> _load({bool silent = false}) async {
     try {
-      final data = await Api.instance.get('/restaurant/deliveries') as List;
+      final data = await Api.instance.get(Api.instance.branchScoped('/restaurant/deliveries')) as List;
       final list = data.map((e) => Delivery.from(e as Map<String, dynamic>)).toList();
       if (mounted) setState(() { _all = list; _error = null; });
     } on ApiException catch (e) {
@@ -54,8 +81,37 @@ class _DeliveriesScreenState extends State<DeliveriesScreen> {
     final activeCount = all?.where((d) => d.isActive).length ?? 0;
     return Scaffold(
       appBar: AppBar(
-        title: const Row(children: [Text('My runs'), SizedBox(width: 10), LiveDot()]),
+        title: Row(children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('My runs'),
+              Text(_currentBranchName, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: Colors.white70)),
+            ],
+          ),
+          const SizedBox(width: 10),
+          const LiveDot(),
+        ]),
         actions: [
+          PopupMenuButton<String?>(
+            icon: const Icon(Icons.store_outlined),
+            tooltip: 'Outlet',
+            onSelected: _onBranchSelected,
+            itemBuilder: (context) => [
+              CheckedPopupMenuItem<String?>(
+                value: null,
+                checked: Api.instance.branchId == null,
+                child: const Text('All branches'),
+              ),
+              for (final b in _branches)
+                CheckedPopupMenuItem<String?>(
+                  value: b.id,
+                  checked: Api.instance.branchId == b.id,
+                  child: Text(b.name),
+                ),
+            ],
+          ),
           IconButton(onPressed: () => _load(), icon: const Icon(Icons.refresh)),
           IconButton(
             onPressed: () async {
