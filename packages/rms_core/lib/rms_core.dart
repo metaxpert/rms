@@ -52,6 +52,7 @@ export 'src/widgets/state_views.dart';
 // Domain vocabulary, mirroring the backend exactly
 export 'src/domain/branch.dart';
 export 'src/domain/delivery.dart';
+export 'src/domain/kds_ticket.dart';
 export 'src/domain/menu.dart';
 export 'src/domain/order_detail.dart';
 export 'src/domain/order_status.dart';

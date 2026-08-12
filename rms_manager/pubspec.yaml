@@ -1,17 +1,27 @@
 name: rms_manager
-description: "MetaXperts RMS — Manager app. Live sales, kitchen load and covers at a glance."
+description: "MetaXperts RMS — Manager app. Watch the service: bills, kitchen, sales."
 publish_to: "none"
 version: 0.1.0+1
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.5.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+
+  # Shared foundation for all four RMS apps: API client with token refresh,
+  # session, money, theme, domain models, the sign-in journey. See
+  # packages/rms_core.
+  rms_core:
+    path: ../packages/rms_core
+
   http: ^1.2.0
   intl: ">=0.19.0 <0.21.0"
   shared_preferences: ^2.2.0
+  flutter_secure_storage: ^11.0.0
+  flutter_riverpod: ^2.6.1
+  go_router: ^17.5.0
   cupertino_icons: ^1.0.6
 
 dev_dependencies:

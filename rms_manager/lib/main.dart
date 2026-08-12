@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
-import 'src/api.dart';
-import 'src/theme.dart';
-import 'src/screens/login_screen.dart';
-import 'src/screens/home_shell.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:rms_core/rms_core.dart';
+import 'src/app/app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Api.instance.load();
-  runApp(const ManagerApp());
-}
 
-class ManagerApp extends StatelessWidget {
-  const ManagerApp({super.key});
+  final session = await Session.load();
+  final prefs = await SharedPreferences.getInstance();
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'RMS Manager',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      home: Api.instance.isAuthed ? const HomeShell() : const LoginScreen(),
-    );
-  }
+  runApp(
+    ProviderScope(
+      overrides: [
+        sessionProvider.overrideWithValue(session),
+        sharedPreferencesProvider.overrideWithValue(prefs),
+        // A manager works across outlets: no outlet means every outlet, not a
+        // locked door. The other three apps keep the default.
+        authRequiresBranchProvider.overrideWithValue(false),
+      ],
+      child: const ManagerApp(),
+    ),
+  );
 }

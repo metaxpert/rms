@@ -12,6 +12,15 @@ import 'session.dart';
 /// branch-scoped read would silently return another outlet's tables.
 enum AuthStatus { signedOut, needsBranch, ready }
 
+/// Whether this app can work at all without an outlet chosen.
+///
+/// True for the apps that DO one outlet's work: a waiter's floor, a rider's
+/// board and a customer's menu are all meaningless tenant-wide, and letting
+/// them through would silently show another outlet's data. A manager is the
+/// exception — comparing outlets is the job — so the manager app overrides this
+/// to false and treats the outlet as a filter rather than a gate.
+final authRequiresBranchProvider = Provider<bool>((ref) => true);
+
 class AuthState {
   const AuthState({
     required this.status,
@@ -50,11 +59,15 @@ class AuthController extends Notifier<AuthState> {
     // server-side while the tablet slept.
     ref.watch(apiClientProvider).onAuthenticationLost = _onAuthenticationLost;
 
+    _requiresBranch = ref.watch(authRequiresBranchProvider);
     return AuthState(status: _statusFor(session));
   }
 
-  static AuthStatus _statusFor(Session session) {
+  var _requiresBranch = true;
+
+  AuthStatus _statusFor(Session session) {
     if (!session.isAuthenticated) return AuthStatus.signedOut;
+    if (!_requiresBranch) return AuthStatus.ready;
     return session.branchId == null ? AuthStatus.needsBranch : AuthStatus.ready;
   }
 
@@ -69,7 +82,9 @@ class AuthController extends Notifier<AuthState> {
             email: email,
             password: password,
           );
-      state = const AuthState(status: AuthStatus.needsBranch);
+      state = AuthState(
+        status: _requiresBranch ? AuthStatus.needsBranch : AuthStatus.ready,
+      );
     } on ApiException catch (e) {
       state = state.copyWith(isBusy: false, error: e);
     }
@@ -88,11 +103,17 @@ class AuthController extends Notifier<AuthState> {
     state = state.copyWith(status: AuthStatus.ready, clearError: true);
   }
 
-  /// Return to outlet selection without signing out — used when a waiter moves
-  /// between outlets mid-shift.
+  /// Drop the chosen outlet — a waiter moving between outlets mid-shift, or a
+  /// manager widening the view back to every outlet.
+  ///
+  /// Which of those it means is [authRequiresBranchProvider]'s call: for the
+  /// single-outlet apps this returns to the picker, for a manager it simply
+  /// removes the filter.
   Future<void> clearBranch() async {
     await ref.read(sessionProvider).setBranchId(null);
-    state = state.copyWith(status: AuthStatus.needsBranch);
+    state = state.copyWith(
+      status: _requiresBranch ? AuthStatus.needsBranch : AuthStatus.ready,
+    );
   }
 
   void _onAuthenticationLost() {
