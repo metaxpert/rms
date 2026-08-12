@@ -57,16 +57,30 @@ end-to-end acceptance test.
 
 ## The four apps
 
-All four share one lightweight `Api` client and theme (`http` + `shared_preferences` + `intl` — sized for
-the low-end Android devices common in Pakistani restaurants). Each app's server address is set on its
-sign-in screen (Server settings).
+All four are built on **`packages/rms_core`** — one API client, one session, one money
+implementation, one design system, one sign-in journey. That package exists because the four apps
+previously each shipped their own copy of a 125-line client, and every copy was missing token
+refresh: staff were signed out fifteen minutes into a shift, four times over. Riverpod for state,
+`http` over `dio`, and no photographs in the staff apps — all sized for the low-end Android devices
+common in Pakistani restaurants.
+
+Each app's server address is set on its sign-in screen (**Server settings**), or per build with
+`--dart-define=RMS_API_BASE=…`.
 
 | App | Flow |
 | --- | --- |
-| **Waiter** | Floor → tap a table → take order → fire to kitchen → settle |
-| **Manager** | Live dashboard: KPI tiles, KDS board, settled-sales — auto-refresh |
-| **Driver** | Runs list → pick up → share GPS → deliver with the customer's OTP |
-| **Customer** | Browse menu (photos) → cart → delivery/takeaway → track live |
+| **Waiter** | Floor → tap a table → take order → fire to kitchen → bill → settle → print |
+| **Manager** | Three views of one moment: service, kitchen board, settled sales |
+| **Driver** | Runs board → pick up → share real GPS → deliver with the customer's OTP |
+| **Customer** | Browse menu (photos) → basket → delivery/collection → follow it to the door |
+
+Live updates come from the backend's Socket.IO gateway, with each app refreshing on resume and on a
+slow poll as well — the bridge is best-effort and `ORDER_VOIDED` is not bridged at all, so the socket
+is treated as an accelerator and never as the source of truth.
+
+`rms_waiter/ARCHITECTURE.md` records what was verified against the running backend, what is still
+unverified, and which gaps need a server-side answer (order transfers, a rider-scoped delivery list,
+a customer-supplied delivery address).
 
 ### Run an app
 
