@@ -1,0 +1,127 @@
+import 'package:intl/intl.dart';
+
+/// Integer minor-unit money (ADR: never floats).
+///
+/// Every amount that crosses the API is an integer number of the currency's
+/// minor unit — paisa for PKR, cents for USD. Floating point is never used for
+/// arithmetic here: a `double` cannot represent 0.1 exactly, and a restaurant
+/// that rounds a few hundred bills a day accumulates a real, auditable
+/// discrepancy against the GL.
+///
+/// The backend posts a balanced journal from these same integers, so any
+/// rounding the app invents client-side would put the till out against the
+/// ledger. All rounding therefore happens in exactly one place: [applyBp].
+class Money {
+  const Money(this.minor, [this.currency = 'PKR']);
+
+  /// Amount in minor units (paisa). Always an integer; may be negative
+  /// (refunds, discounts, change due).
+  final int minor;
+  final String currency;
+
+  static const zero = Money(0);
+
+  Money operator +(Money other) {
+    _assertSameCurrency(other);
+    return Money(minor + other.minor, currency);
+  }
+
+  Money operator -(Money other) {
+    _assertSameCurrency(other);
+    return Money(minor - other.minor, currency);
+  }
+
+  /// Scale by a whole quantity (e.g. 3 × a line price). Quantities are integers
+  /// on a restaurant ticket — you sell 3 naan, never 3.5.
+  Money operator *(int qty) => Money(minor * qty, currency);
+
+  bool operator >(Money other) => minor > other.minor;
+  bool operator <(Money other) => minor < other.minor;
+  bool get isZero => minor == 0;
+  bool get isNegative => minor < 0;
+
+  /// Apply a rate in basis points (1600 bp = 16%), rounding half-up.
+  ///
+  /// Half-up matches the backend's tax computation. Using Dart's `round()` on a
+  /// double would be half-away-from-zero on a value that may not be exactly
+  /// representable; integer arithmetic avoids the question entirely.
+  Money applyBp(int bp) {
+    final product = minor * bp;
+    // Half-up on the absolute value, then restore the sign, so -0.5 and +0.5
+    // round symmetrically (a discount and a charge behave the same way).
+    final sign = product.isNegative ? -1 : 1;
+    final abs = product.abs();
+    return Money(sign * ((abs + 5000) ~/ 10000), currency);
+  }
+
+  /// Split into [n] parts that sum EXACTLY back to this amount.
+  ///
+  /// Naive division loses paisa: 1000 / 3 = 333 each, and 1 paisa vanishes.
+  /// The remainder is distributed one unit at a time across the leading parts,
+  /// so a split bill always reconciles against the original total.
+  List<Money> split(int n) {
+    if (n <= 0) throw ArgumentError.value(n, 'n', 'must be positive');
+    final base = minor ~/ n;
+    var remainder = minor.remainder(n).abs();
+    final step = minor.isNegative ? -1 : 1;
+    return List.generate(n, (i) {
+      var part = base;
+      if (remainder > 0) {
+        part += step;
+        remainder--;
+      }
+      return Money(part, currency);
+    });
+  }
+
+  /// Major units as a display string without the currency symbol: 232000 → "2,320.00".
+  String get amountText =>
+      NumberFormat('#,##0.00').format(minor / 100);
+
+  /// Full display: "Rs 2,320.00".
+  String get display => '${_symbolFor(currency)} $amountText';
+
+  static String _symbolFor(String code) {
+    switch (code) {
+      case 'PKR':
+        return 'Rs';
+      case 'USD':
+        return '\$';
+      case 'EUR':
+        return '€';
+      case 'GBP':
+        return '£';
+      default:
+        return code;
+    }
+  }
+
+  void _assertSameCurrency(Money other) {
+    if (other.currency != currency) {
+      throw ArgumentError('Cannot combine $currency with ${other.currency}');
+    }
+  }
+
+  /// Parse a user-typed major-unit amount ("2320.50") into minor units.
+  /// Returns null when the text is not a valid amount, so callers can show a
+  /// field error rather than silently treating garbage as zero.
+  static Money? tryParse(String text, [String currency = 'PKR']) {
+    final cleaned = text.replaceAll(',', '').trim();
+    if (cleaned.isEmpty) return null;
+    final value = double.tryParse(cleaned);
+    if (value == null || value.isNaN || value.isInfinite) return null;
+    // Round half-up on the absolute value for the same symmetry reason as applyBp.
+    final sign = value.isNegative ? -1 : 1;
+    return Money(sign * (value.abs() * 100 + 0.5).floor(), currency);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is Money && other.minor == minor && other.currency == currency;
+
+  @override
+  int get hashCode => Object.hash(minor, currency);
+
+  @override
+  String toString() => display;
+}
