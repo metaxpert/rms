@@ -86,7 +86,11 @@ class Session {
   bool accessTokenExpiring({Duration skew = const Duration(seconds: 60)}) {
     if (_accessToken == null) return true;
     final expiry = accessExpiresAt;
-    if (expiry == null) return false; // unknown lifetime: fall back to 401 handling
+    if (expiry == null) {
+      // Unknown lifetime: fall back to reactive 401 handling rather than
+      // refreshing on every single request.
+      return false;
+    }
     return DateTime.now().add(skew).isAfter(expiry);
   }
 
@@ -165,7 +169,8 @@ class Session {
     final parts = token.split('.');
     if (parts.length != 3) return null;
     try {
-      final decoded = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+      final decoded =
+          utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
       final map = jsonDecode(decoded);
       return map is Map<String, dynamic> ? map : null;
     } catch (_) {

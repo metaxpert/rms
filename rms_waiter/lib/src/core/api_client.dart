@@ -77,8 +77,7 @@ class ApiClient {
 
     // One idempotency key per logical request, reused across transport retries
     // so a settle that timed out and got retried cannot post twice.
-    final idempotencyKey =
-        _isMutation(method) ? _newIdempotencyKey() : null;
+    final idempotencyKey = _isMutation(method) ? _newIdempotencyKey() : null;
 
     Object? lastError;
     for (var attempt = 1; attempt <= _maxAttempts; attempt++) {
@@ -90,8 +89,7 @@ class ApiClient {
           // server-side). Try exactly one recovery, then give up.
           if (_session.refreshToken != null) {
             await _refresh();
-            return _send(method, path,
-                body: body, isRetryOfAuthFailure: true);
+            return _send(method, path, body: body, isRetryOfAuthFailure: true);
           }
           _loseAuthentication();
           throw ApiException.fromResponse(401, response.body);
@@ -162,10 +160,7 @@ class ApiClient {
       });
     if (body != null) request.body = jsonEncode(body);
 
-    return _http
-        .send(request)
-        .then(http.Response.fromStream)
-        .timeout(_timeout);
+    return _http.send(request).then(http.Response.fromStream).timeout(_timeout);
   }
 
   /// Exchange the refresh token for a new access token.

@@ -8,7 +8,8 @@ enum Environment {
   staging,
   production;
 
-  static const _key = String.fromEnvironment('RMS_ENV', defaultValue: 'production');
+  static const _key =
+      String.fromEnvironment('RMS_ENV', defaultValue: 'production');
 
   static Environment get current => switch (_key) {
         'development' || 'dev' => Environment.development,

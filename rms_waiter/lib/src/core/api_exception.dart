@@ -109,7 +109,8 @@ class ApiException implements Exception {
     try {
       final decoded = jsonDecode(body);
       if (decoded is Map) {
-        final detail = (decoded['detail'] ?? decoded['title'] ?? decoded['message']);
+        final detail =
+            (decoded['detail'] ?? decoded['title'] ?? decoded['message']);
         return (
           detail: detail is String && detail.isNotEmpty ? detail : null,
           traceId: decoded['traceId'] as String?,

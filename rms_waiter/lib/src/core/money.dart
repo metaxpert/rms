@@ -75,8 +75,7 @@ class Money {
   }
 
   /// Major units as a display string without the currency symbol: 232000 → "2,320.00".
-  String get amountText =>
-      NumberFormat('#,##0.00').format(minor / 100);
+  String get amountText => NumberFormat('#,##0.00').format(minor / 100);
 
   /// Full display: "Rs 2,320.00".
   String get display => '${_symbolFor(currency)} $amountText';

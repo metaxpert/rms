@@ -1,30 +1,22 @@
 import 'package:flutter/material.dart';
-import 'src/api.dart';
-import 'src/theme.dart';
-import 'src/screens/login_screen.dart';
-import 'src/screens/branch_screen.dart';
-import 'src/screens/tables_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'src/app/app.dart';
+import 'src/core/providers.dart';
+import 'src/core/session.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Api.instance.load();
-  runApp(const WaiterApp());
-}
 
-class WaiterApp extends StatelessWidget {
-  const WaiterApp({super.key});
+  // Session.load reads the platform keystore, so it must complete before the
+  // first frame — otherwise the router would briefly decide the user is signed
+  // out and bounce a signed-in waiter to the login screen on every cold start.
+  final session = await Session.load();
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'RMS Waiter',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      home: !Api.instance.isAuthed
-          ? const LoginScreen()
-          : Api.instance.branchId == null
-              ? const BranchScreen()
-              : const TablesScreen(),
-    );
-  }
+  runApp(
+    ProviderScope(
+      overrides: [sessionProvider.overrideWithValue(session)],
+      child: const WaiterApp(),
+    ),
+  );
 }
