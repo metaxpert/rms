@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'net/api_client.dart';
 import 'auth/session.dart';
@@ -13,6 +14,16 @@ import 'auth/session.dart';
 final sessionProvider = Provider<Session>((ref) {
   throw StateError(
     'sessionProvider must be overridden in ProviderScope — see bootstrap().',
+  );
+});
+
+/// Plain on-device storage for anything that is not a secret — the same
+/// instance [Session] uses. Overridden alongside [sessionProvider] in
+/// `bootstrap()`, because `getInstance()` is asynchronous and callers on the
+/// draft path need it synchronously.
+final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  throw StateError(
+    'sharedPreferencesProvider must be overridden in ProviderScope — see main().',
   );
 });
 

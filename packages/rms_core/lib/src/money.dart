@@ -42,9 +42,11 @@ class Money {
 
   /// Apply a rate in basis points (1600 bp = 16%), rounding half-up.
   ///
-  /// Half-up matches the backend's tax computation. Using Dart's `round()` on a
-  /// double would be half-away-from-zero on a value that may not be exactly
-  /// representable; integer arithmetic avoids the question entirely.
+  /// Half-up is the backend's behaviour when it rounds a bill to the nearest
+  /// rupee (`Math.round`), NOT when it computes tax — line tax truncates, and
+  /// [taxAt] is the method for that. Using Dart's `round()` on a double would be
+  /// half-away-from-zero on a value that may not be exactly representable;
+  /// integer arithmetic avoids the question entirely.
   Money applyBp(int bp) {
     final product = minor * bp;
     // Half-up on the absolute value, then restore the sign, so -0.5 and +0.5
@@ -52,6 +54,38 @@ class Money {
     final sign = product.isNegative ? -1 : 1;
     final abs = product.abs();
     return Money(sign * ((abs + 5000) ~/ 10000), currency);
+  }
+
+  /// Tax at [bp] basis points, **truncated** — the backend's `computeMenuLine`
+  /// does `Math.floor(taxable * bp / 10000)`.
+  ///
+  /// Kept separate from [applyBp] because the difference is not cosmetic: on a
+  /// taxable amount of 1 paisa at 50% the two disagree by a paisa, and a ticket
+  /// that disagrees with the printed bill by a paisa is a ticket a waiter stops
+  /// trusting. Every line the app prices must land on the same integer the
+  /// server will store.
+  Money taxAt(int bp) {
+    if (bp <= 0) return Money(0, currency);
+    return Money(_floorDiv(minor * bp, 10000), currency);
+  }
+
+  /// Round to the nearest multiple of [step] minor units — 100 is "to the
+  /// nearest rupee", which is what `roundingEnabled` does at settlement.
+  ///
+  /// Mirrors the backend's `Math.round(preRound / 100) * 100`. JavaScript rounds
+  /// a half toward +∞ (so -50 becomes 0, not -100); Dart's `round()` rounds away
+  /// from zero. Halves are reached often here — every bill ending in 50 paisa —
+  /// so the difference is a real one-rupee discrepancy, not a corner case.
+  Money roundedToNearest(int step) {
+    if (step <= 1) return this;
+    return Money(_floorDiv(minor + step ~/ 2, step) * step, currency);
+  }
+
+  /// Floor division. Dart's `~/` truncates toward zero, which would round a
+  /// negative amount the wrong way against `Math.floor`.
+  static int _floorDiv(int a, int b) {
+    final q = a ~/ b;
+    return (a % b != 0 && (a < 0) != (b < 0)) ? q - 1 : q;
   }
 
   /// Split into [n] parts that sum EXACTLY back to this amount.
