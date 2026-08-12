@@ -10,6 +10,11 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # Shared foundation for all four RMS apps: API client with token refresh,
+  # session, money, theme, domain models. See packages/rms_core.
+  rms_core:
+    path: ../packages/rms_core
+
   # Lightweight HTTP — chosen over dio to keep the APK small for low-end
   # Tecno/Infinix devices common in Pakistani restaurants.
   http: ^1.2.0

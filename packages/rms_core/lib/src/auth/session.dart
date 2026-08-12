@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../app/config/environment.dart';
-import 'storage/secret_store.dart';
+import '../config/environment.dart';
+import '../storage/secret_store.dart';
 
 /// Persisted sign-in state: server address, tokens, and the active outlet.
 ///

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/app_theme.dart';
-import '../../../core/widgets/state_views.dart';
+import 'package:rms_core/rms_core.dart';
 import '../../authentication/application/auth_controller.dart';
 import '../data/floor_repository.dart';
-import '../domain/restaurant_table.dart';
 import 'table_card.dart';
 
 /// The floor. A waiter's home screen during service.

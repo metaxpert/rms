@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'router/app_router.dart';
-import 'theme/app_theme.dart';
+import 'package:rms_core/rms_core.dart';
 
 class WaiterApp extends ConsumerWidget {
   const WaiterApp({super.key});

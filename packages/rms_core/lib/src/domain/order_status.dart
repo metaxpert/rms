@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/theme/app_theme.dart';
+import '../theme/app_theme.dart';
 
 /// Order lifecycle, mirroring the backend exactly (brief §13 — map the real
 /// statuses, do not invent names).

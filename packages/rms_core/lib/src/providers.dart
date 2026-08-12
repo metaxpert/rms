@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'api_client.dart';
-import 'session.dart';
+import 'net/api_client.dart';
+import 'auth/session.dart';
 
 /// Core dependency graph (brief §3 — one state-management system, no competing
 /// service locators).

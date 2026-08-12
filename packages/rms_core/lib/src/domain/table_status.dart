@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/theme/app_theme.dart';
+import '../theme/app_theme.dart';
 
 /// Table states, mirroring the backend's `TableStatus` exactly.
 ///

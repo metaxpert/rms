@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/theme/app_theme.dart';
-import '../../orders/domain/order_summary.dart';
-import '../domain/restaurant_table.dart';
+import 'package:rms_core/rms_core.dart';
 
 /// A table on the floor.
 ///

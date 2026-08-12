@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'src/app/app.dart';
-import 'src/core/providers.dart';
-import 'src/core/session.dart';
+import 'package:rms_core/rms_core.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

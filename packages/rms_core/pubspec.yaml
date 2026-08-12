@@ -1,0 +1,33 @@
+name: rms_core
+description: Shared foundation for the MetaXperts RMS apps — API client, session, money, theme, domain models.
+publish_to: "none"
+version: 1.0.0
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Lightweight HTTP — kept over dio so the four APKs stay small for the
+  # low-end Tecno/Infinix devices common in Pakistani restaurants.
+  http: ^1.2.0
+  intl: ">=0.19.0 <0.21.0"
+
+  # Non-sensitive settings (server address, branch, remembered email).
+  shared_preferences: ^2.2.0
+
+  # Access/refresh tokens go to the platform keystore, never to plain prefs.
+  flutter_secure_storage: ^11.0.0
+
+  # One state-management system across all four apps.
+  flutter_riverpod: ^2.6.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

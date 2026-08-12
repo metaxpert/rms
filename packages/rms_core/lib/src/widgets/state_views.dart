@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_theme.dart';
-import '../api_exception.dart';
+import '../theme/app_theme.dart';
+import '../errors/api_exception.dart';
 
 /// Shared loading / empty / error surfaces (brief §39 — no blank white screens).
 ///

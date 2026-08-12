@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import '../../../core/money.dart';
+import '../money.dart';
 import 'order_status.dart';
 
 /// A row from `GET /restaurant/orders`.

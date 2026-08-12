@@ -1,10 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/api_client.dart';
-import '../../../core/providers.dart';
-import '../../orders/domain/order_summary.dart';
-import '../domain/restaurant_table.dart';
+import 'package:rms_core/rms_core.dart';
 
 /// Everything the floor screen needs, fetched together.
 @immutable

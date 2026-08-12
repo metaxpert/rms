@@ -1,8 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rms_waiter/src/core/session.dart';
-import 'package:rms_waiter/src/core/storage/secret_store.dart';
+import 'package:rms_core/rms_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

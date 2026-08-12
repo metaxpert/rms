@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rms_waiter/src/app/app.dart';
-import 'package:rms_waiter/src/core/providers.dart';
-import 'package:rms_waiter/src/core/session.dart';
-import 'package:rms_waiter/src/core/storage/secret_store.dart';
+import 'package:rms_core/rms_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Boots the real app with an in-memory session, so routing and the auth guard

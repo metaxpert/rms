@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/config/environment.dart';
-import '../../../app/theme/app_theme.dart';
-import '../../../core/providers.dart';
+import 'package:rms_core/rms_core.dart';
 
 /// Where staff point the app at their server.
 ///

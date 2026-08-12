@@ -1,10 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rms_waiter/src/core/money.dart';
+import 'package:rms_core/rms_core.dart';
 import 'package:rms_waiter/src/features/floor/data/floor_repository.dart';
-import 'package:rms_waiter/src/features/floor/domain/restaurant_table.dart';
-import 'package:rms_waiter/src/features/floor/domain/table_status.dart';
-import 'package:rms_waiter/src/features/orders/domain/order_status.dart';
-import 'package:rms_waiter/src/features/orders/domain/order_summary.dart';
 
 void main() {
   group('TableStatus wire mapping', () {

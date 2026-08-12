@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rms_waiter/src/core/money.dart';
+import 'package:rms_core/rms_core.dart';
 
 void main() {
   group('Money arithmetic', () {

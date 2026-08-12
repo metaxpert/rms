@@ -5,8 +5,8 @@ import 'dart:math';
 
 import 'package:http/http.dart' as http;
 
-import 'api_exception.dart';
-import 'session.dart';
+import '../errors/api_exception.dart';
+import '../auth/session.dart';
 
 /// HTTP client for the MetaXperts ERP API.
 ///
