@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../../app/router/app_router.dart';
 import '../../floor/data/floor_repository.dart';
 import '../../menu/data/menu_repository.dart';
 import '../../menu/presentation/menu_picker_sheet.dart';
@@ -110,6 +112,15 @@ class _TicketBody extends ConsumerWidget {
       appBar: AppBar(
         title: Text('Table ${table.code}'),
         actions: [
+          if (order != null && order.isOpen)
+            IconButton(
+              onPressed: () => context.push(
+                Routes.bill(table.id),
+                extra: table.code,
+              ),
+              icon: const Icon(Icons.point_of_sale_rounded),
+              tooltip: 'Bill',
+            ),
           if (draft.isNotEmpty && !locked)
             IconButton(
               onPressed: () => _confirmClear(context, controller),

@@ -10,179 +10,7 @@ import 'package:rms_waiter/src/features/ticket/data/draft_store.dart';
 import 'package:rms_waiter/src/features/ticket/data/pending_send_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Sending a ticket is four server calls that can each fail, on a device that
-/// can be killed between any two of them. These tests are about the one
-/// outcome that must never happen: a table billed twice for one round.
-///
-/// The repository is faked rather than the HTTP layer, because what is under
-/// test is the order of the calls, what is persisted between them, and what a
-/// second attempt does — not JSON.
-class _FakeServer implements OrderRepository {
-  _FakeServer({this.autoFireKitchen = false});
-
-  /// When true, `place` lands the order in CONFIRMED, as a tenant with
-  /// `autoFireKitchen` does — and `confirm` then becomes an illegal transition.
-  final bool autoFireKitchen;
-
-  /// Every call made, in order, for asserting what a resume skipped.
-  final calls = <String>[];
-
-  /// Idempotency keys seen per call, so a repeat can be proved to reuse one.
-  final keys = <String, List<String>>{};
-
-  /// Steps that should throw once, then succeed — a flaky connection.
-  final failOnce = <String, ApiException>{};
-
-  /// Steps that always throw.
-  final failAlways = <String, ApiException>{};
-
-  /// Runs when a step is reached, before any failure it is configured to
-  /// raise — how another till acting between two of our calls is modelled.
-  final onStep = <String, void Function()>{};
-
-  final Map<String, OrderDetail> _orders = {};
-  var _nextId = 1;
-
-  OrderDetail? openOrder;
-
-  int get createCount => calls.where((c) => c == 'create').length;
-
-  /// Replace the server's copy of an order.
-  void seed(OrderDetail order) {
-    _orders[order.id] = order;
-    openOrder = order.isOpen ? order : null;
-  }
-
-  void _record(String step, [String? key]) {
-    calls.add(step);
-    if (key != null) (keys[step] ??= []).add(key);
-    onStep[step]?.call();
-    final once = failOnce.remove(step);
-    if (once != null) throw once;
-    final always = failAlways[step];
-    if (always != null) throw always;
-  }
-
-  OrderDetail _build({
-    required String id,
-    required String status,
-    required List<Map<String, dynamic>> items,
-  }) =>
-      OrderDetail.fromJson({
-        'id': id,
-        'orderNo': 'ORD-00000$_nextId',
-        'status': status,
-        'channel': 'DINE_IN',
-        'table': 'D1',
-        'tableId': 'table-1',
-        'guestCount': 4,
-        'totals': {
-          'subtotal': {'amountMinor': 12000 * items.length, 'currency': 'PKR'},
-          'tax': {'amountMinor': 1920 * items.length, 'currency': 'PKR'},
-          'total': {'amountMinor': 13920 * items.length, 'currency': 'PKR'},
-        },
-        'items': [
-          for (final item in items)
-            {
-              'id': 'line-${items.indexOf(item)}',
-              'itemId': item['itemId'],
-              'name': 'Garlic Naan',
-              'qty': item['qty'],
-              'unitPrice': {'amountMinor': 12000, 'currency': 'PKR'},
-              'lineTotal': {'amountMinor': 13920, 'currency': 'PKR'},
-            },
-        ],
-      });
-
-  @override
-  Future<OrderDetail?> openOrderForTable(String tableId) async {
-    _record('lookup');
-    return openOrder;
-  }
-
-  @override
-  Future<OrderDetail> fetch(String orderId) async {
-    _record('fetch');
-    final order = _orders[orderId];
-    if (order == null) {
-      throw ApiException(ApiErrorKind.notFound, 'No such order.');
-    }
-    return order;
-  }
-
-  @override
-  Future<OrderDetail?> create({
-    required String tableId,
-    required int? guestCount,
-    required String idempotencyKey,
-  }) async {
-    _record('create', idempotencyKey);
-    final id = 'order-${_nextId++}';
-    final order = _build(id: id, status: 'DRAFT', items: const []);
-    _orders[id] = order;
-    openOrder = order;
-    return order;
-  }
-
-  @override
-  Future<OrderDetail?> addItems({
-    required String orderId,
-    required List<Map<String, dynamic>> items,
-    required String idempotencyKey,
-  }) async {
-    _record('addItems', idempotencyKey);
-    final current = _orders[orderId]!;
-    final order = _build(id: orderId, status: current.status.wire, items: items);
-    _orders[orderId] = order;
-    openOrder = order;
-    return order;
-  }
-
-  @override
-  Future<OrderDetail?> place({
-    required String orderId,
-    required String idempotencyKey,
-  }) async {
-    _record('place', idempotencyKey);
-    final current = _orders[orderId]!;
-    final order = _build(
-      id: orderId,
-      status: autoFireKitchen ? 'CONFIRMED' : 'PLACED',
-      items: [
-        for (final line in current.lines) {'itemId': line.itemId, 'qty': line.qty}
-      ],
-    );
-    _orders[orderId] = order;
-    openOrder = order;
-    return order;
-  }
-
-  @override
-  Future<OrderDetail?> confirm({
-    required String orderId,
-    required String idempotencyKey,
-  }) async {
-    _record('confirm', idempotencyKey);
-    final current = _orders[orderId]!;
-    final order = _build(
-      id: orderId,
-      status: 'CONFIRMED',
-      items: [
-        for (final line in current.lines) {'itemId': line.itemId, 'qty': line.qty}
-      ],
-    );
-    _orders[orderId] = order;
-    openOrder = order;
-    return order;
-  }
-
-  @override
-  Future<void> removeLine({
-    required String orderId,
-    required String lineId,
-  }) async =>
-      _record('removeLine');
-}
+import 'support/fake_order_server.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -210,7 +38,7 @@ void main() {
       );
 
   Future<ProviderContainer> containerWith(
-    _FakeServer server, {
+    FakeOrderServer server, {
     Map<String, Object> prefs = const {},
   }) async {
     SharedPreferences.setMockInitialValues({'branch_id': branchId, ...prefs});
@@ -327,7 +155,7 @@ void main() {
 
   group('sending a round', () {
     test('runs create, add, place and confirm in order', () async {
-      final server = _FakeServer();
+      final server = FakeOrderServer();
       final container = await containerWith(server);
       final sender = container.read(sendControllerProvider(ticketRef).notifier);
 
@@ -346,7 +174,7 @@ void main() {
     });
 
     test('sends the item payload the draft describes', () async {
-      final server = _FakeServer();
+      final server = FakeOrderServer();
       final container = await containerWith(server);
 
       await sender(container).send(draftWith([line]));
@@ -355,7 +183,7 @@ void main() {
     });
 
     test('the draft is cleared once the kitchen has it', () async {
-      final server = _FakeServer();
+      final server = FakeOrderServer();
       final container = await containerWith(server);
       final ticket = container.read(ticketControllerProvider(ticketRef).notifier)
         ..add(line);
@@ -372,7 +200,7 @@ void main() {
     });
 
     test('no record is left behind after a clean send', () async {
-      final server = _FakeServer();
+      final server = FakeOrderServer();
       final container = await containerWith(server);
 
       await sender(container).send(draftWith([line]));
@@ -388,7 +216,7 @@ void main() {
     });
 
     test('an empty round is not sent at all', () async {
-      final server = _FakeServer();
+      final server = FakeOrderServer();
       final container = await containerWith(server);
 
       await sender(container).send(draftWith(const []));
@@ -399,7 +227,7 @@ void main() {
 
   group('a table that already has a bill', () {
     test('the round is appended rather than opening a second bill', () async {
-      final server = _FakeServer()
+      final server = FakeOrderServer()
         ..openOrder = OrderDetail.fromJson(const {
           'id': 'order-existing',
           'orderNo': 'ORD-000001',
@@ -425,7 +253,7 @@ void main() {
 
     test('an already-confirmed order is not placed or confirmed again',
         () async {
-      final server = _FakeServer()
+      final server = FakeOrderServer()
         ..openOrder = OrderDetail.fromJson(const {
           'id': 'order-existing',
           'status': 'PREPARING',
@@ -442,7 +270,7 @@ void main() {
     });
 
     test('a settled bill refuses the round and says so', () async {
-      final server = _FakeServer()
+      final server = FakeOrderServer()
         ..openOrder = OrderDetail.fromJson(const {
           'id': 'order-old',
           'status': 'SETTLED',
@@ -461,7 +289,7 @@ void main() {
 
   group('when a tenant fires the kitchen automatically', () {
     test('confirm is skipped rather than reported as a failure', () async {
-      final server = _FakeServer(autoFireKitchen: true);
+      final server = FakeOrderServer(autoFireKitchen: true);
       final container = await containerWith(server);
 
       await sender(container).send(draftWith([line]));
@@ -477,7 +305,7 @@ void main() {
 
   group('when a step fails', () {
     test('the round is kept and the failure named', () async {
-      final server = _FakeServer()
+      final server = FakeOrderServer()
         ..failAlways['addItems'] =
             ApiException(ApiErrorKind.server, 'Database is down.');
       final container = await containerWith(server);
@@ -494,7 +322,7 @@ void main() {
     });
 
     test('retrying resumes instead of creating a second order', () async {
-      final server = _FakeServer()
+      final server = FakeOrderServer()
         ..failOnce['addItems'] =
             ApiException(ApiErrorKind.network, 'Wifi dropped.');
       final container = await containerWith(server);
@@ -514,7 +342,7 @@ void main() {
     test('the resumed step reuses the original idempotency key', () async {
       // This is what makes the retry safe when the first attempt actually
       // reached the server and only its response was lost.
-      final server = _FakeServer()
+      final server = FakeOrderServer()
         ..failOnce['addItems'] =
             ApiException(ApiErrorKind.network, 'Wifi dropped.');
       final container = await containerWith(server);
@@ -529,7 +357,7 @@ void main() {
     });
 
     test('a failure after placing resumes at confirm only', () async {
-      final server = _FakeServer()
+      final server = FakeOrderServer()
         ..failOnce['confirm'] =
             ApiException(ApiErrorKind.server, 'Kitchen printer service down.');
       final container = await containerWith(server);
@@ -554,7 +382,7 @@ void main() {
         key: 'abc',
       ).copyWith(orderId: 'order-1', stage: SendStage.placing);
 
-      final server = _FakeServer();
+      final server = FakeOrderServer();
       final container = await containerWith(server, prefs: {
         PendingSendStore.keyFor(branchId, tableId):
             jsonEncode(interrupted.toJson()),
@@ -575,7 +403,7 @@ void main() {
         key: 'abc',
       ).copyWith(orderId: 'order-1', stage: SendStage.placing);
 
-      final server = _FakeServer();
+      final server = FakeOrderServer();
       // The order the interrupted attempt created.
       await server.create(
         tableId: tableId,
@@ -604,7 +432,7 @@ void main() {
         key: 'abc',
       ).copyWith(orderId: 'order-1', stage: SendStage.placing);
 
-      final server = _FakeServer();
+      final server = FakeOrderServer();
       final container = await containerWith(server, prefs: {
         PendingSendStore.keyFor(branchId, tableId):
             jsonEncode(interrupted.toJson()),
@@ -628,7 +456,7 @@ void main() {
 
   group('when the bill is closed elsewhere mid-send', () {
     test('the round is kept and the waiter is told to send it again', () async {
-      final server = _FakeServer();
+      final server = FakeOrderServer();
       // The bill is open when the table is looked up...
       server.seed(OrderDetail.fromJson(const {
         'id': 'order-open',

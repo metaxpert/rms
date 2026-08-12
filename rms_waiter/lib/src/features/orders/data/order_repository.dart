@@ -123,6 +123,58 @@ class OrderRepository {
   }) =>
       _client.delete('/restaurant/orders/$orderId/items/$lineId');
 
+  /// Take payment and close the bill.
+  ///
+  /// This is the call the whole app exists to make correctly: it moves stock,
+  /// captures COGS and posts a balanced GL journal, all synchronously with the
+  /// bill. A duplicate would post the sale twice. The server refuses a second
+  /// settle with 422, and [idempotencyKey] means a retry after a timeout
+  /// replays the first response instead of finding out the hard way.
+  Future<OrderDetail?> settle({
+    required String orderId,
+    required List<Payment> payments,
+    required String idempotencyKey,
+  }) async {
+    final response = await _client.post(
+      '/restaurant/orders/$orderId/settle',
+      {'payments': payments.map((p) => p.toApiJson()).toList()},
+      idempotencyKey,
+    );
+    return _orderFrom(response);
+  }
+
+  /// The slip as the printer will render it.
+  ///
+  /// The SERVER lays this out — the same document the thermal printer gets — so
+  /// what a waiter holds up to a guest is what the paper says. A second layout
+  /// implemented here would drift out of sync with the printed bill, and the
+  /// printed bill is the one that is a tax invoice.
+  ///
+  /// 32 columns is the 58 mm layout, which is what reads on a phone; 42 or 48
+  /// is 80 mm paper.
+  Future<String?> receipt(String orderId, {int charsPerLine = 32}) async {
+    final response = await _client
+        .get('/restaurant/orders/$orderId/receipt?charsPerLine=$charsPerLine');
+    if (response is Map<String, dynamic>) return response['text'] as String?;
+    return response is String ? response : null;
+  }
+
+  /// Queue the bill for the branch's receipt printer.
+  ///
+  /// Queue, not print: the API never talks to a printer. A print agent on the
+  /// restaurant's own network claims the job, so a printer that is off, jammed
+  /// or out of paper delays a slip without ever failing a bill.
+  Future<void> queuePrint({
+    required String orderId,
+    bool reprint = false,
+    String? idempotencyKey,
+  }) =>
+      _client.post(
+        '/restaurant/orders/$orderId/print',
+        {'reprint': reprint},
+        idempotencyKey,
+      );
+
   /// A mutation's response, when it is an order.
   ///
   /// Whether these routes echo the updated order was never verified, so nothing

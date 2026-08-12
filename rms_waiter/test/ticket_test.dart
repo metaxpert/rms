@@ -107,6 +107,27 @@ class _StubOrders implements OrderRepository {
     required String orderId,
     required String lineId,
   }) async {}
+
+  // Settlement is the bill screen's business; see settle_test.dart.
+  @override
+  Future<OrderDetail?> settle({
+    required String orderId,
+    required List<Payment> payments,
+    required String idempotencyKey,
+  }) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<String?> receipt(String orderId, {int charsPerLine = 32}) async =>
+      throw UnimplementedError();
+
+  @override
+  Future<void> queuePrint({
+    required String orderId,
+    bool reprint = false,
+    String? idempotencyKey,
+  }) async =>
+      throw UnimplementedError();
 }
 
 /// The ordering path, driven through the real widgets: open a table, pick a

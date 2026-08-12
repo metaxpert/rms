@@ -314,8 +314,8 @@ Phased, each phase validated with `flutter analyze` + `flutter test`.
 | 3 | Floor plan, tables, table detail | **Done, verified** |
 | 4 | Menu, search, modifiers, cart, draft persistence | **Done, verified** |
 | 5 | Order submission, KDS status, realtime client with reconnect | **Done, verified** |
-| 6 | Bill, settle, split, receipt printing, transfers | Next |
-| 7 | Offline cache + sync queue, notifications, permissions | |
+| 6 | Bill, settle, split, receipt printing (**transfers: no endpoint — see below**) | **Done, verified** |
+| 7 | Offline cache + sync queue, notifications, permissions | Next |
 | 8 | Test suite (unit/widget/integration), accessibility, i18n scaffolding, hardening | |
 
 ### Sending a round (Phase 5)
@@ -343,10 +343,54 @@ told plainly; nothing is silently re-billed.
 Success is declared only after the bill has been read back, so the moment the
 progress panel clears the screen already shows what the server holds.
 
+### Settling a bill (Phase 6)
+
+`POST /restaurant/orders/:id/settle` takes a **list** of payments, and that list
+is the whole story of what this app can and cannot do about splitting:
+
+- **Splitting the tender is native** — two guests paying half each is one settle
+  call with two payments. `Money.split` distributes the remainder, so three ways
+  on a 1,000.00 bill is 333.34 / 333.33 / 333.33 and reconciles exactly. A split
+  that loses a paisa is a settle the server refuses.
+- **Splitting into separate bills is not offered**, because there is no endpoint
+  that produces one. Inventing a client-side approximation would put the till
+  out against the GL.
+
+Two further rules the screen enforces:
+
+- **The tender must reconcile before the button lives.** The gap is named
+  ("Rs 400.00 still to pay") rather than left as a dead control.
+- **Cash given is not the tender.** Over-tender is worked out into change on the
+  device; the server is sent what was applied to the bill. Sending the note
+  handed over would post a sale larger than the bill.
+
+The settle idempotency key is **derived, not stored** —
+`settle:<orderId>:<tender signature>`. That makes it identical across retries
+*and* across a restart, where a key held in memory would not be. A 422 is
+checked against the order's real status before being shown as a failure: "already
+settled" means the money is taken and the guest can go, and reporting it as an
+error would send a waiter to charge a second time.
+
+The receipt is **rendered by the server** — the same document the thermal
+printer gets — so the slip held up to a guest cannot drift from the paper that
+is the tax invoice. Printing only queues a job; the till's print agent pushes it,
+so a jammed printer delays a slip without ever failing a bill. A first print
+carries a derived key so a timeout cannot spool two slips; a *reprint* gets a
+fresh key every time, because a second copy is the point.
+
+### Transfers — not built, and why
+
+The brief lists transfers under this phase. **No endpoint for moving an order
+between tables was found** in the route inventory (§1), and `RestaurantTable`
+carries `mergedIntoId` without any observed route that sets it. Rather than ship
+a button that appears to move a bill and does not, the app omits it. This needs
+a server-side answer before it can be built — see risk 4 in §9, which is the
+same gap seen from the concurrency side.
+
 ## 12. Status
 
-**Phases 1–5 complete and verified.** `flutter analyze` clean across `rms_core`
-and `rms_waiter`, 88 + 120 tests green, `flutter build web --release` succeeds.
+**Phases 1–6 complete and verified.** `flutter analyze` clean across `rms_core`
+and `rms_waiter`, 99 + 135 tests green, `flutter build web --release` succeeds.
 
 What a waiter can do today: sign in, choose an outlet, read the floor from the
 designer's own table coordinates, open a table, browse and search the menu,
@@ -356,14 +400,26 @@ round shown separately so it is never ambiguous which the kitchen has. The floor
 and an open ticket update live off the Socket.IO gateway, and a "food is ready"
 ticket raises an alert wherever the waiter is.
 
-What is **not** built: settling. No bill is closed, split, tipped or printed;
-the order stops at CONFIRMED and whatever the kitchen does to it afterwards.
-Sent lines are read-only — voiding one is a manager's action and belongs with
-the rest of Phase 6.
+…and **close the bill**: compose the tender, split it evenly, take mixed cash
+and card, work out change, settle, and show or queue the printed slip.
 
-Known rough edge, stated rather than hidden: a round is locked against edits
-while a submission is outstanding, because the frozen payload is what makes a
-resume safe. A waiter who wants to change it must stop the send first.
+What is **not** built:
+
+- **Transfers and merges** — no endpoint (see above).
+- **Voiding a sent line, discounts and tips.** Sent lines are read-only. A
+  discount is a manager's authority, and the settle payload's support for tips
+  and order-level discounts was never verified; guessing at a field that moves
+  money is exactly the wrong place to guess.
+- **Offline queueing, notifications and permission gating** — Phase 7.
+
+Known rough edges, stated rather than hidden:
+
+- A round is locked against edits while a submission is outstanding, because the
+  frozen payload is what makes a resume safe. A waiter who wants to change it
+  must stop the send first.
+- Settling does not free the table. No verified route sets a table's status, so
+  the app refetches the floor and says the table is free "once it has been
+  cleared down" rather than claiming to have done it.
 
 This document is updated as phases land rather than describing intent as if it
 were finished.

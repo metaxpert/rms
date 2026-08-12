@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:rms_core/rms_core.dart';
 import '../../features/authentication/application/auth_controller.dart';
 import '../../features/authentication/presentation/sign_in_screen.dart';
+import '../../features/bill/presentation/bill_screen.dart';
 import '../../features/branches/presentation/branch_selection_screen.dart';
 import '../../features/floor/presentation/floor_screen.dart';
 import '../../features/ticket/presentation/ticket_screen.dart';
@@ -18,6 +19,10 @@ abstract final class Routes {
   /// A table's ticket. The table object travels as `extra` to save a lookup,
   /// but the id is in the path so the route still works without it.
   static String ticket(String tableId) => '/table/$tableId';
+
+  /// The bill for a table. Nested under the ticket so backing out of a
+  /// settlement returns to the order rather than the floor.
+  static String bill(String tableId) => '/table/$tableId/bill';
 }
 
 /// Router with an authentication guard (brief §38).
@@ -55,6 +60,16 @@ final routerProvider = Provider<GoRouter>((ref) {
               tableId: state.pathParameters['tableId']!,
               table: state.extra as RestaurantTable?,
             ),
+            routes: [
+              GoRoute(
+                path: 'bill',
+                builder: (context, state) => BillScreen(
+                  tableId: state.pathParameters['tableId']!,
+                  // Only for the title; the bill itself is fetched by table id.
+                  tableCode: state.extra as String?,
+                ),
+              ),
+            ],
           ),
         ],
       ),

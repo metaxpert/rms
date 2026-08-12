@@ -46,6 +46,7 @@ export 'src/domain/menu.dart';
 export 'src/domain/order_detail.dart';
 export 'src/domain/order_status.dart';
 export 'src/domain/order_summary.dart';
+export 'src/domain/payment.dart';
 export 'src/domain/restaurant_config.dart';
 export 'src/domain/restaurant_table.dart';
 export 'src/domain/table_status.dart';
