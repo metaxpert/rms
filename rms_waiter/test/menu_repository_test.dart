@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:rms_core/rms_core.dart';
-import 'package:rms_waiter/src/features/menu/data/menu_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// The repository against recorded responses from the live Karahi Point API,

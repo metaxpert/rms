@@ -1,30 +1,25 @@
 import 'package:flutter/material.dart';
-import 'src/api.dart';
-import 'src/theme.dart';
-import 'src/screens/login_screen.dart';
-import 'src/screens/branch_screen.dart';
-import 'src/screens/menu_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:rms_core/rms_core.dart';
+import 'src/app/app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Api.instance.load();
-  runApp(const CustomerApp());
-}
 
-class CustomerApp extends StatelessWidget {
-  const CustomerApp({super.key});
+  final session = await Session.load();
+  // The basket is read synchronously while the menu builds, so preferences
+  // cannot be opened lazily.
+  final prefs = await SharedPreferences.getInstance();
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Karahi Point',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      home: !Api.instance.isAuthed
-          ? const LoginScreen()
-          : Api.instance.branchId == null
-              ? const BranchScreen()
-              : const MenuScreen(),
-    );
-  }
+  runApp(
+    ProviderScope(
+      overrides: [
+        sessionProvider.overrideWithValue(session),
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: const CustomerApp(),
+    ),
+  );
 }

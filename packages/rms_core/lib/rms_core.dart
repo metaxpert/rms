@@ -45,6 +45,10 @@ export 'src/realtime/realtime_event.dart';
 // Dependency graph
 export 'src/providers.dart';
 
+// The catalogue. Shared because a waiter's picker and a customer's menu read
+// exactly the same three endpoints; only the presentation differs.
+export 'src/menu/menu_repository.dart';
+
 // Design system and shared state surfaces
 export 'src/theme/app_theme.dart';
 export 'src/widgets/state_views.dart';

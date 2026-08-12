@@ -1,7 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:rms_core/rms_core.dart';
+import '../auth/session.dart';
+import '../domain/menu.dart';
+import '../domain/restaurant_config.dart';
+import '../net/api_client.dart';
+import '../providers.dart';
 
 /// Everything the item picker needs for one outlet.
 @immutable

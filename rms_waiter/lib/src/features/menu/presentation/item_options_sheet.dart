@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:rms_core/rms_core.dart';
-import '../data/menu_repository.dart';
+
 
 /// Configure one dish before it joins the ticket: options, quantity, and what
 /// the kitchen should know.

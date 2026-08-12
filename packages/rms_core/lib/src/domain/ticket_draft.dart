@@ -249,6 +249,40 @@ class DraftTotals {
   final Money total;
 }
 
+/// Price a set of lines the way the server will, mirroring `recomputeTotals`.
+///
+/// Free of any notion of a table, because a customer's basket and a waiter's
+/// ticket are the same arithmetic on the same backend: the moment those two
+/// disagree by a paisa, one of the two screens is lying about a bill.
+///
+/// Tip and order-level discount are settlement concerns and are always zero
+/// here; rounding is not, because the server rounds the total on every write,
+/// so an unrounded total would disagree with the order the moment it is
+/// created.
+DraftTotals computeDraftTotals(
+  List<DraftLine> lines,
+  RestaurantConfig config,
+) {
+  final currency = lines.isEmpty ? config.currency : lines.first.currency;
+  final zero = Money(0, currency);
+
+  final subtotal = lines.fold(zero, (sum, l) => sum + l.subtotalGross);
+  final tax = lines.fold(zero, (sum, l) => sum + l.tax);
+  // Floor, like the backend's service charge — not [Money.applyBp].
+  final serviceCharge = subtotal.taxAt(config.serviceChargeBp);
+  final preRound = subtotal + tax + serviceCharge;
+  final total =
+      config.roundingEnabled ? preRound.roundedToNearest(100) : preRound;
+
+  return DraftTotals(
+    subtotal: subtotal,
+    tax: tax,
+    serviceCharge: serviceCharge,
+    rounding: total - preRound,
+    total: total,
+  );
+}
+
 /// A whole ticket in progress for one table.
 @immutable
 class TicketDraft {
@@ -292,31 +326,8 @@ class TicketDraft {
       );
 
   /// Totals, mirroring `recomputeTotals`.
-  ///
-  /// Tip and order-level discount are settlement concerns and are always zero
-  /// here; rounding is not, because the server rounds the total on every write,
-  /// so an unrounded draft total would disagree with the order the moment it is
-  /// created.
-  DraftTotals totals(RestaurantConfig config) {
-    final currency = lines.isEmpty ? config.currency : lines.first.currency;
-    final zero = Money(0, currency);
-
-    final subtotal = lines.fold(zero, (sum, l) => sum + l.subtotalGross);
-    final tax = lines.fold(zero, (sum, l) => sum + l.tax);
-    // Floor, like the backend's service charge — not [Money.applyBp].
-    final serviceCharge = subtotal.taxAt(config.serviceChargeBp);
-    final preRound = subtotal + tax + serviceCharge;
-    final total =
-        config.roundingEnabled ? preRound.roundedToNearest(100) : preRound;
-
-    return DraftTotals(
-      subtotal: subtotal,
-      tax: tax,
-      serviceCharge: serviceCharge,
-      rounding: total - preRound,
-      total: total,
-    );
-  }
+  DraftTotals totals(RestaurantConfig config) =>
+      computeDraftTotals(lines, config);
 
   /// Add a line, merging into an identical one rather than repeating it.
   TicketDraft add(DraftLine line, {required DateTime now}) {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:rms_core/rms_core.dart';
-import '../data/menu_repository.dart';
+
 import 'item_options_sheet.dart';
 
 /// The menu, as a full-height sheet over the ticket.
