@@ -2,37 +2,76 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../app/config/environment.dart';
+import 'storage/secret_store.dart';
+
 /// Persisted sign-in state: server address, tokens, and the active outlet.
 ///
-/// Kept deliberately separate from the HTTP client so token storage can be
-/// swapped (e.g. for `flutter_secure_storage` on managed devices) without
-/// touching request logic.
+/// Split by sensitivity (brief §29): access/refresh tokens go to the platform
+/// keystore via [SecretStore]; everything else (base URL, branch, remembered
+/// email) goes to `shared_preferences`, which is plain XML on disk and readable
+/// by anyone who plugs a restaurant tablet into a laptop.
+///
+/// Token values are mirrored in memory after [load] so header construction on
+/// the hot request path stays synchronous — the keystore is only touched on
+/// read-at-startup and on write.
 class Session {
-  Session._(this._prefs);
+  Session._(this._prefs, this._secrets);
 
-  static const _kBase = 'api_base';
+  // Secret keys (keystore).
   static const _kAccess = 'access_token';
   static const _kRefresh = 'refresh_token';
+
+  // Non-sensitive keys (preferences).
+  static const _kBase = 'api_base';
   static const _kExpiry = 'access_expires_at';
   static const _kBranch = 'branch_id';
   static const _kEmail = 'last_email';
 
-  /// Android emulator reaches the host at 10.0.2.2. Overridden on the sign-in
-  /// screen; production installs point at https://<host>/api.
-  static const defaultBase = 'http://10.0.2.2:3399';
-
   final SharedPreferences _prefs;
+  final SecretStore _secrets;
 
-  static Future<Session> load() async =>
-      Session._(await SharedPreferences.getInstance());
+  String? _accessToken;
+  String? _refreshToken;
 
-  String get baseUrl => _prefs.getString(_kBase) ?? defaultBase;
-  String? get accessToken => _prefs.getString(_kAccess);
-  String? get refreshToken => _prefs.getString(_kRefresh);
+  static Future<Session> load({SecretStore? secretStore}) async {
+    final prefs = await SharedPreferences.getInstance();
+    final secrets = secretStore ?? SecureSecretStore();
+    final session = Session._(prefs, secrets);
+    await session._hydrate();
+    return session;
+  }
+
+  Future<void> _hydrate() async {
+    _accessToken = await _secrets.read(_kAccess);
+    _refreshToken = await _secrets.read(_kRefresh);
+    await _migrateLegacyTokens();
+  }
+
+  /// Earlier builds stored the access token in `shared_preferences` under
+  /// `token`. Move any such value into the keystore once, then erase the
+  /// plaintext copy — otherwise upgrading users keep a readable token on disk
+  /// forever.
+  Future<void> _migrateLegacyTokens() async {
+    const legacyKey = 'token';
+    final legacy = _prefs.getString(legacyKey);
+    if (legacy == null) return;
+    if (_accessToken == null) {
+      _accessToken = legacy;
+      await _secrets.write(_kAccess, legacy);
+    }
+    await _prefs.remove(legacyKey);
+  }
+
+  String get baseUrl =>
+      _prefs.getString(_kBase) ?? Environment.current.defaultApiBase;
+
+  String? get accessToken => _accessToken;
+  String? get refreshToken => _refreshToken;
   String? get branchId => _prefs.getString(_kBranch);
   String? get lastEmail => _prefs.getString(_kEmail);
 
-  bool get isAuthenticated => accessToken != null;
+  bool get isAuthenticated => _accessToken != null;
 
   DateTime? get accessExpiresAt {
     final ms = _prefs.getInt(_kExpiry);
@@ -41,13 +80,13 @@ class Session {
 
   /// True when the access token is gone or within [skew] of expiring.
   ///
-  /// The refresh is done *before* the request rather than after a 401, so a
-  /// waiter never sees a failure that we could have prevented. The skew covers
-  /// the round trip plus clock drift between the phone and the server.
+  /// Refreshing *before* the request rather than after a 401 means a waiter
+  /// never eats a failure we could have prevented. The skew covers the round
+  /// trip plus clock drift between the tablet and the server.
   bool accessTokenExpiring({Duration skew = const Duration(seconds: 60)}) {
-    if (accessToken == null) return true;
+    if (_accessToken == null) return true;
     final expiry = accessExpiresAt;
-    if (expiry == null) return false; // unknown lifetime: rely on 401 handling
+    if (expiry == null) return false; // unknown lifetime: fall back to 401 handling
     return DateTime.now().add(skew).isAfter(expiry);
   }
 
@@ -61,11 +100,13 @@ class Session {
     String? refreshToken,
     String? expiresIn,
   }) async {
-    await _prefs.setString(_kAccess, accessToken);
+    _accessToken = accessToken;
+    await _secrets.write(_kAccess, accessToken);
     if (refreshToken != null) {
-      await _prefs.setString(_kRefresh, refreshToken);
+      _refreshToken = refreshToken;
+      await _secrets.write(_kRefresh, refreshToken);
     }
-    final ttl = _parseTtl(expiresIn);
+    final ttl = parseTtl(expiresIn);
     if (ttl != null) {
       await _prefs.setInt(
         _kExpiry,
@@ -87,17 +128,20 @@ class Session {
   Future<void> rememberEmail(String email) => _prefs.setString(_kEmail, email);
 
   /// Clear credentials but keep the server address and remembered email — a
-  /// waiter signing back in on the same till should not have to retype the API
-  /// URL, which they typically do not know.
+  /// waiter signing back in on the same till should not have to retype an API
+  /// URL they do not know.
   Future<void> clear() async {
-    await _prefs.remove(_kAccess);
-    await _prefs.remove(_kRefresh);
+    _accessToken = null;
+    _refreshToken = null;
+    await _secrets.delete(_kAccess);
+    await _secrets.delete(_kRefresh);
     await _prefs.remove(_kExpiry);
     await _prefs.remove(_kBranch);
   }
 
-  /// The API reports lifetimes as "15m" / "3600s" / "1h", not seconds.
-  static Duration? _parseTtl(String? value) {
+  /// The API reports lifetimes as "15m" / "3600s" / "1h", not raw seconds.
+  /// Visible for testing.
+  static Duration? parseTtl(String? value) {
     if (value == null || value.isEmpty) return null;
     final match = RegExp(r'^(\d+)\s*([smhd]?)$').firstMatch(value.trim());
     if (match == null) return null;
@@ -110,23 +154,39 @@ class Session {
     };
   }
 
-  /// Decode the JWT payload without verifying it.
+  /// Decode the JWT payload WITHOUT verifying it.
   ///
-  /// Verification is the server's job — this is only used to show who is signed
-  /// in and to recover an expiry when the login response omits `expiresIn`.
-  /// Nothing security-relevant may depend on it.
+  /// Verification is the server's job. This is used only to show who is signed
+  /// in and to gate UI affordances on `perms`; nothing security-relevant may
+  /// depend on it (brief §21 — the client is never the authorization boundary).
   Map<String, dynamic>? get accessTokenClaims {
-    final token = accessToken;
+    final token = _accessToken;
     if (token == null) return null;
     final parts = token.split('.');
     if (parts.length != 3) return null;
     try {
-      final normalised = base64Url.normalize(parts[1]);
-      final decoded = utf8.decode(base64Url.decode(normalised));
+      final decoded = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
       final map = jsonDecode(decoded);
       return map is Map<String, dynamic> ? map : null;
     } catch (_) {
       return null;
     }
   }
+
+  /// Permissions carried by the access token, e.g. `restaurant:order:write`.
+  /// `*` means all permissions (tenant admin).
+  Set<String> get permissions {
+    final claims = accessTokenClaims;
+    final perms = claims?['perms'];
+    if (perms is List) return perms.whereType<String>().toSet();
+    return const {};
+  }
+
+  bool hasPermission(String permission) {
+    final perms = permissions;
+    return perms.contains('*') || perms.contains(permission);
+  }
+
+  String? get userId => accessTokenClaims?['sub'] as String?;
+  String? get tenantId => accessTokenClaims?['tenantId'] as String?;
 }
