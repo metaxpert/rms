@@ -13,12 +13,20 @@ class TableCard extends StatelessWidget {
     required this.table,
     required this.order,
     required this.onTap,
+    this.hasDraft = false,
     this.compact = false,
   });
 
   final RestaurantTable table;
   final OrderSummary? order;
   final VoidCallback? onTap;
+
+  /// An order taken on this tablet that has NOT been sent to the kitchen.
+  ///
+  /// Shown on the floor because an unsent ticket is invisible to everyone else —
+  /// the kitchen has no idea it exists, and a waiter walking past should be
+  /// able to see that this table is waiting on them.
+  final bool hasDraft;
 
   /// Spatial layout packs tables tighter than the grid does.
   final bool compact;
@@ -45,6 +53,7 @@ class TableCard extends StatelessWidget {
         if (order != null)
           'order ${order!.status.label} ${order!.total.display}',
         if (needsAttention) 'food ready',
+        if (hasDraft) 'unsent ticket',
       ].join(', '),
       child: Material(
         color: accent.withValues(alpha: needsAttention ? 0.18 : 0.07),
@@ -81,6 +90,15 @@ class TableCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                    if (hasDraft)
+                      Padding(
+                        padding: const EdgeInsets.only(right: AppSpacing.xs),
+                        child: Icon(
+                          Icons.edit_note_rounded,
+                          size: compact ? 16 : 20,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
                     Icon(status.icon, size: compact ? 16 : 20, color: accent),
                   ],
                 ),
@@ -110,6 +128,16 @@ class TableCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (hasDraft && !compact) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    'Unsent ticket',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
                 if (table.isMerged) ...[
                   const SizedBox(height: AppSpacing.xs),
                   Text(

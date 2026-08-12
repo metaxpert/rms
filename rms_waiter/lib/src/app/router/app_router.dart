@@ -2,16 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:rms_core/rms_core.dart';
 import '../../features/authentication/application/auth_controller.dart';
 import '../../features/authentication/presentation/sign_in_screen.dart';
 import '../../features/branches/presentation/branch_selection_screen.dart';
 import '../../features/floor/presentation/floor_screen.dart';
+import '../../features/ticket/presentation/ticket_screen.dart';
 
 /// Route names, so no screen navigates with a magic string (brief §33).
 abstract final class Routes {
   static const signIn = '/sign-in';
   static const selectBranch = '/select-branch';
   static const home = '/';
+
+  /// A table's ticket. The table object travels as `extra` to save a lookup,
+  /// but the id is in the path so the route still works without it.
+  static String ticket(String tableId) => '/table/$tableId';
 }
 
 /// Router with an authentication guard (brief §38).
@@ -42,6 +48,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.home,
         builder: (context, state) => const FloorScreen(),
+        routes: [
+          GoRoute(
+            path: 'table/:tableId',
+            builder: (context, state) => TicketScreen(
+              tableId: state.pathParameters['tableId']!,
+              table: state.extra as RestaurantTable?,
+            ),
+          ),
+        ],
       ),
     ],
     redirect: (context, state) {

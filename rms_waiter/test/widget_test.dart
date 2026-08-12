@@ -15,7 +15,13 @@ Future<Session> _session({Map<String, Object> prefs = const {}}) async {
 Future<void> _pumpApp(WidgetTester tester, Session session) async {
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [sessionProvider.overrideWithValue(session)],
+      // Both overrides that `main()` installs, so the harness cannot pass on a
+      // dependency the real app would be missing.
+      overrides: [
+        sessionProvider.overrideWithValue(session),
+        sharedPreferencesProvider
+            .overrideWithValue(await SharedPreferences.getInstance()),
+      ],
       child: const WaiterApp(),
     ),
   );

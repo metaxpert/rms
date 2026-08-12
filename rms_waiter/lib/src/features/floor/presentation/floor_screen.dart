@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../../app/router/app_router.dart';
 import '../../authentication/application/auth_controller.dart';
+import '../../ticket/data/draft_store.dart';
 import '../data/floor_repository.dart';
 import 'table_card.dart';
 
@@ -47,6 +50,8 @@ class _FloorScreenState extends ConsumerState<FloorScreen> {
         ),
         data: (floor) => _FloorBody(
           floor: floor,
+          // Tables holding an order taken but not yet sent to the kitchen.
+          draftTableIds: ref.watch(tablesWithDraftsProvider),
           selectedAreaId: _selectedAreaId,
           onAreaSelected: (id) => setState(() => _selectedAreaId = id),
           onRefresh: () async => ref.invalidate(floorSnapshotProvider),
@@ -59,12 +64,14 @@ class _FloorScreenState extends ConsumerState<FloorScreen> {
 class _FloorBody extends StatelessWidget {
   const _FloorBody({
     required this.floor,
+    required this.draftTableIds,
     required this.selectedAreaId,
     required this.onAreaSelected,
     required this.onRefresh,
   });
 
   final FloorSnapshot floor;
+  final Set<String> draftTableIds;
   final String? selectedAreaId;
   final ValueChanged<String> onAreaSelected;
   final Future<void> Function() onRefresh;
@@ -116,7 +123,11 @@ class _FloorBody extends StatelessWidget {
                       ),
                     ],
                   )
-                : _TableLayout(floor: floor, tables: tables),
+                : _TableLayout(
+                    floor: floor,
+                    tables: tables,
+                    draftTableIds: draftTableIds,
+                  ),
           ),
         ),
       ],
@@ -240,10 +251,15 @@ class _AreaSelector extends StatelessWidget {
 /// responsive grid when they do not (brief §7 — use the backend's layout
 /// metadata, never invent a second incompatible one).
 class _TableLayout extends StatelessWidget {
-  const _TableLayout({required this.floor, required this.tables});
+  const _TableLayout({
+    required this.floor,
+    required this.tables,
+    required this.draftTableIds,
+  });
 
   final FloorSnapshot floor;
   final List<RestaurantTable> tables;
+  final Set<String> draftTableIds;
 
   @override
   Widget build(BuildContext context) {
@@ -255,16 +271,29 @@ class _TableLayout extends StatelessWidget {
         positioned.length == tables.length && positioned.isNotEmpty;
 
     return useSpatial
-        ? _SpatialFloorPlan(floor: floor, tables: tables)
-        : _TableGrid(floor: floor, tables: tables);
+        ? _SpatialFloorPlan(
+            floor: floor,
+            tables: tables,
+            draftTableIds: draftTableIds,
+          )
+        : _TableGrid(
+            floor: floor,
+            tables: tables,
+            draftTableIds: draftTableIds,
+          );
   }
 }
 
 class _SpatialFloorPlan extends StatelessWidget {
-  const _SpatialFloorPlan({required this.floor, required this.tables});
+  const _SpatialFloorPlan({
+    required this.floor,
+    required this.tables,
+    required this.draftTableIds,
+  });
 
   final FloorSnapshot floor;
   final List<RestaurantTable> tables;
+  final Set<String> draftTableIds;
 
   @override
   Widget build(BuildContext context) {
@@ -306,6 +335,7 @@ class _SpatialFloorPlan extends StatelessWidget {
                       child: TableCard(
                         table: table,
                         order: floor.orderFor(table),
+                        hasDraft: draftTableIds.contains(table.id),
                         compact: true,
                         onTap: () => _openTable(context, table),
                       ),
@@ -321,10 +351,15 @@ class _SpatialFloorPlan extends StatelessWidget {
 }
 
 class _TableGrid extends StatelessWidget {
-  const _TableGrid({required this.floor, required this.tables});
+  const _TableGrid({
+    required this.floor,
+    required this.tables,
+    required this.draftTableIds,
+  });
 
   final FloorSnapshot floor;
   final List<RestaurantTable> tables;
+  final Set<String> draftTableIds;
 
   @override
   Widget build(BuildContext context) {
@@ -345,6 +380,7 @@ class _TableGrid extends StatelessWidget {
         return TableCard(
           table: table,
           order: floor.orderFor(table),
+          hasDraft: draftTableIds.contains(table.id),
           onTap: () => _openTable(context, table),
         );
       },
@@ -352,15 +388,11 @@ class _TableGrid extends StatelessWidget {
   }
 }
 
-/// Opening a ticket is Phase 4. Saying so beats a dead tap that leaves a waiter
-/// wondering whether the app registered it.
+/// Open the table's ticket.
+///
+/// The table travels as `extra` so the ticket screen does not have to wait on a
+/// floor fetch it already has the answer to; the id in the path is what makes
+/// the route survive without it.
 void _openTable(BuildContext context, RestaurantTable table) {
-  ScaffoldMessenger.of(context)
-    ..clearSnackBars()
-    ..showSnackBar(
-      SnackBar(
-        content:
-            Text('Table ${table.code} — ordering arrives in the next phase'),
-      ),
-    );
+  context.push(Routes.ticket(table.id), extra: table);
 }
