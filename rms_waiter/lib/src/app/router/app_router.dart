@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/authentication/application/auth_controller.dart';
 import '../../features/authentication/presentation/sign_in_screen.dart';
 import '../../features/branches/presentation/branch_selection_screen.dart';
-import '../../features/home/presentation/home_screen.dart';
+import '../../features/floor/presentation/floor_screen.dart';
 
 /// Route names, so no screen navigates with a magic string (brief §33).
 abstract final class Routes {
@@ -41,7 +41,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: Routes.home,
-        builder: (context, state) => const HomeScreen(),
+        builder: (context, state) => const FloorScreen(),
       ),
     ],
     redirect: (context, state) {
