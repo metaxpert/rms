@@ -1,12 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:rms_core/rms_core.dart';
-import '../application/auth_controller.dart';
+import '../config/environment.dart';
+import '../providers.dart';
+import '../theme/app_theme.dart';
+import 'auth_controller.dart';
 import 'server_settings_sheet.dart';
 
+/// Sign in. Shared by all four apps.
+///
+/// The journey is identical everywhere — the same endpoint, the same rotating
+/// refresh token, the same "which outlet?" question afterwards — and it was
+/// previously written out four times, which is how four copies of the same
+/// missing token refresh got shipped. What genuinely differs between a waiter's
+/// till and a rider's phone is the wording and the icon, so those are the only
+/// things this takes.
 class SignInScreen extends ConsumerStatefulWidget {
-  const SignInScreen({super.key});
+  const SignInScreen({
+    super.key,
+    required this.title,
+    this.icon = Icons.restaurant_menu_rounded,
+  });
+
+  /// e.g. "Waiter sign in". Staff share a building and sometimes a device pile;
+  /// naming the app on its own sign-in screen is how someone knows they picked
+  /// up the right tablet.
+  final String title;
+
+  final IconData icon;
 
   @override
   ConsumerState<SignInScreen> createState() => _SignInScreenState();
@@ -63,13 +84,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Icon(
-                      Icons.restaurant_menu_rounded,
+                      widget.icon,
                       size: 64,
                       color: theme.colorScheme.primary,
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     Text(
-                      'Waiter sign in',
+                      widget.title,
                       style: theme.textTheme.headlineSmall
                           ?.copyWith(fontWeight: FontWeight.w600),
                       textAlign: TextAlign.center,

@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:rms_core/rms_core.dart';
+import '../domain/branch.dart';
+import '../net/api_client.dart';
+import '../providers.dart';
 
 class BranchRepository {
   BranchRepository(this._client);

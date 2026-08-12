@@ -1,14 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:rms_core/rms_core.dart';
-import '../../authentication/application/auth_controller.dart';
-import '../data/branch_repository.dart';
+import '../auth/auth_controller.dart';
+import '../domain/branch.dart';
+import '../theme/app_theme.dart';
+import '../widgets/state_views.dart';
+import 'branch_repository.dart';
 
 /// Outlet picker. Every branch-scoped read depends on this choice, so it is a
 /// gate rather than a setting buried in a menu.
+///
+/// Shared by all four apps: an outlet means the same thing to a rider as to a
+/// waiter, and the consequence of skipping it is the same everywhere — every
+/// branch-scoped read silently falls back to another outlet's data.
 class BranchSelectionScreen extends ConsumerWidget {
-  const BranchSelectionScreen({super.key});
+  const BranchSelectionScreen({super.key, this.title = 'Choose your outlet'});
+
+  final String title;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,7 +24,7 @@ class BranchSelectionScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Choose your outlet'),
+        title: Text(title),
         actions: [
           TextButton.icon(
             onPressed: () =>

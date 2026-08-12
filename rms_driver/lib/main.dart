@@ -1,25 +1,26 @@
 import 'package:flutter/material.dart';
-import 'src/api.dart';
-import 'src/theme.dart';
-import 'src/screens/login_screen.dart';
-import 'src/screens/deliveries_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:rms_core/rms_core.dart';
+import 'src/app/app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Api.instance.load();
-  runApp(const DriverApp());
-}
 
-class DriverApp extends StatelessWidget {
-  const DriverApp({super.key});
+  // Session.load reads the platform keystore, so it must finish before the
+  // first frame — otherwise the router would decide the rider is signed out and
+  // bounce them to the login screen on every cold start.
+  final session = await Session.load();
+  final prefs = await SharedPreferences.getInstance();
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'RMS Driver',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      home: Api.instance.isAuthed ? const DeliveriesScreen() : const LoginScreen(),
-    );
-  }
+  runApp(
+    ProviderScope(
+      overrides: [
+        sessionProvider.overrideWithValue(session),
+        sharedPreferencesProvider.overrideWithValue(prefs),
+      ],
+      child: const DriverApp(),
+    ),
+  );
 }

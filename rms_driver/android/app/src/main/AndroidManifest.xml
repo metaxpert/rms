@@ -1,4 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Riders share their position while a run is in progress so the customer's
+         tracking map is real. Coarse is declared alongside fine because Android
+         12+ lets the user grant only the approximate one, and an approximate
+         fix still tells a customer roughly where their food is. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:label="rms_driver"
         android:name="${applicationName}"

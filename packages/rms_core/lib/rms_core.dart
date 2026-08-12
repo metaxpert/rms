@@ -28,6 +28,16 @@ export 'src/net/api_client.dart';
 export 'src/auth/session.dart';
 export 'src/storage/secret_store.dart';
 
+// The sign-in journey, shared by all four apps. Identical everywhere except
+// the wording — writing it out per app is how four copies of the same missing
+// token refresh got shipped.
+export 'src/auth/auth_controller.dart';
+export 'src/auth/auth_repository.dart';
+export 'src/auth/sign_in_screen.dart';
+export 'src/auth/server_settings_sheet.dart';
+export 'src/branches/branch_repository.dart';
+export 'src/branches/branch_selection_screen.dart';
+
 // Realtime — an accelerator over the REST contract, never a replacement for it.
 export 'src/realtime/realtime_client.dart';
 export 'src/realtime/realtime_event.dart';

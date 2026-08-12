@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:rms_core/rms_core.dart';
+import '../errors/api_exception.dart';
+import '../net/api_client.dart';
+import '../providers.dart';
+import 'session.dart';
 
 /// Talks to `/auth/*`. The only place login/logout wire formats are known.
 class AuthRepository {

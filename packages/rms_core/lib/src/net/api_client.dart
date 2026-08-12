@@ -44,6 +44,14 @@ class ApiClient {
   /// Set by the app shell; kept as a callback so this layer has no UI import.
   void Function()? onAuthenticationLost;
 
+  /// Pass as `idempotencyKey` to send a mutation with **no** key at all.
+  ///
+  /// For a call that is a stream of distinct facts rather than an operation to
+  /// be repeated safely — a rider's location pings, where every ping is new and
+  /// none should ever be replayed. Keying those would fill the server's
+  /// idempotency table with one row per ping for no benefit.
+  static const unkeyed = '';
+
   Future<dynamic> get(String path) => _send('GET', path);
 
   /// [idempotencyKey] lets a CALLER own the key rather than this client minting
@@ -104,8 +112,9 @@ class ApiClient {
     // One idempotency key per logical request, reused across transport retries
     // so a settle that timed out and got retried cannot post twice. A caller
     // that owns a key across user-level retries passes its own.
-    final key =
-        idempotencyKey ?? (_isMutation(method) ? _newIdempotencyKey() : null);
+    final key = idempotencyKey == unkeyed
+        ? null
+        : idempotencyKey ?? (_isMutation(method) ? _newIdempotencyKey() : null);
 
     Object? lastError;
     for (var attempt = 1; attempt <= _maxAttempts; attempt++) {

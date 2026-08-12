@@ -3,10 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:rms_core/rms_core.dart';
-import '../../features/authentication/application/auth_controller.dart';
-import '../../features/authentication/presentation/sign_in_screen.dart';
 import '../../features/bill/presentation/bill_screen.dart';
-import '../../features/branches/presentation/branch_selection_screen.dart';
 import '../../features/floor/presentation/floor_screen.dart';
 import '../../features/ticket/presentation/ticket_screen.dart';
 
@@ -44,7 +41,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: Routes.signIn,
-        builder: (context, state) => const SignInScreen(),
+        builder: (context, state) =>
+            const SignInScreen(title: 'Waiter sign in'),
       ),
       GoRoute(
         path: Routes.selectBranch,
