@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'live_sync.dart';
 import 'router/app_router.dart';
 import 'package:rms_core/rms_core.dart';
 
@@ -15,6 +16,9 @@ class WaiterApp extends ConsumerWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       routerConfig: ref.watch(routerProvider),
+      // Held outside the router so a kitchen alert can reach the waiter on
+      // whichever screen they are on, including one pushed over the floor.
+      scaffoldMessengerKey: ref.watch(scaffoldMessengerKeyProvider),
       builder: (context, child) {
         // Respect the device's text-size setting for accessibility (brief §25),
         // but clamp the upper end: past ~1.3x the floor grid reflows so far that
@@ -28,7 +32,10 @@ class WaiterApp extends ConsumerWidget {
               maxScaleFactor: 1.3,
             ),
           ),
-          child: child ?? const SizedBox.shrink(),
+          // Above the router rather than inside a screen: the socket must
+          // outlive any one route, and must be closed on sign-out wherever the
+          // waiter was when the session ended.
+          child: LiveSync(child: child ?? const SizedBox.shrink()),
         );
       },
     );

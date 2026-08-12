@@ -6,6 +6,7 @@ import 'package:rms_core/rms_core.dart';
 import '../../../app/router/app_router.dart';
 import '../../authentication/application/auth_controller.dart';
 import '../../ticket/data/draft_store.dart';
+import '../../ticket/data/pending_send_store.dart';
 import '../data/floor_repository.dart';
 import 'table_card.dart';
 
@@ -28,6 +29,7 @@ class _FloorScreenState extends ConsumerState<FloorScreen> {
       appBar: AppBar(
         title: const Text('Floor'),
         actions: [
+          const _ConnectionIndicator(),
           IconButton(
             onPressed: () =>
                 ref.read(authControllerProvider.notifier).clearBranch(),
@@ -52,9 +54,58 @@ class _FloorScreenState extends ConsumerState<FloorScreen> {
           floor: floor,
           // Tables holding an order taken but not yet sent to the kitchen.
           draftTableIds: ref.watch(tablesWithDraftsProvider),
+          // Tables whose send stopped part-way. More urgent than a draft: a
+          // bill may already exist server-side with nothing behind it.
+          pendingSendTableIds: ref.watch(tablesWithPendingSendsProvider),
           selectedAreaId: _selectedAreaId,
           onAreaSelected: (id) => setState(() => _selectedAreaId = id),
           onRefresh: () async => ref.invalidate(floorSnapshotProvider),
+        ),
+      ),
+    );
+  }
+}
+
+/// Whether the app currently has a live feed, stated plainly.
+///
+/// Shown because "offline" changes what a waiter should trust: with the socket
+/// down, another till's actions only reach this tablet on the next refresh. It
+/// is never a blocker — the floor is correct either way, just not as prompt.
+class _ConnectionIndicator extends ConsumerWidget {
+  const _ConnectionIndicator();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final status =
+        ref.watch(realtimeStatusProvider).valueOrNull ?? RealtimeStatus.idle;
+
+    // A connected socket is the normal case and needs no chrome; only its
+    // absence is worth a waiter's attention.
+    if (status == RealtimeStatus.live || status == RealtimeStatus.idle) {
+      return const SizedBox.shrink();
+    }
+
+    final connecting = status == RealtimeStatus.connecting;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+      child: Tooltip(
+        message: connecting
+            ? 'Connecting to live updates'
+            : 'Live updates are offline — pull down to refresh',
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              connecting ? Icons.sync_rounded : Icons.cloud_off_rounded,
+              size: 18,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Text(
+              connecting ? 'Connecting' : 'Offline',
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+          ],
         ),
       ),
     );
@@ -65,6 +116,7 @@ class _FloorBody extends StatelessWidget {
   const _FloorBody({
     required this.floor,
     required this.draftTableIds,
+    required this.pendingSendTableIds,
     required this.selectedAreaId,
     required this.onAreaSelected,
     required this.onRefresh,
@@ -72,6 +124,7 @@ class _FloorBody extends StatelessWidget {
 
   final FloorSnapshot floor;
   final Set<String> draftTableIds;
+  final Set<String> pendingSendTableIds;
   final String? selectedAreaId;
   final ValueChanged<String> onAreaSelected;
   final Future<void> Function() onRefresh;
@@ -127,6 +180,7 @@ class _FloorBody extends StatelessWidget {
                     floor: floor,
                     tables: tables,
                     draftTableIds: draftTableIds,
+                    pendingSendTableIds: pendingSendTableIds,
                   ),
           ),
         ),
@@ -255,11 +309,13 @@ class _TableLayout extends StatelessWidget {
     required this.floor,
     required this.tables,
     required this.draftTableIds,
+    required this.pendingSendTableIds,
   });
 
   final FloorSnapshot floor;
   final List<RestaurantTable> tables;
   final Set<String> draftTableIds;
+  final Set<String> pendingSendTableIds;
 
   @override
   Widget build(BuildContext context) {
@@ -275,11 +331,13 @@ class _TableLayout extends StatelessWidget {
             floor: floor,
             tables: tables,
             draftTableIds: draftTableIds,
+            pendingSendTableIds: pendingSendTableIds,
           )
         : _TableGrid(
             floor: floor,
             tables: tables,
             draftTableIds: draftTableIds,
+            pendingSendTableIds: pendingSendTableIds,
           );
   }
 }
@@ -289,11 +347,13 @@ class _SpatialFloorPlan extends StatelessWidget {
     required this.floor,
     required this.tables,
     required this.draftTableIds,
+    required this.pendingSendTableIds,
   });
 
   final FloorSnapshot floor;
   final List<RestaurantTable> tables;
   final Set<String> draftTableIds;
+  final Set<String> pendingSendTableIds;
 
   @override
   Widget build(BuildContext context) {
@@ -336,6 +396,7 @@ class _SpatialFloorPlan extends StatelessWidget {
                         table: table,
                         order: floor.orderFor(table),
                         hasDraft: draftTableIds.contains(table.id),
+                        hasPendingSend: pendingSendTableIds.contains(table.id),
                         compact: true,
                         onTap: () => _openTable(context, table),
                       ),
@@ -355,11 +416,13 @@ class _TableGrid extends StatelessWidget {
     required this.floor,
     required this.tables,
     required this.draftTableIds,
+    required this.pendingSendTableIds,
   });
 
   final FloorSnapshot floor;
   final List<RestaurantTable> tables;
   final Set<String> draftTableIds;
+  final Set<String> pendingSendTableIds;
 
   @override
   Widget build(BuildContext context) {
@@ -381,6 +444,7 @@ class _TableGrid extends StatelessWidget {
           table: table,
           order: floor.orderFor(table),
           hasDraft: draftTableIds.contains(table.id),
+          hasPendingSend: pendingSendTableIds.contains(table.id),
           onTap: () => _openTable(context, table),
         );
       },

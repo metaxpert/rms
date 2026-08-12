@@ -5,9 +5,109 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rms_core/rms_core.dart';
 import 'package:rms_waiter/src/features/menu/data/menu_repository.dart';
+import 'package:rms_waiter/src/features/orders/data/order_repository.dart';
 import 'package:rms_waiter/src/features/ticket/data/draft_store.dart';
+import 'package:rms_waiter/src/features/ticket/data/pending_send_store.dart';
 import 'package:rms_waiter/src/features/ticket/presentation/ticket_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+/// Enough of the order API to drive the screen. The call-ordering and
+/// resume rules are covered properly in `send_test.dart`; here it only has to
+/// let the widgets get somewhere.
+class _StubOrders implements OrderRepository {
+  _StubOrders({this.existing, this.failSend});
+
+  OrderDetail? existing;
+
+  /// When set, every write fails with it — for the "did not reach the kitchen"
+  /// path.
+  final ApiException? failSend;
+
+  static OrderDetail order({
+    required String status,
+    List<Map<String, dynamic>> items = const [],
+  }) =>
+      OrderDetail.fromJson({
+        'id': 'order-1',
+        'orderNo': 'ORD-000007',
+        'status': status,
+        'channel': 'DINE_IN',
+        'table': 'D1',
+        'guestCount': 4,
+        'totals': const {
+          'subtotal': {'amountMinor': 120000, 'currency': 'PKR'},
+          'tax': {'amountMinor': 19200, 'currency': 'PKR'},
+          'total': {'amountMinor': 139200, 'currency': 'PKR'},
+        },
+        'items': items,
+      });
+
+  @override
+  Future<OrderDetail?> openOrderForTable(String tableId) async => existing;
+
+  @override
+  Future<OrderDetail> fetch(String orderId) async =>
+      existing ?? order(status: 'DRAFT');
+
+  @override
+  Future<OrderDetail?> create({
+    required String tableId,
+    required int? guestCount,
+    required String idempotencyKey,
+  }) async {
+    if (failSend != null) throw failSend!;
+    return existing = order(status: 'DRAFT');
+  }
+
+  @override
+  Future<OrderDetail?> addItems({
+    required String orderId,
+    required List<Map<String, dynamic>> items,
+    required String idempotencyKey,
+  }) async {
+    if (failSend != null) throw failSend!;
+    return existing = order(status: 'DRAFT', items: [
+      {
+        'id': 'line-1',
+        'name': 'Garlic Naan',
+        'qty': items.first['qty'],
+        'unitPrice': const {'amountMinor': 12000, 'currency': 'PKR'},
+        'lineTotal': const {'amountMinor': 13920, 'currency': 'PKR'},
+      },
+    ]);
+  }
+
+  @override
+  Future<OrderDetail?> place({
+    required String orderId,
+    required String idempotencyKey,
+  }) async {
+    if (failSend != null) throw failSend!;
+    return existing = order(status: 'CONFIRMED', items: [
+      for (final line in existing?.lines ?? <OrderLine>[])
+        {
+          'id': line.id,
+          'name': line.name,
+          'qty': line.qty,
+          'unitPrice': {'amountMinor': line.unitPrice.minor, 'currency': 'PKR'},
+          'lineTotal': {'amountMinor': line.lineTotal.minor, 'currency': 'PKR'},
+        },
+    ]);
+  }
+
+  @override
+  Future<OrderDetail?> confirm({
+    required String orderId,
+    required String idempotencyKey,
+  }) async =>
+      existing;
+
+  @override
+  Future<void> removeLine({
+    required String orderId,
+    required String lineId,
+  }) async {}
+}
 
 /// The ordering path, driven through the real widgets: open a table, pick a
 /// dish, see the ticket and the bill it predicts.
@@ -116,6 +216,7 @@ void main() {
     WidgetTester tester, {
     Map<String, Object> prefs = const {},
     bool tenantHasModifiers = false,
+    _StubOrders? orders,
   }) async {
     final loaded = await session(prefs: prefs);
     await tester.pumpWidget(
@@ -126,6 +227,9 @@ void main() {
               .overrideWithValue(await SharedPreferences.getInstance()),
           menuCatalogueProvider.overrideWith((ref) => catalogue),
           tenantHasModifiersProvider.overrideWith((ref) => tenantHasModifiers),
+          // Without this the screen would reach for a real server on every
+          // table open.
+          orderRepositoryProvider.overrideWithValue(orders ?? _StubOrders()),
         ],
         child: MaterialApp(
           theme: AppTheme.light(),
@@ -142,7 +246,7 @@ void main() {
     expect(find.text('Table D1'), findsOneWidget);
     expect(find.text('Nothing ordered yet'), findsOneWidget);
     // Nothing to send, and nothing to clear.
-    expect(find.byTooltip('Clear ticket'), findsNothing);
+    expect(find.byTooltip('Clear this round'), findsNothing);
   });
 
   testWidgets('picking a dish puts it on the ticket with the right bill',
@@ -249,7 +353,7 @@ void main() {
     });
 
     expect(find.text('Chicken Karahi'), findsOneWidget);
-    expect(find.textContaining('Unsent ticket from'), findsOneWidget,
+    expect(find.textContaining('Unsent round from'), findsOneWidget,
         reason: 'the kitchen has no idea this order exists');
   });
 
@@ -285,15 +389,15 @@ void main() {
     await tester.tap(find.textContaining('Done'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byTooltip('Clear ticket'));
+    await tester.tap(find.byTooltip('Clear this round'));
     await tester.pumpAndSettle();
-    expect(find.text('Clear this ticket?'), findsOneWidget);
+    expect(find.text('Clear this round?'), findsOneWidget);
 
     await tester.tap(find.text('Keep it'));
     await tester.pumpAndSettle();
     expect(find.text('Garlic Naan'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Clear ticket'));
+    await tester.tap(find.byTooltip('Clear this round'));
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Clear'));
     await tester.pumpAndSettle();
@@ -451,21 +555,157 @@ void main() {
     });
   });
 
-  testWidgets('sending is not pretended to work yet', (tester) async {
-    await pumpTicket(tester);
-
-    await tester.tap(find.text('Open the menu'));
+  /// Put one Garlic Naan on the unsent round.
+  Future<void> addNaan(WidgetTester tester) async {
+    // The empty ticket offers the menu in its centre; once there is anything on
+    // screen, the action bar is the way in.
+    final entry = find.text('Open the menu');
+    await tester.tap(entry.evaluate().isEmpty ? find.text('Add items') : entry);
     await tester.pumpAndSettle();
     await tester.tap(menuTile('Garlic Naan'));
     await tester.pumpAndSettle();
     await tester.tap(find.textContaining('Done'));
     await tester.pumpAndSettle();
+  }
 
-    await tester.tap(find.textContaining('Send · 1'));
-    await tester.pump();
+  group('sending the round', () {
+    testWidgets('the round moves onto the bill and the waiter is told',
+        (tester) async {
+      await pumpTicket(tester);
+      await addNaan(tester);
 
-    expect(find.textContaining('next phase'), findsOneWidget,
-        reason: 'a button that looks like it fired the kitchen and did not is '
-            'the worst possible lie this app could tell');
+      expect(find.text('NOT SENT YET'), findsOneWidget);
+
+      await tester.tap(find.textContaining('Send · 1'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Sent to the kitchen'), findsOneWidget);
+      expect(find.text('SENT · ORD-000007'), findsOneWidget);
+      // The round is gone from the unsent section — keeping it would offer to
+      // send the same food twice.
+      expect(find.text('NOT SENT YET'), findsNothing);
+    });
+
+    testWidgets('a refused send keeps the round and offers to resume',
+        (tester) async {
+      await pumpTicket(
+        tester,
+        orders: _StubOrders(
+          failSend: ApiException(ApiErrorKind.server, 'Kitchen service down.'),
+        ),
+      );
+      await addNaan(tester);
+
+      await tester.tap(find.textContaining('Send · 1'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('This round did not reach the kitchen'), findsOneWidget);
+      expect(find.text('Kitchen service down.'), findsOneWidget);
+      expect(find.textContaining('Resume'), findsOneWidget);
+      // The food the waiter typed is still on the tablet.
+      expect(find.text('Garlic Naan'), findsWidgets);
+    });
+
+    testWidgets('a round waiting to be resumed cannot be edited',
+        (tester) async {
+      await pumpTicket(
+        tester,
+        orders: _StubOrders(
+          failSend: ApiException(ApiErrorKind.server, 'Kitchen service down.'),
+        ),
+      );
+      await addNaan(tester);
+      await tester.tap(find.textContaining('Send · 1'));
+      await tester.pumpAndSettle();
+
+      // The submission carries the payload frozen at the tap, and its
+      // idempotency key is only valid for that body. Adding a dish now would
+      // either invalidate the key or be dropped by the resume.
+      final add = tester.widget<OutlinedButton>(
+        find.widgetWithText(OutlinedButton, 'Add items'),
+      );
+      expect(add.onPressed, isNull);
+      final more = tester.widget<IconButton>(
+        find.widgetWithIcon(IconButton, Icons.add_rounded),
+      );
+      expect(more.onPressed, isNull);
+      expect(find.byTooltip('Clear this round'), findsNothing);
+    });
+
+    testWidgets('a send interrupted by a restart is offered again',
+        (tester) async {
+      final interrupted = PendingSend(
+        branchId: branchId,
+        tableId: 'table-1',
+        key: 'abc',
+        stage: SendStage.placing,
+        items: const [
+          {'itemId': 'item-naan', 'qty': 1},
+        ],
+        startedAt: DateTime.now(),
+        orderId: 'order-1',
+      );
+
+      await pumpTicket(tester, prefs: {
+        PendingSendStore.keyFor(branchId, 'table-1'):
+            jsonEncode(interrupted.toJson()),
+      });
+
+      expect(
+        find.text('This round was not finished sending'),
+        findsOneWidget,
+      );
+      // A bill exists; saying "nothing was sent" would be a lie the kitchen
+      // could contradict.
+      expect(find.textContaining('A bill is already open'), findsOneWidget);
+    });
+
+    testWidgets('an open bill is shown above the round being added',
+        (tester) async {
+      await pumpTicket(
+        tester,
+        orders: _StubOrders(
+          existing: _StubOrders.order(status: 'PREPARING', items: const [
+            {
+              'id': 'line-1',
+              'name': 'Chicken Karahi',
+              'qty': 1,
+              'unitPrice': {'amountMinor': 132000, 'currency': 'PKR'},
+              'lineTotal': {'amountMinor': 153120, 'currency': 'PKR'},
+            },
+          ]),
+        ),
+      );
+
+      expect(find.text('SENT · ORD-000007'), findsOneWidget);
+      expect(find.text('Cooking'), findsOneWidget);
+      expect(find.text('Bill so far'), findsOneWidget);
+
+      await addNaan(tester);
+
+      // Both are on screen, and it is unambiguous which the kitchen has.
+      expect(find.text('THIS ROUND — NOT SENT'), findsOneWidget);
+      expect(find.text('Chicken Karahi'), findsOneWidget);
+      expect(find.text('Garlic Naan'), findsOneWidget);
+    });
+
+    testWidgets('a settled bill takes nothing more, and says why',
+        (tester) async {
+      await pumpTicket(
+        tester,
+        orders: _StubOrders(existing: _StubOrders.order(status: 'SETTLED')),
+      );
+
+      expect(
+        find.textContaining('This bill is settled'),
+        findsOneWidget,
+        reason: 'the server would refuse it — better to say so than to produce '
+            'a 422 a waiter has to interpret',
+      );
+      final send = tester.widget<FilledButton>(
+        find.widgetWithText(FilledButton, 'Send · 0'),
+      );
+      expect(send.onPressed, isNull);
+    });
   });
 }

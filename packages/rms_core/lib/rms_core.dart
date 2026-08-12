@@ -28,6 +28,10 @@ export 'src/net/api_client.dart';
 export 'src/auth/session.dart';
 export 'src/storage/secret_store.dart';
 
+// Realtime — an accelerator over the REST contract, never a replacement for it.
+export 'src/realtime/realtime_client.dart';
+export 'src/realtime/realtime_event.dart';
+
 // Dependency graph
 export 'src/providers.dart';
 
@@ -39,6 +43,7 @@ export 'src/widgets/state_views.dart';
 export 'src/domain/branch.dart';
 export 'src/domain/delivery.dart';
 export 'src/domain/menu.dart';
+export 'src/domain/order_detail.dart';
 export 'src/domain/order_status.dart';
 export 'src/domain/order_summary.dart';
 export 'src/domain/restaurant_config.dart';

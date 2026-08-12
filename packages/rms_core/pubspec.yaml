@@ -24,6 +24,11 @@ dependencies:
   # One state-management system across all four apps.
   flutter_riverpod: ^2.6.1
 
+  # The backend's realtime transport is a Socket.IO gateway, not a bare
+  # websocket — see ARCHITECTURE.md §4. Speaking it by hand would mean
+  # reimplementing Engine.IO's handshake and packet framing.
+  socket_io_client: ^3.1.6
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

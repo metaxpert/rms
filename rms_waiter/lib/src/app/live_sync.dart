@@ -1,0 +1,197 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:rms_core/rms_core.dart';
+import '../features/authentication/application/auth_controller.dart';
+import '../features/floor/data/floor_repository.dart';
+import '../features/orders/data/order_repository.dart';
+
+/// Keeps what is on screen in step with what the server believes, by three
+/// independent routes.
+///
+/// It takes three because none of them is sufficient alone:
+///
+/// 1. **The socket.** Fast, and the only way the kitchen can tell a waiter that
+///    food is up without polling. But delivery is best-effort — the bridge
+///    subscribes on auto-deleted queues and a broker outage degrades silently
+///    (ARCHITECTURE.md §4).
+/// 2. **App resume.** A tablet in a pocket for ten minutes has missed
+///    everything; the socket may not even have noticed it was gone.
+/// 3. **A slow poll.** `RESTAURANT_ORDER_VOIDED` is emitted by the backend but
+///    is **not** in the gateway's bridged set, so a void performed by a manager
+///    or another till never arrives on the socket at all. Without this, a bill
+///    cancelled elsewhere would sit on the floor plan for the rest of service.
+///
+/// Nothing here is load-bearing for correctness: every screen it refreshes also
+/// refreshes on pull-to-refresh and on being opened. This makes the app current
+/// without being asked, which during a service is the difference between
+/// noticing food is ready and not.
+class LiveSync extends ConsumerStatefulWidget {
+  const LiveSync({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  ConsumerState<LiveSync> createState() => _LiveSyncState();
+}
+
+class _LiveSyncState extends ConsumerState<LiveSync>
+    with WidgetsBindingObserver {
+  /// Long enough to collapse the burst of events a single order transition
+  /// produces, short enough that a waiter does not see a stale floor.
+  static const _coalesce = Duration(milliseconds: 400);
+
+  /// The safety net for changes the socket cannot carry. Deliberately slow: it
+  /// exists to catch a void within a minute, not to be the update mechanism.
+  static const _pollInterval = Duration(seconds: 60);
+
+  Timer? _coalesceTimer;
+  Timer? _pollTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // The first frame has not run, so defer until the container is usable.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _applyAuth(ref.read(authControllerProvider).status);
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _coalesceTimer?.cancel();
+    _pollTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // Whatever happened while the screen was off, we did not see. Ask.
+        _reconcile();
+        // A socket dropped in the background reconnects here rather than
+        // waiting out its own backoff while a waiter stares at a stale table.
+        if (ref.read(authControllerProvider).status == AuthStatus.ready) {
+          ref.read(realtimeClientProvider).connect();
+        }
+        _startPolling();
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+        // Polling a backgrounded tablet drains a battery that has to last a
+        // full service and refreshes screens nobody is looking at.
+        _stopPolling();
+      case AppLifecycleState.inactive:
+        break;
+    }
+  }
+
+  void _applyAuth(AuthStatus status) {
+    final client = ref.read(realtimeClientProvider);
+    if (status == AuthStatus.ready) {
+      client.connect();
+      _startPolling();
+    } else {
+      // Holding a tenant-scoped socket open past sign-out would deliver the
+      // next user's events to the previous user's screens.
+      client.disconnect();
+      _stopPolling();
+    }
+  }
+
+  void _startPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = Timer.periodic(_pollInterval, (_) => _reconcile());
+  }
+
+  void _stopPolling() {
+    _pollTimer?.cancel();
+    _pollTimer = null;
+  }
+
+  void _onEvent(RealtimeEvent event) {
+    // The gateway room is tenant-scoped, so a multi-outlet tenant delivers
+    // every outlet's traffic here.
+    if (event.isForeignTo(ref.read(sessionProvider).branchId)) return;
+
+    if (event.kind.isFoodReady) _announceFoodReady(event);
+    if (event.kind.touchesOrders) _scheduleReconcile();
+  }
+
+  void _scheduleReconcile() {
+    _coalesceTimer?.cancel();
+    _coalesceTimer = Timer(_coalesce, _reconcile);
+  }
+
+  /// Refetch the server-derived state.
+  ///
+  /// Both providers are `autoDispose`, so invalidating them costs nothing when
+  /// nobody is watching — this only issues requests for screens that are open.
+  void _reconcile() {
+    if (!mounted) return;
+    ref.invalidate(floorSnapshotProvider);
+    ref.invalidate(tableOrderProvider);
+  }
+
+  /// The one event a waiter must not miss.
+  ///
+  /// The payload's shape is unverified, so the table is named only when it is
+  /// actually there; a wrong table number would send someone to the wrong pass.
+  void _announceFoodReady(RealtimeEvent event) {
+    final messenger = ref.read(scaffoldMessengerKeyProvider).currentState;
+    if (messenger == null) return;
+    final table = event.tableCode;
+    messenger
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 6),
+          backgroundColor: AppStatusColors.ready,
+          content: Row(
+            children: [
+              const Icon(Icons.room_service_rounded, color: Colors.white),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Text(
+                  table == null
+                      ? 'Food is ready to run.'
+                      : 'Table $table — food is ready.',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(authControllerProvider, (previous, next) {
+      if (previous?.status != next.status) _applyAuth(next.status);
+    });
+
+    // Listening here is what subscribes the app to the socket at all — the
+    // stream provider is otherwise cold.
+    ref.listen(realtimeEventsProvider, (previous, next) {
+      final event = next.valueOrNull;
+      if (event != null) _onEvent(event);
+    });
+
+    return widget.child;
+  }
+}
+
+/// Lets code outside the widget tree — the socket listener — put a message in
+/// front of the waiter wherever they happen to be.
+final scaffoldMessengerKeyProvider = Provider<GlobalKey<ScaffoldMessengerState>>(
+  (ref) => GlobalKey<ScaffoldMessengerState>(),
+);

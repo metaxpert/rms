@@ -46,16 +46,41 @@ class ApiClient {
 
   Future<dynamic> get(String path) => _send('GET', path);
 
-  Future<dynamic> post(String path, [Object? body]) =>
-      _send('POST', path, body: body);
+  /// [idempotencyKey] lets a CALLER own the key rather than this client minting
+  /// a fresh one per call. That matters for anything a human may retry: the
+  /// generated key is stable only across this client's own transport retries,
+  /// so a waiter who taps "Send" again after a timeout would otherwise claim a
+  /// new key and open a second order for the table. A key persisted with the
+  /// pending submission makes the second tap replay the first response instead.
+  Future<dynamic> post(String path, [Object? body, String? idempotencyKey]) =>
+      _send('POST', path, body: body, idempotencyKey: idempotencyKey);
 
-  Future<dynamic> put(String path, [Object? body]) =>
-      _send('PUT', path, body: body);
+  Future<dynamic> put(String path, [Object? body, String? idempotencyKey]) =>
+      _send('PUT', path, body: body, idempotencyKey: idempotencyKey);
 
-  Future<dynamic> patch(String path, [Object? body]) =>
-      _send('PATCH', path, body: body);
+  Future<dynamic> patch(String path, [Object? body, String? idempotencyKey]) =>
+      _send('PATCH', path, body: body, idempotencyKey: idempotencyKey);
 
   Future<dynamic> delete(String path) => _send('DELETE', path);
+
+  /// The access token to present on a channel this client does not drive —
+  /// today, the Socket.IO handshake.
+  ///
+  /// Refreshes first if the token is close to expiring, sharing the same
+  /// single-flight future as the request path so a reconnect during a refresh
+  /// cannot consume the rotating refresh token twice. A failed refresh returns
+  /// whatever token we still hold rather than throwing: the socket is an
+  /// accelerator, and losing it must never be the thing that ends a shift.
+  Future<String?> freshAccessToken() async {
+    if (_session.accessTokenExpiring() && _session.refreshToken != null) {
+      try {
+        await _refresh();
+      } on ApiException {
+        // Swallowed deliberately — see above.
+      }
+    }
+    return _session.accessToken;
+  }
 
   /// Append the active branch to a branch-scoped read.
   String branchScoped(String path) {
@@ -68,6 +93,7 @@ class ApiClient {
     String method,
     String path, {
     Object? body,
+    String? idempotencyKey,
     bool isRetryOfAuthFailure = false,
   }) async {
     // Refresh proactively so the waiter never eats an avoidable 401.
@@ -76,20 +102,30 @@ class ApiClient {
     }
 
     // One idempotency key per logical request, reused across transport retries
-    // so a settle that timed out and got retried cannot post twice.
-    final idempotencyKey = _isMutation(method) ? _newIdempotencyKey() : null;
+    // so a settle that timed out and got retried cannot post twice. A caller
+    // that owns a key across user-level retries passes its own.
+    final key =
+        idempotencyKey ?? (_isMutation(method) ? _newIdempotencyKey() : null);
 
     Object? lastError;
     for (var attempt = 1; attempt <= _maxAttempts; attempt++) {
       try {
-        final response = await _execute(method, path, body, idempotencyKey);
+        final response = await _execute(method, path, body, key);
 
         if (response.statusCode == 401 && !isRetryOfAuthFailure) {
           // Token rejected despite our expiry check (clock drift, or revoked
-          // server-side). Try exactly one recovery, then give up.
+          // server-side). Try exactly one recovery, then give up. The same key
+          // travels with the retry so the recovered request stays the same
+          // logical request.
           if (_session.refreshToken != null) {
             await _refresh();
-            return _send(method, path, body: body, isRetryOfAuthFailure: true);
+            return _send(
+              method,
+              path,
+              body: body,
+              idempotencyKey: key,
+              isRetryOfAuthFailure: true,
+            );
           }
           _loseAuthentication();
           throw ApiException.fromResponse(401, response.body);
@@ -106,7 +142,7 @@ class ApiClient {
           // response. Surfacing the 409 would tell a waiter the bill failed
           // while it was in fact being settled.
           final isIdempotencyInFlight =
-              response.statusCode == 409 && idempotencyKey != null;
+              response.statusCode == 409 && key != null;
 
           // Retry transient server faults; surface everything else immediately
           // so a validation error is not silently attempted three times.

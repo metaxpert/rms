@@ -14,6 +14,7 @@ class TableCard extends StatelessWidget {
     required this.order,
     required this.onTap,
     this.hasDraft = false,
+    this.hasPendingSend = false,
     this.compact = false,
   });
 
@@ -27,6 +28,11 @@ class TableCard extends StatelessWidget {
   /// the kitchen has no idea it exists, and a waiter walking past should be
   /// able to see that this table is waiting on them.
   final bool hasDraft;
+
+  /// A send that stopped part-way through. Ranked above [hasDraft] because the
+  /// consequences are worse: an order may exist server-side carrying none of
+  /// the round, and only someone opening the table can finish or abandon it.
+  final bool hasPendingSend;
 
   /// Spatial layout packs tables tighter than the grid does.
   final bool compact;
@@ -53,6 +59,7 @@ class TableCard extends StatelessWidget {
         if (order != null)
           'order ${order!.status.label} ${order!.total.display}',
         if (needsAttention) 'food ready',
+        if (hasPendingSend) 'send unfinished',
         if (hasDraft) 'unsent ticket',
       ].join(', '),
       child: Material(
@@ -90,7 +97,16 @@ class TableCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (hasDraft)
+                    if (hasPendingSend)
+                      Padding(
+                        padding: const EdgeInsets.only(right: AppSpacing.xs),
+                        child: Icon(
+                          Icons.sync_problem_rounded,
+                          size: compact ? 16 : 20,
+                          color: theme.colorScheme.error,
+                        ),
+                      )
+                    else if (hasDraft)
                       Padding(
                         padding: const EdgeInsets.only(right: AppSpacing.xs),
                         child: Icon(
@@ -128,7 +144,16 @@ class TableCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                if (hasDraft && !compact) ...[
+                if (hasPendingSend && !compact) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    'Send unfinished',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.error,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ] else if (hasDraft && !compact) ...[
                   const SizedBox(height: AppSpacing.xs),
                   Text(
                     'Unsent ticket',

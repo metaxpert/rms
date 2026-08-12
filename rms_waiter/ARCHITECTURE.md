@@ -129,6 +129,33 @@ auto-deleted queues, and the code comments state a broker outage degrades
 silently. Realtime is therefore an *accelerator*, never the source of truth.
 Every screen must still be correct if the socket never connects.
 
+### What the client does about it (Phase 5)
+
+`RealtimeClient` (in `rms_core`) speaks the gateway; `LiveSync` decides what to
+refresh. Three details are worth stating because each fixes a specific failure:
+
+1. **The handshake token is fetched per attempt, not captured once.** Access
+   tokens last 15 minutes; a socket reconnecting an hour into a shift with its
+   original JWT would be dropped forever. The library's `authFn` hook runs on
+   every `onopen`, and it calls `ApiClient.freshAccessToken` — routing through
+   the same single-flight refresh the request path uses, so a reconnect during a
+   refresh cannot consume the rotating refresh token twice.
+2. **Reconnection is the library's**, with its jittered backoff, because a
+   dining room of tablets returning after a wifi drop must not retry in lockstep.
+3. **The socket is closed on sign-out.** The room is tenant-scoped, so holding
+   it open would deliver the next user's events to the previous user's screens.
+
+Because the room is tenant- rather than branch-scoped, a multi-outlet tenant
+delivers every outlet's traffic to every tablet; `RealtimeEvent.isForeignTo`
+filters it, but only on a payload that names a *different* branch — payload keys
+are unverified, and discarding an event we could not classify would silently
+stop the floor updating.
+
+`LiveSync` also refreshes on **app resume** and on a **60-second poll**, since
+neither the socket nor a resume covers the unbridged `ORDER_VOIDED` above. The
+poll only costs requests when a screen is actually watching, because both
+refreshed providers are `autoDispose`.
+
 ---
 
 ## 5. Idempotency — supported
@@ -146,6 +173,17 @@ the client retries with the same key while the original is still running, the
 retry gets 409. Surfacing that would tell a waiter the bill failed while it was in
 fact succeeding. `ApiClient` therefore treats **409-with-an-idempotency-key as
 retryable**, backs off, and collects the replayed response.
+
+### Who owns the key (Phase 5)
+
+`ApiClient` mints a key per call, which covers *its own* transport retries. That
+is not enough for anything a human retries: a waiter tapping "Send" again after a
+timeout would claim a fresh key and open a **second bill for the table**. Every
+mutation therefore accepts a caller-supplied key, and the send flow persists one
+(`PendingSendStore`) that survives the process. Because the interceptor rejects a
+key replayed with a *different* body, the submission also freezes its item
+payload — a resume re-sends byte-identical items, and the ticket is locked
+against edits until it resolves.
 
 ---
 
@@ -223,10 +261,12 @@ must never be silently discarded.
 3. **Realtime is best-effort** — must never be the only path to correctness.
 4. **No optimistic-concurrency token observed** on restaurant orders (no `version`
    / `If-Match` seen). Concurrent edits from another till or the web POS are
-   therefore last-write-wins. The app should refetch before mutating and surface
-   server rejections rather than assume its cache is current. **Unverified**:
-   whether order updates carry `updatedAt` usable for conflict detection — to
-   confirm before building transfer/merge.
+   therefore last-write-wins. Mitigated in Phase 5 as far as the API allows: the
+   send flow refetches the table's order immediately before mutating, and a
+   rejection is surfaced with what the server said rather than swallowed. It is
+   a narrower race, not a closed one. **Unverified**: whether order updates carry
+   `updatedAt` usable for conflict detection — to confirm before building
+   transfer/merge.
 5. **Port drift** — the four apps default to `:3399`; this deployment serves the
    API at `/api` behind TLS. Default config must be corrected, not left to staff.
 6. **Modifier groups are invisible from the item list.** `GET /restaurant/items`
@@ -273,29 +313,57 @@ Phased, each phase validated with `flutter analyze` + `flutter test`.
 | 2 | Riverpod wiring, design system, typed routing, env config, auth + branch selection | **Done, verified** |
 | 3 | Floor plan, tables, table detail | **Done, verified** |
 | 4 | Menu, search, modifiers, cart, draft persistence | **Done, verified** |
-| 5 | Order submission, KDS status, realtime client with reconnect | Next |
-| 6 | Bill, settle, split, receipt printing, transfers | |
+| 5 | Order submission, KDS status, realtime client with reconnect | **Done, verified** |
+| 6 | Bill, settle, split, receipt printing, transfers | Next |
 | 7 | Offline cache + sync queue, notifications, permissions | |
 | 8 | Test suite (unit/widget/integration), accessibility, i18n scaffolding, hardening | |
 
+### Sending a round (Phase 5)
+
+Submission is four server calls — `create`, `items`, `place`, `confirm` — on a
+device that can be killed between any two of them. The failure to design against
+is not a failed request; it is **one round billed twice**. Three things prevent
+it:
+
+- **A persisted per-step idempotency key**, so a retry replays rather than
+  repeats (§5).
+- **A recorded stage**, so a retry continues from where it stopped instead of
+  starting over.
+- **Adopting any open bill the table already has** before creating one. This
+  covers the window where the order was created but its id was never written
+  down, and it is also what makes a second round append to the bill rather than
+  open a rival one.
+
+`confirm` is skipped when the order is already CONFIRMED, because a tenant with
+`autoFireKitchen` fires during `place` — reporting that as a failure would send
+a waiter to the pass to chase food already being cooked. If the bill is settled
+or voided elsewhere mid-send, the round is kept on the tablet and the waiter is
+told plainly; nothing is silently re-billed.
+
+Success is declared only after the bill has been read back, so the moment the
+progress panel clears the screen already shows what the server holds.
+
 ## 12. Status
 
-**Phases 1–4 complete and verified.** `flutter analyze` clean across
-`rms_core` and `rms_waiter`, 47 + 81 tests green, `flutter build web --release`
-succeeds.
+**Phases 1–5 complete and verified.** `flutter analyze` clean across `rms_core`
+and `rms_waiter`, 88 + 120 tests green, `flutter build web --release` succeeds.
 
 What a waiter can do today: sign in, choose an outlet, read the floor from the
 designer's own table coordinates, open a table, browse and search the menu,
-configure a dish's options, and build a ticket that predicts the bill to the
-paisa — persisted on the device across a restart.
+configure a dish's options, build a ticket that predicts the bill to the paisa,
+and **send it to the kitchen** — with the table's existing bill and the unsent
+round shown separately so it is never ambiguous which the kitchen has. The floor
+and an open ticket update live off the Socket.IO gateway, and a "food is ready"
+ticket raises an alert wherever the waiter is.
 
-What is **not** built: sending anything to the server. No order is created, no
-kitchen is fired, no bill is settled. The ticket screen says so on the button
-rather than implying otherwise.
+What is **not** built: settling. No bill is closed, split, tipped or printed;
+the order stops at CONFIRMED and whatever the kitchen does to it afterwards.
+Sent lines are read-only — voiding one is a manager's action and belongs with
+the rest of Phase 6.
 
-Phase 5 is next: order submission, KDS status, and the realtime client. Note
-that the shared foundation has moved to `packages/rms_core`, so Phase 5's work
-splits between the API contract (core) and the waiter's workflow (this app).
+Known rough edge, stated rather than hidden: a round is locked against edits
+while a submission is outstanding, because the frozen payload is what makes a
+resume safe. A waiter who wants to change it must stop the send first.
 
 This document is updated as phases land rather than describing intent as if it
 were finished.
