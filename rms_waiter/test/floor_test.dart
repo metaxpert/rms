@@ -71,7 +71,7 @@ void main() {
         OrderStatus.draft,
         OrderStatus.placed,
         OrderStatus.confirmed,
-        OrderStatus.preparing,
+        OrderStatus.inProgress,
         OrderStatus.ready,
         OrderStatus.served,
       ]) {
@@ -97,7 +97,7 @@ void main() {
 
     test('only READY demands attention', () {
       expect(OrderStatus.ready.needsAttention, isTrue);
-      expect(OrderStatus.preparing.needsAttention, isFalse);
+      expect(OrderStatus.inProgress.needsAttention, isFalse);
       expect(OrderStatus.served.needsAttention, isFalse);
     });
   });
@@ -253,7 +253,7 @@ void main() {
         tables: const [],
         openOrdersByTableCode: {
           'A1': order('A1', 'READY'),
-          'A2': order('A2', 'PREPARING'),
+          'A2': order('A2', 'IN_PROGRESS'),
           'A3': order('A3', 'READY'),
         },
       );

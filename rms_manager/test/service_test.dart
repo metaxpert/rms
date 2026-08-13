@@ -122,7 +122,7 @@ void main() {
       final s = snapshot(orders: [
         order(status: 'READY'),
         order(status: 'READY', totalMinor: 200),
-        order(status: 'PREPARING'),
+        order(status: 'IN_PROGRESS'),
         order(status: 'SERVED'),
       ]);
       expect(s.readyToServe, 2);

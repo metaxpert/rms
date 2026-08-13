@@ -145,7 +145,7 @@ void main() {
         'DRAFT',
         'PLACED',
         'CONFIRMED',
-        'PREPARING',
+        'IN_PROGRESS',
         'READY',
         'SERVED',
       ]) {
@@ -168,7 +168,7 @@ void main() {
 
     test('knows when the kitchen has it', () {
       expect(at('CONFIRMED').isWithKitchen, isTrue);
-      expect(at('PREPARING').isWithKitchen, isTrue);
+      expect(at('IN_PROGRESS').isWithKitchen, isTrue);
       expect(at('READY').isWithKitchen, isTrue);
       expect(at('PLACED').isWithKitchen, isFalse);
       expect(at('SERVED').isWithKitchen, isFalse);

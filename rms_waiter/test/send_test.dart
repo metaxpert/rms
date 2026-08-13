@@ -256,7 +256,7 @@ void main() {
       final server = FakeOrderServer()
         ..openOrder = OrderDetail.fromJson(const {
           'id': 'order-existing',
-          'status': 'PREPARING',
+          'status': 'IN_PROGRESS',
           'channel': 'DINE_IN',
           'items': [],
         });

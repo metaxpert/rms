@@ -112,7 +112,7 @@ void main() {
     });
 
     testWidgets('says nothing is waiting when nothing is', (tester) async {
-      await pumpShell(tester, snapshotWith(orders: [order('PREPARING')]));
+      await pumpShell(tester, snapshotWith(orders: [order('IN_PROGRESS')]));
 
       // A permanent banner stops being read within a shift.
       expect(find.textContaining('ready to run'), findsNothing);

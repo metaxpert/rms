@@ -685,7 +685,7 @@ void main() {
       await pumpTicket(
         tester,
         orders: _StubOrders(
-          existing: _StubOrders.order(status: 'PREPARING', items: const [
+          existing: _StubOrders.order(status: 'IN_PROGRESS', items: const [
             {
               'id': 'line-1',
               'name': 'Chicken Karahi',

@@ -182,7 +182,7 @@ class OrderDetail {
   /// The kitchen has it and is cooking, or has finished.
   bool get isWithKitchen => switch (status) {
         OrderStatus.confirmed ||
-        OrderStatus.preparing ||
+        OrderStatus.inProgress ||
         OrderStatus.ready =>
           true,
         _ => false,

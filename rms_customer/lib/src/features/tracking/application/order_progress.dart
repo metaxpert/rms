@@ -119,7 +119,7 @@ class OrderProgress {
       // delivered when it is still on a bike is the worst lie this screen has.
       OrderStatus.settled || OrderStatus.served => 3,
       OrderStatus.ready => 2,
-      OrderStatus.preparing || OrderStatus.confirmed => 1,
+      OrderStatus.inProgress || OrderStatus.confirmed => 1,
       // An unrecognised status must not light a later step than it has earned.
       _ => 0,
     };
@@ -130,7 +130,7 @@ class OrderProgress {
         // Nobody is carrying it anywhere: handed over is the end.
         OrderStatus.settled || OrderStatus.served => 3,
         OrderStatus.ready => 2,
-        OrderStatus.preparing || OrderStatus.confirmed => 1,
+        OrderStatus.inProgress || OrderStatus.confirmed => 1,
         _ => 0,
       };
 

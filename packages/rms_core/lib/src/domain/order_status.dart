@@ -6,13 +6,20 @@ import '../theme/app_theme.dart';
 /// Order lifecycle, mirroring the backend exactly (brief §13 — map the real
 /// statuses, do not invent names).
 ///
-/// `DRAFT → PLACED → CONFIRMED → PREPARING → READY → SERVED → SETTLED`, with
+/// `DRAFT → PLACED → CONFIRMED → IN_PROGRESS → READY → SERVED → SETTLED`, with
 /// `CANCELLED` / `VOID` as terminal exits.
+///
+/// The cooking status is `IN_PROGRESS`, not `PREPARING`. `PREPARING` is a *KDS
+/// ticket* status and is never written to `restaurant_order` — this enum
+/// carried it for a while, so every order the kitchen had actually started
+/// parsed as [unknown]: the guest's tracker fell back to "order received", and
+/// [isOpen] read false, which quietly emptied the table off the waiter's floor
+/// plan mid-service.
 enum OrderStatus {
   draft('DRAFT'),
   placed('PLACED'),
   confirmed('CONFIRMED'),
-  preparing('PREPARING'),
+  inProgress('IN_PROGRESS'),
   ready('READY'),
   served('SERVED'),
   settled('SETTLED'),
@@ -57,7 +64,7 @@ enum OrderStatus {
         OrderStatus.draft => text.orderStatusDraft,
         OrderStatus.placed => text.orderStatusPlaced,
         OrderStatus.confirmed => text.orderStatusConfirmed,
-        OrderStatus.preparing => text.orderStatusPreparing,
+        OrderStatus.inProgress => text.orderStatusPreparing,
         OrderStatus.ready => text.orderStatusReady,
         OrderStatus.served => text.orderStatusServed,
         OrderStatus.settled => text.orderStatusSettled,
@@ -70,7 +77,7 @@ enum OrderStatus {
         OrderStatus.draft => AppStatusColors.settled,
         OrderStatus.placed => AppStatusColors.ordering,
         OrderStatus.confirmed => AppStatusColors.ordering,
-        OrderStatus.preparing => AppStatusColors.preparing,
+        OrderStatus.inProgress => AppStatusColors.preparing,
         OrderStatus.ready => AppStatusColors.ready,
         OrderStatus.served => AppStatusColors.served,
         OrderStatus.settled => AppStatusColors.settled,
@@ -84,7 +91,7 @@ enum OrderStatus {
         OrderStatus.draft => Icons.edit_note_outlined,
         OrderStatus.placed => Icons.receipt_long_outlined,
         OrderStatus.confirmed => Icons.check_outlined,
-        OrderStatus.preparing => Icons.local_fire_department_outlined,
+        OrderStatus.inProgress => Icons.local_fire_department_outlined,
         OrderStatus.ready => Icons.room_service_outlined,
         OrderStatus.served => Icons.done_all_outlined,
         OrderStatus.settled => Icons.payments_outlined,

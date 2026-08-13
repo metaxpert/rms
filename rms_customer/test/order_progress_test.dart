@@ -47,7 +47,7 @@ void main() {
     });
 
     test('moves to cooking once the kitchen has it', () {
-      for (final status in ['CONFIRMED', 'PREPARING']) {
+      for (final status in ['CONFIRMED', 'IN_PROGRESS']) {
         final progress = OrderProgress.of(tracked(status: status), catalogue);
         expect(activeIndex(progress), 1, reason: status);
         expect(progress.headline, 'Your food is being cooked.');
@@ -188,7 +188,7 @@ void main() {
         'DRAFT',
         'PLACED',
         'CONFIRMED',
-        'PREPARING',
+        'IN_PROGRESS',
         'READY',
         'SERVED',
         'SETTLED',
