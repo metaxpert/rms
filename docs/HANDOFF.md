@@ -77,9 +77,15 @@ manager's kitchen board **without a refresh**. That is the Socket.IO gateway, an
 most worth confirming, because it was broken until the commit that added this document (see
 Gotcha 2).
 
-**The driver app will show an empty board.** `/restaurant/deliveries` currently returns `[]` — there
-are no delivery runs seeded. To get one, place a **DELIVERY**-channel order (customer app, or the web
-console) and it should appear on the runs board. An empty board is correct, not a bug.
+**The driver app's board starts empty**, because no delivery runs are seeded. To get one, place a
+**DELIVERY**-channel order (customer app, or the web console): the backend opens the job as the order
+is placed, and it appears on the runs board.
+
+That last part is only true on a backend built after 2026-08-13. Before then nothing in the system
+ever created a delivery job — `POST /restaurant/deliveries` existed with no caller anywhere — so a
+delivery order cooked, reached `SERVED` when the kitchen bumped it, and stopped there. If you are
+pointed at an older server, the board stays empty however many delivery orders you place, and that is
+the bug rather than a seeding gap.
 
 ## 5. Known-not-built — please don't file these
 

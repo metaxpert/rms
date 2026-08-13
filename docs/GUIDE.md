@@ -121,8 +121,9 @@ Then sign in with `chef@karahipoint.test` / `Password123!`.
 | **Driver** | Open an assigned run → **Picked up** → **Share location** → **Deliver** (enter the OTP) |
 | **Customer** | Browse → add to cart → choose Delivery + address → **Place order** → watch the tracker |
 
-> The driver's OTP is the customer's — for the demo you can read it from the DB:
-> `psql "$OWNER_URL" -tAc "select otp_code from restaurant_delivery order by created_at desc limit 1"`.
+> The driver's OTP is the customer's. Staff read it out of the web console — **Deliveries → pick the
+> run → Show door code**. The rider's app never shows it, which is the whole point of the check: the
+> customer says the number at the door.
 
 ---
 
