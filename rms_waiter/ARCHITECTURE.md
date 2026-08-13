@@ -562,11 +562,59 @@ The Flutter version is pinned rather than tracking `stable`, because `stable`
 gains lints between releases and a gate that fails on a morning when nobody
 changed anything is a gate people learn to route around.
 
+### The socket was pointed at the wrong origin
+
+Found while preparing the developer handoff (`docs/HANDOFF.md`), by checking the
+live server rather than reading the code.
+
+The gateway is served at **`/api/socket.io/`**. Behind the production nginx, `/`
+routes to the Next.js web console and only `/api/` reaches the API.
+`Environment.socketBase()` stripped the trailing `/api` before handing the URL
+to Socket.IO, on the reasoning recorded in §4 — that the websocket namespace
+sits at the root. That is true of the API reached directly on its own port,
+which is how it is reached in development, and false behind the proxy, which is
+how it is reached in production. The handshake went to the console's origin and
+got HTML back.
+
+It failed **silently**, which is why it survived eight phases and a test suite.
+The socket is deliberately an accelerator and never the source of truth: every
+screen also refreshes on resume and on a slow poll. Nothing looked broken.
+Realtime was merely never live — in the one environment nobody could reproduce
+on a laptop, and which no test covered, because `socketBase` had no test at all.
+
+The fix splits the origin from the prefix, because Socket.IO reads a path in a
+URL it is given as a *namespace* rather than a prefix, so the prefix has to
+travel as its `path` option:
+
+| API base | origin | Socket.IO `path` |
+| --- | --- | --- |
+| `https://rms.metaxperts.net/api` | `https://rms.metaxperts.net` | `/api/socket.io/` |
+| `http://10.0.2.2:3300` | `http://10.0.2.2:3300` | `/socket.io/` |
+
+`socketIoTarget()` in `realtime_client.dart` now owns that, since it is
+Socket.IO's convention rather than the environment's business, and it has the
+tests the old code lacked — including one asserting the production default
+resolves to the gateway and not the console. Verified end to end by connecting
+to the live gateway with a real token: `CONNECTED`.
+
+The general lesson is in the failure mode, not the URL. A component designed to
+degrade gracefully will also **hide its own total failure**, so "the app still
+works" is not evidence that it is connected. Anything treated as an accelerator
+needs a check that it is actually accelerating.
+
 ## 12. Status
 
 **All nine phases complete and verified.** `flutter analyze` clean across all
-five packages; 138 + 166 + 30 + 25 + 40 = 399 tests green; `flutter build web
+five packages; 146 + 166 + 30 + 25 + 40 = 407 tests green; `flutter build web
 --release` succeeds for all four apps; `scripts/check.sh` green end to end.
+
+The backend is **live** with the restaurant module and the Karahi Point demo
+tenant seeded: `https://rms.metaxperts.net/api`, which is already the compiled-in
+production default, so a plain `flutter run` reaches it. Verified against the
+running server — branches, config (PKR, 16% tax, `autoFireKitchen`,
+Asia/Karachi), categories, items, tables, orders and reservations all answer;
+`/restaurant/deliveries` is an empty list, so the driver app's board is blank
+until a delivery-channel order exists. See `docs/HANDOFF.md`.
 
 What a waiter can do today: sign in, choose an outlet, read the floor from the
 designer's own table coordinates, open a table, browse and search the menu,

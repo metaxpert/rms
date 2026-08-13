@@ -180,6 +180,44 @@ class RealtimeClient {
   }
 }
 
+/// Where Socket.IO should actually connect, given the API's base URL.
+///
+/// Socket.IO is handed an *origin*, and finds the gateway at its `path` option
+/// (default `/socket.io/`). A path left in the URL is read as a **namespace**,
+/// not as a prefix — so an API served from `https://host/api` cannot simply be
+/// passed through: the prefix would be silently reinterpreted and the client
+/// would handshake against `https://host/socket.io/`, which behind this
+/// deployment's reverse proxy is the web console, not the gateway.
+///
+/// So the prefix is moved from the URL to the path, where it belongs:
+///
+/// | API base                    | origin              | path              |
+/// | --------------------------- | ------------------- | ----------------- |
+/// | `https://host/api`          | `https://host`      | `/api/socket.io/` |
+/// | `http://10.0.2.2:3300`      | `http://10.0.2.2:3300` | `/socket.io/`  |
+///
+/// A base that cannot be parsed as an absolute URL is handed back untouched
+/// with the default path: it is not this function's job to decide that a
+/// server address a restaurant typed is invalid, and the connection error that
+/// follows names the address, which is more use than an exception here.
+({String origin, String path}) socketIoTarget(String apiBase) {
+  const defaultPath = '/socket.io/';
+  final uri = Uri.tryParse(apiBase.trim());
+  if (uri == null || !uri.hasScheme || uri.host.isEmpty) {
+    return (origin: apiBase.trim(), path: defaultPath);
+  }
+
+  var prefix = uri.path;
+  while (prefix.endsWith('/')) {
+    prefix = prefix.substring(0, prefix.length - 1);
+  }
+
+  return (
+    origin: uri.origin,
+    path: prefix.isEmpty ? defaultPath : '$prefix$defaultPath',
+  );
+}
+
 /// The real transport.
 ///
 /// Reconnection is left to the library rather than hand-rolled, because its
@@ -199,9 +237,14 @@ class _SocketIoTransport implements RealtimeTransport {
     required Future<String?> Function() token,
     required RealtimeCallbacks callbacks,
   }) {
+    final target = socketIoTarget(url);
     _socket = io.io(
-      url,
+      target.origin,
       io.OptionBuilder()
+          // The gateway sits under whatever prefix the API does, and Socket.IO
+          // reads a path in the URL as a namespace rather than a prefix, so the
+          // prefix has to arrive here instead.
+          .setPath(target.path)
           // Websocket only: the polling fallback would open a long-poll loop
           // against restaurant wifi and burn battery on a device that is
           // already carried all shift.

@@ -125,6 +125,7 @@ morning when nobody changed anything is a gate people learn to ignore.
 
 | Doc | For |
 | --- | --- |
+| **[docs/HANDOFF.md](docs/HANDOFF.md)** | **A Flutter developer starting cold** — run all four apps against the live server in ~15 minutes, what to test per app, what is deliberately not built, and two gotchas that look like app bugs and are not. |
 | **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** | **Deploying to a real server** — production install, standalone vs. integrating with an existing ERP, first-run setup, running the restaurant, operations. Start here for a live deployment. |
 | [docs/GUIDE.md](docs/GUIDE.md) | Developer / local setup — spin the whole thing up on your laptop to evaluate or hack on it. |
 | [docs/overview.html](docs/overview.html) | Visual system-overview dashboard (open in a browser). |

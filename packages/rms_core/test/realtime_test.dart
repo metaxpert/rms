@@ -311,4 +311,69 @@ void main() {
       expect(client.status, RealtimeStatus.idle);
     });
   });
+
+  /// These exist because their absence hid a bug that only production could
+  /// show. The gateway is reached under the same path prefix as the API, and
+  /// the prefix has to travel as Socket.IO's `path` option rather than in the
+  /// URL, which reads a path as a namespace instead. Get it wrong and the
+  /// handshake goes to the wrong origin — and because the socket is only ever
+  /// an accelerator, nothing appears broken: the screens keep refreshing on
+  /// resume and on their slow poll, and realtime is merely never live.
+  group('where the socket connects', () {
+    test('an API behind an /api prefix keeps the prefix, in the path', () {
+      final target = socketIoTarget('https://rms.metaxperts.net/api');
+
+      expect(target.origin, 'https://rms.metaxperts.net');
+      expect(target.path, '/api/socket.io/');
+    });
+
+    test('an API on its own port has no prefix to carry', () {
+      final target = socketIoTarget('http://10.0.2.2:3300');
+
+      expect(target.origin, 'http://10.0.2.2:3300');
+      expect(target.path, '/socket.io/');
+    });
+
+    test('a trailing slash does not become a doubled one', () {
+      expect(socketIoTarget('https://host/api/').path, '/api/socket.io/');
+      expect(socketIoTarget('https://host/').path, '/socket.io/');
+    });
+
+    test('a deeper mount point is carried whole', () {
+      final target = socketIoTarget('https://host/erp/api');
+
+      expect(target.origin, 'https://host');
+      expect(target.path, '/erp/api/socket.io/');
+    });
+
+    test('a non-default port survives the split', () {
+      expect(socketIoTarget('http://192.168.10.250:3300/api').origin,
+          'http://192.168.10.250:3300');
+    });
+
+    /// A waiter typing a server address on the sign-in screen can type
+    /// anything. Throwing here would crash the app on a typo; the connection
+    /// error that follows names the address, which is more use.
+    test('an unparseable address is passed through rather than thrown on', () {
+      expect(socketIoTarget('not a url').origin, 'not a url');
+      expect(socketIoTarget('not a url').path, '/socket.io/');
+    });
+
+    test('the production default resolves to the gateway, not the console', () {
+      // The regression itself: stripping /api aimed this at the Next.js origin.
+      final base = Environment.production.defaultApiBase;
+      final target = socketIoTarget(Environment.production.socketUrl(base));
+
+      expect(base, endsWith('/api'));
+      expect(target.path, '/api/socket.io/');
+    });
+
+    test('socketUrl hands the base over intact, bar a trailing slash', () {
+      const env = Environment.production;
+
+      expect(env.socketUrl('https://host/api'), 'https://host/api');
+      expect(env.socketUrl('https://host/api/'), 'https://host/api');
+      expect(env.socketUrl('  https://host/api  '), 'https://host/api');
+    });
+  });
 }

@@ -36,12 +36,32 @@ enum Environment {
     };
   }
 
-  /// Socket.IO endpoint. The gateway is mounted on the same origin as the API;
-  /// the `/api` path prefix is stripped because the websocket namespace is at
-  /// the root (see ARCHITECTURE.md §4).
-  String socketBase(String apiBase) {
-    final trimmed = apiBase.replaceAll(RegExp(r'/api/?$'), '');
-    return trimmed.isEmpty ? apiBase : trimmed;
+  /// Socket.IO endpoint. The gateway is mounted on the same origin **and the
+  /// same path prefix** as the API, so this hands the API base over as it is,
+  /// bar a trailing slash.
+  ///
+  /// It used to strip a trailing `/api`, on the reasoning that the websocket
+  /// namespace sits at the root. That is true of the API reached directly on
+  /// its own port, which is how it is reached in development — and false behind
+  /// a reverse proxy that mounts the API under `/api/`, which is how it is
+  /// reached in production. There, stripping the prefix aimed the socket at the
+  /// *web console's* origin, where `/socket.io/` is the Next.js app.
+  ///
+  /// It failed silently, which is the interesting part: the socket is
+  /// deliberately an accelerator and never the source of truth (ARCHITECTURE.md
+  /// §4), so every screen still refreshed on resume and on its slow poll.
+  /// Nothing looked broken. It was simply never live, in the one environment
+  /// nobody could reproduce on a laptop.
+  ///
+  /// Splitting this into an origin and a path is Socket.IO's own business — a
+  /// path in the URL it is handed is a *namespace*, not a prefix — so the
+  /// transport does it. See [socketIoTarget].
+  String socketUrl(String apiBase) {
+    var trimmed = apiBase.trim();
+    while (trimmed.endsWith('/')) {
+      trimmed = trimmed.substring(0, trimmed.length - 1);
+    }
+    return trimmed;
   }
 
   /// Verbose logging is a liability in production — logs on a shared restaurant

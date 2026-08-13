@@ -44,7 +44,7 @@ final realtimeClientProvider = Provider<RealtimeClient>((ref) {
   final api = ref.watch(apiClientProvider);
   final client = RealtimeClient(
     // The gateway is on the API's origin without the `/api` prefix.
-    urlProvider: () => Environment.current.socketBase(session.baseUrl),
+    urlProvider: () => Environment.current.socketUrl(session.baseUrl),
     // Routed through the API client so a handshake that needs a new access
     // token shares its single-flight refresh rather than racing it.
     tokenProvider: api.freshAccessToken,
