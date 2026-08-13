@@ -248,6 +248,21 @@ hidden and blocked for it (the API returns "feature not enabled" for anything yo
 > script shows the exact SQL insert with a hashed password), then use it to provision all real companies
 > through the API as above. Keep those credentials safe — this account can create and configure every
 > company on the server.
+>
+> **On a server that is already seeded, use `scripts/create-superadmin.sh` instead:**
+>
+> ```bash
+> bash scripts/create-superadmin.sh sa@yourdomain.com 'a-strong-password'
+> ```
+>
+> `seed-demo.sh` only bootstraps a super-admin on the same branch where it creates the demo tenant, so
+> re-running it against a server that already has `chef@karahipoint.test` takes the "reusing the tenant"
+> path and never creates one. That is how a live server ends up seeded, working, and with no account
+> able to reach **Platform → Companies**. The script performs the same insert on its own, idempotently,
+> then proves the result by signing in and checking the token really carries `SUPER_ADMIN`.
+>
+> Provisioning has a UI, incidentally — the API calls above are the same thing the console's
+> **Platform → Companies** page does, and that page renders only for `SUPER_ADMIN`.
 
 ### 4.6 Put it behind HTTPS (a domain)
 
