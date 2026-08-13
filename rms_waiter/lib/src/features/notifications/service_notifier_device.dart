@@ -67,22 +67,17 @@ class _DeviceNotifications implements ServiceNotifier {
   }
 
   @override
-  Future<void> foodReady({String? tableCode}) => _show(
+  Future<void> foodReady({required String title, required String body}) => _show(
         // A stable id per kind, so a second "food ready" replaces the first
         // rather than stacking a column of them down the shade.
         id: 1,
-        title: tableCode == null ? 'Food is ready' : 'Table $tableCode — ready',
-        body: 'Food is up at the pass.',
+        title: title,
+        body: body,
       );
 
   @override
-  Future<void> orderSent({required String tableCode, String? orderNo}) => _show(
-        id: 2,
-        title: 'Order sent',
-        body: orderNo == null || orderNo.isEmpty
-            ? 'Table $tableCode reached the kitchen.'
-            : 'Table $tableCode reached the kitchen · $orderNo',
-      );
+  Future<void> orderSent({required String title, required String body}) =>
+      _show(id: 2, title: title, body: body);
 
   Future<void> _show({
     required int id,

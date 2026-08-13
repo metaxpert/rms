@@ -489,26 +489,44 @@ a tablet; scaled to fit, a table on a large plan can end up eight pixels across
 memory, so the plan is the preference, but a table nobody can hit is not a floor
 plan at all.
 
-### i18n — scaffolding, and what that word means here
+### i18n — complete
 
-The pipeline is real and proven end to end: ARB files in `rms_core`, generated
-`RmsLocalizations`, delegates registered in all four apps, and **Urdu** as the
-second locale so right-to-left layout is exercised rather than assumed — the
-part that breaks silently if nobody looks.
+Every user-facing string in all four apps is now in a catalogue, in English and
+Urdu. What is deliberately *not* translated: the four product names, and the
+`detail` a server sends back with an error — that is the server's words, and
+inventing a translation for it would be inventing a diagnosis.
 
-What is translated today: the sign-in journey, the server-settings sheet, the
-outlet picker and every error surface — the strings that were identical in all
-four apps and would otherwise be translated four times. **App-specific screens
-still read English literals**, and that is the remaining work; it is mechanical
-rather than structural.
+The split follows the same core/app boundary as the rest of the codebase:
 
-`strings(context)` falls back to English when no delegate is installed, which is
-what makes the rollout incremental instead of a flag day.
+- **`rms_core/l10n`** holds what all four apps say identically — the sign-in
+  journey, the outlet picker, every error surface, and the *domain vocabulary*:
+  order statuses, table statuses, delivery statuses, tender methods, waiting
+  times.
+- **each app's `l10n/`** holds its own copy, with its own generated `AppText`.
+  A waiter's "Send · 3" has no business in a package a rider also depends on.
+
+Two consequences worth knowing before adding a string:
+
+**The domain enums no longer carry English.** `OrderStatus.label` is now
+`labelIn(RmsLocalizations)`, and the same for table, delivery and payment
+vocabulary. They take the catalogue rather than a `BuildContext` so a controller
+can use them, and so nothing is tempted to reach for a context that is not
+there. `wire` is untouched — that is the backend's name and is never shown.
+
+**Both `strings(context)` and `appText(context)` fall back to English** when no
+delegate is installed. That is what let this land incrementally, and it is why
+every existing widget test kept passing without a localisation harness.
+
+Parity is a test, not a convention: a key present in English and missing in Urdu
+falls back silently, so a translated screen ends up half in each language
+mid-sentence — invisible to anyone who does not read both. `translations_test`
+in each package fails on a missing key and on a placeholder dropped in
+translation.
 
 ## 12. Status
 
 **All eight phases complete and verified.** `flutter analyze` clean across all
-five packages; 135 + 163 + 22 + 27 + 37 tests green; `flutter build web
+five packages; 137 + 165 + 24 + 29 + 39 tests green; `flutter build web
 --release` succeeds for all four apps.
 
 What a waiter can do today: sign in, choose an outlet, read the floor from the
@@ -536,7 +554,9 @@ What is **not** built:
   money is exactly the wrong place to guess.
 - **Push notifications.** What ships is local, and only fires while the app's
   process is alive; waking a killed app needs a device-token endpoint that does
-  not exist.
+  not exist. The notification text IS localised — the notifier takes finished
+  strings, because it runs outside the widget tree and has no context of its
+  own.
 - **Offline writes of any kind beyond the single queued submission per table.**
   The backend has no sync protocol, so there is nothing honest to build.
 

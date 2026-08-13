@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../../l10n/app_text.dart';
 import '../data/service_repository.dart';
 
 /// The kitchen board, grouped by station the way the kitchen is laid out.
@@ -17,16 +18,17 @@ class KitchenView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final board = snapshot.board;
+    final text = appText(context);
 
     if (board.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        children: const [
-          SizedBox(height: 100),
+        children: [
+          const SizedBox(height: 100),
           EmptyView(
             icon: Icons.check_circle_outline,
-            title: 'The kitchen is clear',
-            message: 'Nothing is waiting to be cooked.',
+            title: text.kitchenClearTitle,
+            message: text.kitchenClearMessage,
           ),
         ],
       );
@@ -55,6 +57,7 @@ class _Station extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
     final overdue = tickets.where((t) => t.isOverdue).length;
 
     return Column(
@@ -81,14 +84,13 @@ class _Station extends StatelessWidget {
               ),
               if (overdue > 0)
                 StatusBadge(
-                  label: '$overdue past target',
+                  label: text.pastTargetCount(overdue),
                   color: AppStatusColors.cancelled,
                   icon: Icons.timer_outlined,
                 )
               else
                 Text(
-                  '${tickets.length} '
-                  '${tickets.length == 1 ? 'ticket' : 'tickets'}',
+                  text.ticketCount(tickets.length),
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
@@ -109,6 +111,8 @@ class _TicketCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
+    final shared = strings(context);
     final colour = ticket.urgencyColor;
 
     return Semantics(
@@ -117,10 +121,10 @@ class _TicketCard extends StatelessWidget {
       container: true,
       excludeSemantics: true,
       label: [
-        'Ticket ${ticket.orderNo}',
-        if (ticket.tableCode != null) 'table ${ticket.tableCode}',
-        'waiting ${ticket.elapsedLabel}',
-        if (ticket.isOverdue) 'past target',
+        '${text.ticket} ${ticket.orderNo}',
+        if (ticket.tableCode != null) text.tableLabel(ticket.tableCode!),
+        ticket.elapsedLabelIn(shared),
+        if (ticket.isOverdue) text.pastTargetCount(1),
       ].join(', '),
       child: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -141,8 +145,9 @@ class _TicketCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     [
-                      ticket.orderNo.isEmpty ? 'Ticket' : ticket.orderNo,
-                      if (ticket.tableCode != null) 'Table ${ticket.tableCode}',
+                      ticket.orderNo.isEmpty ? text.ticket : ticket.orderNo,
+                      if (ticket.tableCode != null)
+                        text.tableLabel(ticket.tableCode!),
                     ].join(' · '),
                     style: theme.textTheme.titleSmall
                         ?.copyWith(fontWeight: FontWeight.w700),
@@ -151,7 +156,7 @@ class _TicketCard extends StatelessWidget {
                 Icon(Icons.timer_outlined, size: 16, color: colour),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
-                  ticket.elapsedLabel,
+                  ticket.elapsedLabelIn(shared),
                   style: theme.textTheme.labelLarge
                       ?.copyWith(color: colour, fontWeight: FontWeight.w700),
                 ),
@@ -194,7 +199,7 @@ class _TicketCard extends StatelessWidget {
             if (ticket.targetMinutes != null) ...[
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Target ${ticket.targetMinutes} min · ${ticket.status}',
+                text.targetAndStatus(ticket.targetMinutes!, ticket.status),
                 style: theme.textTheme.labelSmall
                     ?.copyWith(color: theme.colorScheme.outline),
               ),

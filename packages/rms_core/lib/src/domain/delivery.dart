@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/rms_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Delivery job lifecycle, mirroring `DeliveryStatus` in `restaurant.util.ts`.
@@ -36,24 +37,24 @@ enum DeliveryStatus {
   /// Still on a rider's list of things to do today.
   bool get isActive => !isTerminal && this != DeliveryStatus.unknown;
 
-  String get label => switch (this) {
-        DeliveryStatus.pending => 'Unassigned',
-        DeliveryStatus.assigned => 'Assigned',
-        DeliveryStatus.pickedUp => 'Picked up',
-        DeliveryStatus.enRoute => 'On the way',
-        DeliveryStatus.delivered => 'Delivered',
-        DeliveryStatus.failed => 'Failed',
-        DeliveryStatus.cancelled => 'Cancelled',
-        DeliveryStatus.unknown => 'Unknown',
+  String labelIn(RmsLocalizations text) => switch (this) {
+        DeliveryStatus.pending => text.deliveryStatusPending,
+        DeliveryStatus.assigned => text.deliveryStatusAssigned,
+        DeliveryStatus.pickedUp => text.deliveryStatusPickedUp,
+        DeliveryStatus.enRoute => text.deliveryStatusEnRoute,
+        DeliveryStatus.delivered => text.deliveryStatusDelivered,
+        DeliveryStatus.failed => text.deliveryStatusFailed,
+        DeliveryStatus.cancelled => text.deliveryStatusCancelled,
+        DeliveryStatus.unknown => text.deliveryStatusUnknown,
       };
 
   /// The single action a rider takes next, or null when nothing is expected.
   /// Drives the one big button on the run screen — riders act one-handed,
   /// often on a bike, so there must never be a choice of several.
-  String? get nextActionLabel => switch (this) {
-        DeliveryStatus.assigned => 'Picked up',
-        DeliveryStatus.pickedUp => 'Start delivery',
-        DeliveryStatus.enRoute => 'Deliver with OTP',
+  String? nextActionLabelIn(RmsLocalizations text) => switch (this) {
+        DeliveryStatus.assigned => text.deliveryActionPickUp,
+        DeliveryStatus.pickedUp => text.deliveryActionStart,
+        DeliveryStatus.enRoute => text.deliveryActionDeliver,
         _ => null,
       };
 

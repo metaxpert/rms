@@ -283,6 +283,216 @@ abstract class RmsLocalizations {
   /// In en, this message translates to:
   /// **'Check again'**
   String get checkAgain;
+
+  /// No description provided for @orderStatusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get orderStatusDraft;
+
+  /// No description provided for @orderStatusPlaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Placed'**
+  String get orderStatusPlaced;
+
+  /// No description provided for @orderStatusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get orderStatusConfirmed;
+
+  /// No description provided for @orderStatusPreparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Cooking'**
+  String get orderStatusPreparing;
+
+  /// No description provided for @orderStatusReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get orderStatusReady;
+
+  /// No description provided for @orderStatusServed.
+  ///
+  /// In en, this message translates to:
+  /// **'Served'**
+  String get orderStatusServed;
+
+  /// No description provided for @orderStatusSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled'**
+  String get orderStatusSettled;
+
+  /// No description provided for @orderStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get orderStatusCancelled;
+
+  /// No description provided for @orderStatusVoided.
+  ///
+  /// In en, this message translates to:
+  /// **'Voided'**
+  String get orderStatusVoided;
+
+  /// No description provided for @orderStatusUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get orderStatusUnknown;
+
+  /// No description provided for @tableStatusAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get tableStatusAvailable;
+
+  /// No description provided for @tableStatusReserved.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserved'**
+  String get tableStatusReserved;
+
+  /// No description provided for @tableStatusWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get tableStatusWaiting;
+
+  /// No description provided for @tableStatusOccupied.
+  ///
+  /// In en, this message translates to:
+  /// **'Seated'**
+  String get tableStatusOccupied;
+
+  /// No description provided for @tableStatusCleaning.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleaning'**
+  String get tableStatusCleaning;
+
+  /// No description provided for @tableStatusUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get tableStatusUnknown;
+
+  /// No description provided for @deliveryStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Unassigned'**
+  String get deliveryStatusPending;
+
+  /// No description provided for @deliveryStatusAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Assigned'**
+  String get deliveryStatusAssigned;
+
+  /// No description provided for @deliveryStatusPickedUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked up'**
+  String get deliveryStatusPickedUp;
+
+  /// No description provided for @deliveryStatusEnRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'On the way'**
+  String get deliveryStatusEnRoute;
+
+  /// No description provided for @deliveryStatusDelivered.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered'**
+  String get deliveryStatusDelivered;
+
+  /// No description provided for @deliveryStatusFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get deliveryStatusFailed;
+
+  /// No description provided for @deliveryStatusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get deliveryStatusCancelled;
+
+  /// No description provided for @deliveryStatusUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get deliveryStatusUnknown;
+
+  /// No description provided for @deliveryActionPickUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked up'**
+  String get deliveryActionPickUp;
+
+  /// No description provided for @deliveryActionStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start delivery'**
+  String get deliveryActionStart;
+
+  /// No description provided for @deliveryActionDeliver.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver with OTP'**
+  String get deliveryActionDeliver;
+
+  /// No description provided for @paymentCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get paymentCash;
+
+  /// No description provided for @paymentCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Card'**
+  String get paymentCard;
+
+  /// No description provided for @paymentWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get paymentWallet;
+
+  /// No description provided for @paymentOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get paymentOnline;
+
+  /// No description provided for @waitJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get waitJustNow;
+
+  /// No description provided for @waitMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String waitMinutes(int minutes);
+
+  /// No description provided for @waitHoursMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h {minutes}m'**
+  String waitHoursMinutes(int hours, int minutes);
+
+  /// No description provided for @chooseOutlet.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your outlet'**
+  String get chooseOutlet;
 }
 
 class _RmsLocalizationsDelegate

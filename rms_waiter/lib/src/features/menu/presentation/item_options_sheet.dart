@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_text.dart';
 
 
 /// Configure one dish before it joins the ticket: options, quantity, and what
@@ -141,7 +143,7 @@ class _ItemOptionsSheetState extends ConsumerState<_ItemOptionsSheet> {
           ),
           Expanded(
             child: groups.when(
-              loading: () => const LoadingView(message: 'Loading options…'),
+              loading: () => LoadingView(message: appText(context).optionsLoading),
               // Without the options we cannot know whether a required choice is
               // being skipped, so this is a hard stop rather than a warning.
               error: (error, _) => ErrorView(
@@ -207,7 +209,7 @@ class _Options extends StatelessWidget {
                 child: Text(group.name, style: theme.textTheme.titleMedium),
               ),
               Text(
-                _ruleText(group),
+                _ruleText(appText(context), group),
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: group.effectiveMinSelect > 0
                       ? theme.colorScheme.error
@@ -238,10 +240,10 @@ class _Options extends StatelessWidget {
         TextField(
           controller: notes,
           textCapitalization: TextCapitalization.sentences,
-          decoration: const InputDecoration(
-            labelText: 'Note for the kitchen',
-            hintText: 'No chilli, well done, serve last…',
-            prefixIcon: Icon(Icons.edit_note_rounded),
+          decoration: InputDecoration(
+            labelText: appText(context).noteForKitchen,
+            hintText: appText(context).noteForKitchenHint,
+            prefixIcon: const Icon(Icons.edit_note_rounded),
           ),
           maxLines: 2,
           // A KOT is 32 columns of thermal paper. Past a couple of lines a
@@ -253,13 +255,18 @@ class _Options extends StatelessWidget {
     );
   }
 
-  static String _ruleText(ModifierGroup group) {
+  /// The group's own selection rule, in a waiter's words.
+  ///
+  /// The client is the only thing enforcing these — `addItems` validates that a
+  /// modifier exists but never checks a group's min/max — so the rule has to be
+  /// legible, not just enforced.
+  static String _ruleText(AppText text, ModifierGroup group) {
     final min = group.effectiveMinSelect;
     final max = group.maxSelect;
-    if (min > 0 && max == min) return 'Choose $min';
-    if (min > 0) return 'Choose at least $min';
-    if (max != null) return 'Up to $max';
-    return 'Optional';
+    if (min > 0 && max == min) return text.chooseExactly(min);
+    if (min > 0) return text.chooseAtLeast(min);
+    if (max != null) return text.chooseUpTo(max);
+    return text.optional;
   }
 }
 
@@ -293,7 +300,7 @@ class _AddBar extends StatelessWidget {
               Text(
                 // Naming the group beats a greyed-out button with no
                 // explanation, which reads as the app being broken.
-                'Choose ${blocked.name.toLowerCase()} first',
+                appText(context).chooseFirst(blocked.name.toLowerCase()),
                 style: theme.textTheme.bodyMedium
                     ?.copyWith(color: theme.colorScheme.error),
               ),
@@ -305,7 +312,8 @@ class _AddBar extends StatelessWidget {
               child: FilledButton(
                 onPressed: blocked == null ? onAdd : null,
                 child: Text(
-                  'Add ${line.qty} · ${line.taxable.display}',
+                  appText(context)
+                      .addWithQtyAndPrice(line.qty, line.taxable.display),
                   style: const TextStyle(fontSize: 18),
                 ),
               ),
@@ -334,7 +342,7 @@ class _QtyStepper extends StatelessWidget {
           // stepper held down from reaching the kitchen.
           onPressed: qty > 1 ? () => onChanged(qty - 1) : null,
           icon: const Icon(Icons.remove_rounded),
-          tooltip: 'One fewer',
+          tooltip: appText(context).oneFewer,
         ),
         SizedBox(
           width: 48,
@@ -347,7 +355,7 @@ class _QtyStepper extends StatelessWidget {
         IconButton.filledTonal(
           onPressed: qty < 99 ? () => onChanged(qty + 1) : null,
           icon: const Icon(Icons.add_rounded),
-          tooltip: 'One more',
+          tooltip: appText(context).oneMore,
         ),
       ],
     );

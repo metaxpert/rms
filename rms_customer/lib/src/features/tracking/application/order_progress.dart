@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../orders/data/customer_order_repository.dart';
 
 /// One rung of the progress the customer sees.
@@ -44,18 +45,14 @@ class OrderProgress {
 
   final bool isFinished;
 
-  static OrderProgress of(TrackedOrder tracked) {
+  static OrderProgress of(TrackedOrder tracked, AppText text) {
     final order = tracked.order;
     final delivery = tracked.delivery;
     final isDelivery = order.channel == OrderChannel.delivery.wire;
 
     if (order.status == OrderStatus.cancelled ||
         order.status == OrderStatus.voided) {
-      return const OrderProgress._(
-        [],
-        'This order was cancelled. If that is unexpected, call the restaurant.',
-        true,
-      );
+      return OrderProgress._(const [], text.headlineCancelled, true);
     }
 
     final stage = isDelivery
@@ -67,18 +64,18 @@ class OrderProgress {
     // restaurant, "ready" and "ready to collect" are the same fact, and a step
     // that can never light up is a step that makes the rest look stalled.
     final labels = isDelivery
-        ? const <(String, IconData)>[
-            ('Order received', Icons.receipt_long_rounded),
-            ('Being cooked', Icons.local_fire_department_rounded),
-            ('Ready', Icons.room_service_rounded),
-            ('On the way', Icons.two_wheeler_rounded),
-            ('Delivered', Icons.check_circle_rounded),
+        ? <(String, IconData)>[
+            (text.stepOrderReceived, Icons.receipt_long_rounded),
+            (text.stepBeingCooked, Icons.local_fire_department_rounded),
+            (text.stepReady, Icons.room_service_rounded),
+            (text.stepOnTheWay, Icons.two_wheeler_rounded),
+            (text.stepDelivered, Icons.check_circle_rounded),
           ]
-        : const <(String, IconData)>[
-            ('Order received', Icons.receipt_long_rounded),
-            ('Being cooked', Icons.local_fire_department_rounded),
-            ('Ready to collect', Icons.shopping_bag_rounded),
-            ('Collected', Icons.check_circle_rounded),
+        : <(String, IconData)>[
+            (text.stepOrderReceived, Icons.receipt_long_rounded),
+            (text.stepBeingCooked, Icons.local_fire_department_rounded),
+            (text.stepReadyToCollect, Icons.shopping_bag_rounded),
+            (text.stepCollected, Icons.check_circle_rounded),
           ];
 
     return OrderProgress._(
@@ -91,7 +88,7 @@ class OrderProgress {
             active: index == stage,
           ),
       ],
-      _headline(stage, isDelivery: isDelivery, delivery: delivery),
+      _headline(text, stage, isDelivery: isDelivery, delivery: delivery),
       stage >= labels.length - 1,
     );
   }
@@ -138,30 +135,29 @@ class OrderProgress {
       };
 
   static String _headline(
+    AppText text,
     int stage, {
     required bool isDelivery,
     required Delivery? delivery,
   }) {
-    if (stage == 0) return 'The restaurant has your order.';
-    if (stage == 1) return 'Your food is being cooked.';
+    if (stage == 0) return text.headlineReceived;
+    if (stage == 1) return text.headlineCooking;
 
     if (!isDelivery) {
-      return stage == 2
-          ? 'Ready to collect — come to the counter.'
-          : 'Collected. Enjoy.';
+      return stage == 2 ? text.headlineComeToCounter : text.headlineCollected;
     }
 
     switch (stage) {
       case 2:
-        return 'Your food is ready and waiting for a rider.';
+        return text.headlineWaitingRider;
       case 3:
         final eta = delivery?.etaMinutes;
         // "about -3 minutes" is worse than saying nothing at all.
         return eta == null || eta <= 0
-            ? 'Your order is on its way.'
-            : 'On its way — about $eta minutes.';
+            ? text.headlineOnItsWay
+            : text.headlineOnItsWayEta(eta);
       default:
-        return 'Delivered. Enjoy.';
+        return text.headlineDelivered;
     }
   }
 }

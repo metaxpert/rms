@@ -5,6 +5,8 @@ import 'package:rms_waiter/src/features/bill/application/settle_controller.dart'
 import 'package:rms_waiter/src/features/orders/data/order_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:rms_waiter/src/l10n/app_localizations_en.dart';
+
 import 'support/fake_order_server.dart';
 
 /// Settling moves stock, captures COGS and posts a balanced GL journal in one
@@ -13,6 +15,10 @@ import 'support/fake_order_server.dart';
 /// once, and charging the right amount.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  // The English catalogue: the controller needs one for its two refusal
+  // messages, and English is what these assertions read.
+  final text = AppTextEn();
 
   const branchId = 'branch-1';
   const orderId = 'order-1';
@@ -123,7 +129,7 @@ void main() {
       final tender = stateIn(container).tenderFor(order.totals.total);
       expect(stateIn(container).changeFor(tender), const Money(46900));
 
-      await controller.settle(order);
+      await controller.settle(order, text);
 
       // The server is told what was applied to the bill, not the note handed
       // over — otherwise the sale posts larger than the bill.
@@ -135,7 +141,7 @@ void main() {
       final controller = controllerIn(container)
         ..setAmount(0, const Money(60000), order.totals.total);
 
-      await controller.settle(order);
+      await controller.settle(order, text);
 
       expect(server.settlements, isEmpty);
       expect(stateIn(container).phase, SettlePhase.failed);
@@ -147,7 +153,7 @@ void main() {
     test('closes the bill and reports the settled order', () async {
       final (container, server, order) = await billFor(153100);
 
-      await controllerIn(container).settle(order);
+      await controllerIn(container).settle(order, text);
 
       expect(server.settlements.length, 1);
       expect(stateIn(container).phase, SettlePhase.settled);
@@ -159,7 +165,7 @@ void main() {
       final controller = controllerIn(container)
         ..splitEvenly(3, order.totals.total);
 
-      await controller.settle(order);
+      await controller.settle(order, text);
 
       final sent = server.settlements.single;
       expect(sent.length, 3);
@@ -173,8 +179,8 @@ void main() {
       final (container, server, order) = await billFor(153100);
       final controller = controllerIn(container);
 
-      await controller.settle(order);
-      await controller.settle(order);
+      await controller.settle(order, text);
+      await controller.settle(order, text);
 
       expect(server.settlements.length, 1,
           reason: 'a second charge is the worst outcome this screen has');
@@ -186,13 +192,13 @@ void main() {
       // has been killed and reopened — where a key held in memory would not be.
       final (container, server, order) = await billFor(100000);
       controllerIn(container).splitEvenly(2, order.totals.total);
-      await controllerIn(container).settle(order);
+      await controllerIn(container).settle(order, text);
 
       final firstKey = server.keys['settle']!.single;
 
       final (container2, server2, order2) = await billFor(100000);
       controllerIn(container2).splitEvenly(2, order2.totals.total);
-      await controllerIn(container2).settle(order2);
+      await controllerIn(container2).settle(order2, text);
 
       expect(server2.keys['settle']!.single, firstKey);
     });
@@ -211,7 +217,7 @@ void main() {
         'items': [],
       }));
 
-      await controllerIn(container).settle(order);
+      await controllerIn(container).settle(order, text);
 
       // The money is taken and the guest can go. Reporting a failure would
       // send a waiter to charge a second time.
@@ -224,7 +230,7 @@ void main() {
       server.failAlways['settle'] =
           ApiException(ApiErrorKind.server, 'Ledger service unavailable.');
 
-      await controllerIn(container).settle(order);
+      await controllerIn(container).settle(order, text);
 
       expect(stateIn(container).phase, SettlePhase.failed);
       expect(stateIn(container).error!.message, 'Ledger service unavailable.');
@@ -239,7 +245,7 @@ void main() {
       server.failAlways['fetch'] =
           ApiException(ApiErrorKind.network, 'Wifi dropped.');
 
-      await controllerIn(container).settle(order);
+      await controllerIn(container).settle(order, text);
 
       expect(stateIn(container).phase, SettlePhase.failed);
     });

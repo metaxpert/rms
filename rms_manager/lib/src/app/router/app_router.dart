@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../l10n/app_text.dart';
 import '../../features/service/presentation/manager_shell.dart';
 
 abstract final class Routes {
@@ -30,8 +31,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: Routes.signIn,
-        builder: (context, state) => const SignInScreen(
-          title: 'Manager sign in',
+        builder: (context, state) => SignInScreen(
+          title: appText(context).managerSignIn,
           icon: Icons.insights_rounded,
         ),
       ),

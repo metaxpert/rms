@@ -1,7 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rms_core/rms_core.dart';
+import 'package:rms_core/src/l10n/rms_localizations_en.dart';
 
 void main() {
+  // The English catalogue, so the assertions read as a user would see them.
+  final text = RmsLocalizationsEn();
+
   group('DeliveryStatus wire mapping', () {
     test('maps every backend value', () {
       expect(DeliveryStatus.fromWire('PENDING'), DeliveryStatus.pending);
@@ -53,7 +57,7 @@ void main() {
     test('label and path stay in step', () {
       for (final status in DeliveryStatus.values) {
         expect(
-          status.nextActionLabel == null,
+          status.nextActionLabelIn(text) == null,
           status.nextActionPath == null,
           reason: '${status.wire} has a label/path mismatch',
         );

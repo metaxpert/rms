@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/rms_localizations.dart';
 import '../money.dart';
 
 /// How a guest pays. These are the backend's tender codes.
@@ -18,11 +19,11 @@ enum PaymentMethod {
         orElse: () => PaymentMethod.cash,
       );
 
-  String get label => switch (this) {
-        PaymentMethod.cash => 'Cash',
-        PaymentMethod.card => 'Card',
-        PaymentMethod.wallet => 'Wallet',
-        PaymentMethod.online => 'Online',
+  String labelIn(RmsLocalizations text) => switch (this) {
+        PaymentMethod.cash => text.paymentCash,
+        PaymentMethod.card => text.paymentCard,
+        PaymentMethod.wallet => text.paymentWallet,
+        PaymentMethod.online => text.paymentOnline,
       };
 
   IconData get icon => switch (this) {

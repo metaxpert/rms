@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../l10n/app_localizations.dart';
 import 'live_sync.dart';
 import 'router/app_router.dart';
 
@@ -23,11 +24,12 @@ class ManagerApp extends ConsumerWidget {
       // in rms_core.
       localizationsDelegates: const [
         RmsLocalizations.delegate,
+        AppText.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: RmsLocalizations.supportedLocales,
+      supportedLocales: AppText.supportedLocales,
       builder: (context, child) {
         final media = MediaQuery.of(context);
         return MediaQuery(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/rms_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Table states, mirroring the backend's `TableStatus` exactly.
@@ -26,13 +27,13 @@ enum TableStatus {
     return TableStatus.unknown;
   }
 
-  String get label => switch (this) {
-        TableStatus.available => 'Free',
-        TableStatus.reserved => 'Reserved',
-        TableStatus.waiting => 'Waiting',
-        TableStatus.occupied => 'Seated',
-        TableStatus.cleaning => 'Cleaning',
-        TableStatus.unknown => 'Unknown',
+  String labelIn(RmsLocalizations text) => switch (this) {
+        TableStatus.available => text.tableStatusAvailable,
+        TableStatus.reserved => text.tableStatusReserved,
+        TableStatus.waiting => text.tableStatusWaiting,
+        TableStatus.occupied => text.tableStatusOccupied,
+        TableStatus.cleaning => text.tableStatusCleaning,
+        TableStatus.unknown => text.tableStatusUnknown,
       };
 
   /// Paired with [label] and never used alone — roughly 1 in 12 men has a

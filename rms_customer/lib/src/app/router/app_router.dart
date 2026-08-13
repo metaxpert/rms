@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../l10n/app_text.dart';
 import '../../features/cart/presentation/cart_screen.dart';
 import '../../features/catalogue/presentation/menu_screen.dart';
 import '../../features/tracking/presentation/track_screen.dart';
@@ -29,15 +30,15 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: Routes.signIn,
-        builder: (context, state) => const SignInScreen(
-          title: 'Sign in to order',
+        builder: (context, state) => SignInScreen(
+          title: appText(context).signInToOrder,
           icon: Icons.local_dining_rounded,
         ),
       ),
       GoRoute(
         path: Routes.selectBranch,
         builder: (context, state) =>
-            const BranchSelectionScreen(title: 'Choose a restaurant'),
+            BranchSelectionScreen(title: appText(context).chooseRestaurant),
       ),
       GoRoute(
         path: Routes.home,

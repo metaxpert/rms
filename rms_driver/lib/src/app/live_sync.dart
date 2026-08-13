@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:rms_core/rms_core.dart';
 import '../features/runs/data/delivery_repository.dart';
+import '../l10n/app_text.dart';
 
 /// Keeps the rider's board current without them having to pull it.
 ///
@@ -113,20 +114,21 @@ class _LiveSyncState extends ConsumerState<LiveSync>
 
   void _announceNewRun() {
     final messenger = ref.read(scaffoldMessengerKeyProvider).currentState;
+    if (messenger == null) return;
     messenger
-      ?..removeCurrentSnackBar()
+      ..removeCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
-          duration: Duration(seconds: 6),
+        SnackBar(
+          duration: const Duration(seconds: 6),
           backgroundColor: AppStatusColors.ready,
           content: Row(
             children: [
-              Icon(Icons.two_wheeler_rounded, color: Colors.white),
-              SizedBox(width: AppSpacing.md),
+              const Icon(Icons.two_wheeler_rounded, color: Colors.white),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Text(
-                  'A run has been assigned.',
-                  style: TextStyle(
+                  appText(messenger.context).runAssigned,
+                  style: const TextStyle(
                       color: Colors.white, fontWeight: FontWeight.w700),
                 ),
               ),

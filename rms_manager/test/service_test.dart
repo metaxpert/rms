@@ -1,11 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rms_core/rms_core.dart';
+import 'package:rms_core/src/l10n/rms_localizations_en.dart';
 import 'package:rms_manager/src/features/service/data/service_repository.dart';
 
 /// A manager reads a figure here and then walks somewhere on the strength of
 /// it. These tests are about the figures being true, and about the app not
 /// claiming more than it knows.
 void main() {
+  final shared = RmsLocalizationsEn();
+
   OrderSummary order({
     required String status,
     int totalMinor = 100000,
@@ -206,17 +209,17 @@ void main() {
     test('reports waiting time, not a wall clock', () {
       expect(
         KdsTicket.fromJson(ticket(station: 'g', elapsedSeconds: 30))
-            .elapsedLabel,
+            .elapsedLabelIn(shared),
         'just now',
       );
       expect(
         KdsTicket.fromJson(ticket(station: 'g', elapsedSeconds: 780))
-            .elapsedLabel,
+            .elapsedLabelIn(shared),
         '13 min',
       );
       expect(
         KdsTicket.fromJson(ticket(station: 'g', elapsedSeconds: 4500))
-            .elapsedLabel,
+            .elapsedLabelIn(shared),
         '1h 15m',
       );
     });

@@ -107,4 +107,113 @@ class RmsLocalizationsUr extends RmsLocalizations {
 
   @override
   String get checkAgain => 'دوبارہ دیکھیں';
+
+  @override
+  String get orderStatusDraft => 'مسودہ';
+
+  @override
+  String get orderStatusPlaced => 'دیا گیا';
+
+  @override
+  String get orderStatusConfirmed => 'تصدیق شدہ';
+
+  @override
+  String get orderStatusPreparing => 'پک رہا ہے';
+
+  @override
+  String get orderStatusReady => 'تیار';
+
+  @override
+  String get orderStatusServed => 'پیش کر دیا';
+
+  @override
+  String get orderStatusSettled => 'ادائیگی مکمل';
+
+  @override
+  String get orderStatusCancelled => 'منسوخ';
+
+  @override
+  String get orderStatusVoided => 'کالعدم';
+
+  @override
+  String get orderStatusUnknown => 'نامعلوم';
+
+  @override
+  String get tableStatusAvailable => 'خالی';
+
+  @override
+  String get tableStatusReserved => 'محفوظ';
+
+  @override
+  String get tableStatusWaiting => 'انتظار میں';
+
+  @override
+  String get tableStatusOccupied => 'مہمان بیٹھے ہیں';
+
+  @override
+  String get tableStatusCleaning => 'صفائی';
+
+  @override
+  String get tableStatusUnknown => 'نامعلوم';
+
+  @override
+  String get deliveryStatusPending => 'غیر مختص';
+
+  @override
+  String get deliveryStatusAssigned => 'مختص';
+
+  @override
+  String get deliveryStatusPickedUp => 'اٹھا لیا';
+
+  @override
+  String get deliveryStatusEnRoute => 'راستے میں';
+
+  @override
+  String get deliveryStatusDelivered => 'پہنچا دیا';
+
+  @override
+  String get deliveryStatusFailed => 'ناکام';
+
+  @override
+  String get deliveryStatusCancelled => 'منسوخ';
+
+  @override
+  String get deliveryStatusUnknown => 'نامعلوم';
+
+  @override
+  String get deliveryActionPickUp => 'اٹھا لیا';
+
+  @override
+  String get deliveryActionStart => 'ڈیلیوری شروع کریں';
+
+  @override
+  String get deliveryActionDeliver => 'OTP کے ساتھ پہنچائیں';
+
+  @override
+  String get paymentCash => 'نقد';
+
+  @override
+  String get paymentCard => 'کارڈ';
+
+  @override
+  String get paymentWallet => 'والٹ';
+
+  @override
+  String get paymentOnline => 'آن لائن';
+
+  @override
+  String get waitJustNow => 'ابھی';
+
+  @override
+  String waitMinutes(int minutes) {
+    return '$minutes منٹ';
+  }
+
+  @override
+  String waitHoursMinutes(int hours, int minutes) {
+    return '$hours گھنٹے $minutes منٹ';
+  }
+
+  @override
+  String get chooseOutlet => 'اپنا آؤٹ لیٹ منتخب کریں';
 }

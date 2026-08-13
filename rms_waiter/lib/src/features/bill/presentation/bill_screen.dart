@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../../l10n/app_text.dart';
 import '../../orders/data/order_repository.dart';
 import '../application/settle_controller.dart';
 import 'receipt_sheet.dart';
@@ -35,8 +36,10 @@ class _BillScreenState extends ConsumerState<BillScreen> {
   Widget build(BuildContext context) {
     final tableId = widget.tableId;
     final orderAsync = ref.watch(tableOrderProvider(tableId));
-    final title =
-        widget.tableCode == null ? 'Bill' : 'Bill · Table ${widget.tableCode}';
+    final text = appText(context);
+    final title = widget.tableCode == null
+        ? text.bill
+        : text.billForTable(widget.tableCode!);
 
     final fetched = orderAsync.valueOrNull;
     if (fetched != null) _orderId = fetched.id;
@@ -54,17 +57,17 @@ class _BillScreenState extends ConsumerState<BillScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: orderAsync.when(
-        loading: () => const LoadingView(message: 'Fetching the bill…'),
+        loading: () => LoadingView(message: text.fetchingBill),
         error: (error, _) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(tableOrderProvider(tableId)),
         ),
         data: (order) {
           if (order == null) {
-            return const EmptyView(
+            return EmptyView(
               icon: Icons.receipt_long_outlined,
-              title: 'No open bill',
-              message: 'This table has nothing to settle.',
+              title: text.noOpenBillTitle,
+              message: text.noOpenBillMessage,
             );
           }
           return _BillBody(order: order);
@@ -83,6 +86,8 @@ class _BillBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settle = ref.watch(settleControllerProvider(order.id));
     final controller = ref.read(settleControllerProvider(order.id).notifier);
+    final text = appText(context);
+    final shared = strings(context);
 
     // A bill settled in this session is the authority over the fetch behind it.
     // The SETTLED case is handled a level up, in [BillScreen], because by then
@@ -92,8 +97,9 @@ class _BillBody extends ConsumerWidget {
     if (!current.isOpen) {
       return EmptyView(
         icon: Icons.block_rounded,
-        title: 'This bill is ${current.status.label.toLowerCase()}',
-        message: 'It cannot be settled. Ask a manager if that looks wrong.',
+        title: text.billIsStatus(
+            current.status.labelIn(shared).toLowerCase()),
+        message: text.billCannotSettle,
       );
     }
 
@@ -129,7 +135,7 @@ class _BillBody extends ConsumerWidget {
                 child: TextButton.icon(
                   onPressed: () => controller.addPayment(due),
                   icon: const Icon(Icons.add_rounded),
-                  label: const Text('Another payment'),
+                  label: Text(text.anotherPayment),
                 ),
               ),
               if (tender.payments.any((p) => p.method.takesOverTender))
@@ -154,7 +160,7 @@ class _BillBody extends ConsumerWidget {
           order: current,
           tender: tender,
           isSettling: settle.isSettling,
-          onSettle: () => controller.settle(current),
+          onSettle: () => controller.settle(current, text),
           onViewBill: () => ReceiptSheet.show(context, current),
         ),
       ],
@@ -190,7 +196,7 @@ class _OrderLines extends StatelessWidget {
                 ),
               ),
               StatusBadge(
-                label: order.status.label,
+                label: order.status.labelIn(strings(context)),
                 color: order.status.color,
                 icon: order.status.icon,
               ),
@@ -229,6 +235,7 @@ class _TotalsBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
 
     Widget row(String label, Money amount, {bool emphasise = false}) {
       final style = emphasise
@@ -253,15 +260,15 @@ class _TotalsBlock extends StatelessWidget {
       ),
       child: Column(
         children: [
-          row('Subtotal', totals.subtotal),
-          if (!totals.discount.isZero) row('Discount', totals.discount),
-          if (!totals.tax.isZero) row('Tax', totals.tax),
+          row(text.subtotal, totals.subtotal),
+          if (!totals.discount.isZero) row(text.discount, totals.discount),
+          if (!totals.tax.isZero) row(text.tax, totals.tax),
           if (!totals.serviceCharge.isZero)
-            row('Service charge', totals.serviceCharge),
-          if (!totals.tip.isZero) row('Tip', totals.tip),
-          if (!totals.rounding.isZero) row('Rounding', totals.rounding),
+            row(text.serviceCharge, totals.serviceCharge),
+          if (!totals.tip.isZero) row(text.tip, totals.tip),
+          if (!totals.rounding.isZero) row(text.rounding, totals.rounding),
           const Divider(),
-          row('Total due', totals.total, emphasise: true),
+          row(text.totalDue, totals.total, emphasise: true),
         ],
       ),
     );
@@ -287,7 +294,8 @@ class _SplitBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text('Split', style: Theme.of(context).textTheme.labelLarge),
+          Text(appText(context).split,
+              style: Theme.of(context).textTheme.labelLarge),
           const SizedBox(width: AppSpacing.md),
           for (final n in const [1, 2, 3, 4])
             Padding(
@@ -295,7 +303,7 @@ class _SplitBar extends StatelessWidget {
               child: ChoiceChip(
                 selected: ways == n,
                 onSelected: (_) => onSplit(n),
-                label: Text(n == 1 ? 'No' : '$n'),
+                label: Text(n == 1 ? appText(context).splitNone : '$n'),
               ),
             ),
         ],
@@ -359,10 +367,10 @@ class _PaymentRowState extends State<_PaymentRow> {
             flex: 3,
             child: DropdownButtonFormField<PaymentMethod>(
               initialValue: widget.payment.method,
-              decoration: const InputDecoration(
-                labelText: 'Method',
+              decoration: InputDecoration(
+                labelText: appText(context).paymentMethod,
                 isDense: true,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
               items: [
                 for (final method in PaymentMethod.values)
@@ -372,7 +380,7 @@ class _PaymentRowState extends State<_PaymentRow> {
                       children: [
                         Icon(method.icon, size: 18),
                         const SizedBox(width: AppSpacing.sm),
-                        Text(method.label),
+                        Text(method.labelIn(strings(context))),
                       ],
                     ),
                   ),
@@ -394,7 +402,7 @@ class _PaymentRowState extends State<_PaymentRow> {
                 FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
               ],
               decoration: InputDecoration(
-                labelText: 'Amount',
+                labelText: appText(context).paymentAmount,
                 isDense: true,
                 prefixText: '${widget.payment.amount.currency} ',
                 border: const OutlineInputBorder(),
@@ -411,7 +419,7 @@ class _PaymentRowState extends State<_PaymentRow> {
           IconButton(
             onPressed: widget.canRemove ? widget.onRemove : null,
             icon: const Icon(Icons.close_rounded),
-            tooltip: 'Remove this payment',
+            tooltip: appText(context).removePayment,
           ),
         ],
       ),
@@ -440,6 +448,7 @@ class _CashChange extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -462,11 +471,11 @@ class _CashChange extends StatelessWidget {
                     FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                   ],
                   decoration: InputDecoration(
-                    labelText: 'Cash given (optional)',
+                    labelText: text.cashGiven,
                     isDense: true,
                     prefixText: '${due.currency} ',
                     border: const OutlineInputBorder(),
-                    helperText: 'Working out only — not sent to the server',
+                    helperText: text.cashGivenHelper,
                   ),
                   onChanged: (text) =>
                       onChanged(Money.tryParse(text, due.currency)),
@@ -480,7 +489,7 @@ class _CashChange extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Change due', style: theme.textTheme.titleMedium),
+                  Text(text.changeDue, style: theme.textTheme.titleMedium),
                   Text(
                     change!.display,
                     style: theme.textTheme.titleLarge
@@ -513,6 +522,7 @@ class _SettleBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
     final balanced = tender.isBalanced;
 
     return SafeArea(
@@ -532,8 +542,8 @@ class _SettleBar extends StatelessWidget {
                 child: Text(
                   // Naming the gap beats a dead button with no explanation.
                   tender.isShort
-                      ? '${tender.outstanding.display} still to pay'
-                      : '${tender.over.display} more than the bill',
+                      ? text.stillToPay(tender.outstanding.display)
+                      : text.moreThanBill(tender.over.display),
                   style: theme.textTheme.bodyMedium
                       ?.copyWith(color: theme.colorScheme.error),
                 ),
@@ -546,7 +556,7 @@ class _SettleBar extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: onViewBill,
                       icon: const Icon(Icons.receipt_long_outlined),
-                      label: const Text('View bill'),
+                      label: Text(text.viewBill),
                     ),
                   ),
                 ),
@@ -567,8 +577,8 @@ class _SettleBar extends StatelessWidget {
                           : const Icon(Icons.check_rounded),
                       label: Text(
                         isSettling
-                            ? 'Settling…'
-                            : 'Settle ${tender.due.display}',
+                            ? text.settling
+                            : text.settleAmount(tender.due.display),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -592,6 +602,7 @@ class _SettledView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
 
     return Center(
       child: Padding(
@@ -602,7 +613,7 @@ class _SettledView extends StatelessWidget {
             const Icon(Icons.check_circle_rounded,
                 size: 72, color: AppStatusColors.available),
             const SizedBox(height: AppSpacing.lg),
-            Text('Bill settled', style: theme.textTheme.headlineSmall),
+            Text(text.billSettled, style: theme.textTheme.headlineSmall),
             const SizedBox(height: AppSpacing.sm),
             Text(
               order.orderNo.isEmpty
@@ -615,13 +626,13 @@ class _SettledView extends StatelessWidget {
             FilledButton.icon(
               onPressed: () => ReceiptSheet.show(context, order),
               icon: const Icon(Icons.print_outlined),
-              label: const Text('Receipt'),
+              label: Text(text.receipt),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
               // The table's own status is the manager's to change; the app does
               // not claim to have freed it.
-              'The table is free once it has been cleared down.',
+              text.tableFreeWhenCleared,
               style: theme.textTheme.bodySmall
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,

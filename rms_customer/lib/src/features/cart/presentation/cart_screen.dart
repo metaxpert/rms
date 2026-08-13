@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:rms_core/rms_core.dart';
 import '../../../app/router/app_router.dart';
+import '../../../l10n/app_text.dart';
 import '../../checkout/application/checkout_controller.dart';
 import '../../orders/data/customer_order_repository.dart';
 import '../application/cart_controller.dart';
@@ -32,6 +33,7 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     final controller = ref.read(cartControllerProvider.notifier);
     final config = ref.watch(menuCatalogueProvider).valueOrNull?.config;
     final checkout = ref.watch(checkoutControllerProvider);
+    final text = appText(context);
 
     ref.listen(checkoutControllerProvider, (previous, next) {
       if (previous?.phase == next.phase) return;
@@ -44,16 +46,16 @@ class _CartScreenState extends ConsumerState<CartScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Your basket')),
+      appBar: AppBar(title: Text(text.yourBasket)),
       body: cart.isEmpty
           ? EmptyView(
               icon: Icons.shopping_bag_outlined,
-              title: 'Your basket is empty',
-              message: 'Add something from the menu to get started.',
+              title: text.basketEmptyTitle,
+              message: text.basketEmptyMessage,
               action: FilledButton.icon(
                 onPressed: () => context.pop(),
                 icon: const Icon(Icons.restaurant_menu_rounded),
-                label: const Text('Back to the menu'),
+                label: Text(text.backToMenu),
               ),
             )
           : ListView(
@@ -83,10 +85,10 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                     // bounded so a paste of somebody's whole life story does
                     // not become the order payload.
                     maxLength: 240,
-                    decoration: const InputDecoration(
-                      labelText: 'Where should we bring it?',
-                      hintText: 'House, street, area — and a landmark helps',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: text.addressLabel,
+                      hintText: text.addressHint,
+                      border: const OutlineInputBorder(),
                     ),
                     onChanged: (_) => setState(() {}),
                   ),
@@ -120,10 +122,10 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                         : const Icon(Icons.send_rounded),
                     label: Text(
                       checkout.isPlacing
-                          ? 'Sending…'
+                          ? text.sending
                           : checkout.pending != null
-                              ? 'Try again'
-                              : 'Place order',
+                              ? text.tryAgain
+                              : text.placeOrder,
                     ),
                   ),
                 ),
@@ -178,7 +180,9 @@ class _CartLine extends StatelessWidget {
             icon: Icon(line.qty > 1
                 ? Icons.remove_rounded
                 : Icons.delete_outline_rounded),
-            tooltip: line.qty > 1 ? 'One fewer' : 'Remove',
+            tooltip: line.qty > 1
+                ? appText(context).oneFewer
+                : appText(context).remove,
           ),
           SizedBox(
             width: 36,
@@ -193,7 +197,7 @@ class _CartLine extends StatelessWidget {
                 ? null
                 : () => onQty!(line.qty + 1),
             icon: const Icon(Icons.add_rounded),
-            tooltip: 'One more',
+            tooltip: appText(context).oneMore,
           ),
           SizedBox(
             width: 92,
@@ -223,16 +227,16 @@ class _ChannelPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SegmentedButton<OrderChannel>(
-      segments: const [
+      segments: [
         ButtonSegment(
           value: OrderChannel.delivery,
-          icon: Icon(Icons.delivery_dining_rounded),
-          label: Text('Delivery'),
+          icon: const Icon(Icons.delivery_dining_rounded),
+          label: Text(appText(context).delivery),
         ),
         ButtonSegment(
           value: OrderChannel.takeaway,
-          icon: Icon(Icons.shopping_bag_outlined),
-          label: Text('Collection'),
+          icon: const Icon(Icons.shopping_bag_outlined),
+          label: Text(appText(context).collection),
         ),
       ],
       selected: {channel},
@@ -251,6 +255,7 @@ class _Totals extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
     final totals = cart.totals(config);
 
     Widget row(String label, Money amount, {bool emphasise = false}) {
@@ -269,20 +274,19 @@ class _Totals extends StatelessWidget {
 
     return Column(
       children: [
-        row('Subtotal', totals.subtotal),
-        if (!totals.tax.isZero) row('Tax', totals.tax),
+        row(text.subtotal, totals.subtotal),
+        if (!totals.tax.isZero) row(text.tax, totals.tax),
         if (!totals.serviceCharge.isZero)
-          row('Service charge', totals.serviceCharge),
-        if (!totals.rounding.isZero) row('Rounding', totals.rounding),
+          row(text.serviceCharge, totals.serviceCharge),
+        if (!totals.rounding.isZero) row(text.rounding, totals.rounding),
         const Divider(),
-        row('Total', totals.total, emphasise: true),
+        row(text.total, totals.total, emphasise: true),
         const SizedBox(height: AppSpacing.xs),
         Text(
           // The restaurant re-prices every line when the order is placed. Saying
           // so is better than a guest arguing at a counter about a figure this
           // app quoted from a menu that had since changed.
-          'The restaurant confirms the final price when it accepts your order. '
-          'Delivery charges, if any, are added by them.',
+          text.priceConfirmedNote,
           style: theme.textTheme.bodySmall
               ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           textAlign: TextAlign.center,
@@ -301,6 +305,7 @@ class _CheckoutProblem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
 
     return Container(
       margin: const EdgeInsets.only(top: AppSpacing.lg),
@@ -313,13 +318,12 @@ class _CheckoutProblem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Your order did not go through',
+            text.checkoutFailedTitle,
             style: theme.textTheme.titleSmall,
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            checkout.error?.message ??
-                'Something interrupted it. Nothing has been lost — try again.',
+            checkout.error?.message ?? text.checkoutInterrupted,
             style: theme.textTheme.bodySmall,
           ),
           if (checkout.orderExists) ...[
@@ -327,8 +331,7 @@ class _CheckoutProblem extends StatelessWidget {
             Text(
               // Saying "nothing was ordered" would be a guess the kitchen could
               // contradict.
-              'The restaurant may already have part of this order. Trying '
-              'again continues it rather than ordering twice.',
+              text.checkoutPartial,
               style: theme.textTheme.bodySmall
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
@@ -336,7 +339,7 @@ class _CheckoutProblem extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           TextButton(
             onPressed: onDiscard,
-            child: const Text('Start this order again'),
+            child: Text(text.startOrderAgain),
           ),
         ],
       ),

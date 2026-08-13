@@ -1,0 +1,107 @@
+{
+  "@@locale": "en",
+  "runsTitle": "Runs",
+  "switchOutlet": "Switch outlet",
+  "signOut": "Sign out",
+  "runsLoading": "Loading your runs…",
+  "nothingToDeliverTitle": "Nothing to deliver",
+  "nothingToDeliverMessage": "New runs appear here as the kitchen dispatches them. Pull down to check again.",
+  "sectionOnTheGo": "On the go",
+  "sectionDoneToday": "Done today",
+  "wholeOutletBoard": "This is the whole outlet's board — the server does not offer a list of just your own runs.",
+  "noAddress": "No address on file",
+  "etaMinutes": "ETA {minutes} min",
+  "@etaMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "assignedAt": "assigned {time}",
+  "@assignedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "notYours": "{provider} — not yours to drive",
+  "@notYours": {
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "run": "Run",
+  "dropOff": "Drop-off",
+  "noAddressCall": "No address on file — call the restaurant.",
+  "copy": "Copy",
+  "coordinatesCopied": "Coordinates copied — paste into Maps.",
+  "sharingLocation": "Sharing your location",
+  "locationOff": "Location off",
+  "sharingOnHint": "The customer can see roughly where you are. It stops when the run finishes.",
+  "sharingOffHint": "Turn on while you are carrying this order so the customer can follow it.",
+  "lastSent": "Last sent {time} · {count} updates",
+  "@lastSent": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "locationServiceOff": "Location is switched off on this phone. Turn it on in the pull-down settings, then try again.",
+  "locationDenied": "The app was not given permission this time. Tap the switch again to be asked once more.",
+  "locationBlocked": "Location permission is blocked for this app. It can only be turned back on in the phone's Settings → Apps.",
+  "progress": "Progress",
+  "progressAssigned": "Assigned",
+  "progressPickedUp": "Picked up",
+  "progressDelivered": "Delivered",
+  "runIsStatus": "This run is {status}.",
+  "@runIsStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "aggregatorCarrying": "{provider} is carrying this one. Track it through their app — nothing here changes it.",
+  "@aggregatorCarrying": {
+    "placeholders": {
+      "provider": {
+        "type": "String"
+      }
+    }
+  },
+  "waitingForAssignment": "Waiting for the restaurant to assign this run.",
+  "somethingWentWrong": "Something went wrong",
+  "confirmHandover": "Confirm the handover",
+  "askForCode": "Ask the customer to read out the code on their order.",
+  "deliveryCode": "Delivery code",
+  "cancel": "Cancel",
+  "delivered": "Delivered",
+  "failNobodyThere": "Nobody at the address",
+  "failRefused": "Customer refused the order",
+  "failAddressNotFound": "Address could not be found",
+  "failNoCode": "Customer would not give the code",
+  "failVehicle": "Accident or vehicle problem",
+  "whatHappened": "What happened?",
+  "markFailedTitle": "Mark this run failed?",
+  "markFailedMessage": "\"{reason}\"\n\nThe restaurant is told straight away. This cannot be undone from here.",
+  "@markFailedMessage": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "goBack": "Go back",
+  "markFailed": "Mark failed",
+  "driverSignIn": "Driver sign in",
+  "whichKitchen": "Which kitchen?",
+  "runAssigned": "A run has been assigned."
+}

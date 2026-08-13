@@ -1,0 +1,423 @@
+{
+  "@@locale": "en",
+  "floorTitle": "Floor",
+  "switchOutlet": "Switch outlet",
+  "signOut": "Sign out",
+  "floorLoading": "Loading floor…",
+  "liveConnecting": "Connecting",
+  "liveOffline": "Offline",
+  "liveConnectingHint": "Connecting to live updates",
+  "liveOfflineHint": "Live updates are offline — pull down to refresh",
+  "floorStaleAt": "Offline — this floor is from {time}. Order status may have changed since.",
+  "@floorStaleAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "floorStaleUnknown": "Offline — showing the last floor we could load. Order status may have changed.",
+  "openBills": "Open bills",
+  "readyToServe": "Ready to serve",
+  "noAreasTitle": "No dining areas",
+  "noAreasMessage": "This outlet has no areas or tables set up yet. A manager can add them in the web console.",
+  "checkAgain": "Check again",
+  "noTablesInArea": "No tables in this area",
+  "areaWithCount": "{name} ({count})",
+  "@areaWithCount": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tableUnsentTicket": "Unsent ticket",
+  "tableSendUnfinished": "Send unfinished",
+  "tableMerged": "Merged",
+  "tableSemantics": "Table {code}",
+  "@tableSemantics": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "tableSeatsSemantics": "seats {count}",
+  "@tableSeatsSemantics": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tableOrderSemantics": "order {status} {total}",
+  "@tableOrderSemantics": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "tableFoodReadySemantics": "food ready",
+  "tableTitle": "Table {code}",
+  "@tableTitle": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "bill": "Bill",
+  "clearThisRound": "Clear this round",
+  "noOutletTitle": "No outlet selected",
+  "noOutletMessage": "Choose an outlet before taking orders.",
+  "tableNotFoundTitle": "Table not found",
+  "tableNotFoundMessage": "It may have been removed or merged into another table.",
+  "checkingForBill": "Checking for an open bill…",
+  "nothingOrderedTitle": "Nothing ordered yet",
+  "nothingOrderedMessage": "Add dishes from the menu to start this ticket.",
+  "openTheMenu": "Open the menu",
+  "addItems": "Add items",
+  "sendWithCount": "Send · {count}",
+  "@sendWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sending": "Sending…",
+  "sentTo": "Sent · {orderNo}",
+  "@sentTo": {
+    "placeholders": {
+      "orderNo": {
+        "type": "String"
+      }
+    }
+  },
+  "sentHeader": "Sent",
+  "thisRoundNotSent": "This round — not sent",
+  "notSentYet": "Not sent yet",
+  "billSoFar": "Bill so far",
+  "billHasNoItems": "This bill is open but has no items on it yet.",
+  "couldNotCheckBill": "Couldn't check this table's bill. {message}",
+  "@couldNotCheckBill": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "seats": "Seats {count}",
+  "@seats": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "placedAt": "Placed {time}",
+  "@placedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "foodReadyToRun": "Food is ready to run",
+  "unsentRoundFrom": "Unsent round from {time}",
+  "@unsentRoundFrom": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "oneFewer": "One fewer",
+  "remove": "Remove",
+  "oneMore": "One more",
+  "subtotal": "Subtotal",
+  "tax": "Tax",
+  "serviceCharge": "Service charge",
+  "rounding": "Rounding",
+  "total": "Total",
+  "thisRound": "This round",
+  "serverRetotals": "The bill is re-totalled by the server when this round is sent.",
+  "clearRoundTitle": "Clear this round?",
+  "clearRoundMessage": "Every unsent line will be removed. Anything already sent to the kitchen stays on the bill — but this round will have to be retaken.",
+  "keepIt": "Keep it",
+  "clear": "Clear",
+  "stopSendingTitle": "Stop trying to send?",
+  "stopSendingMessage": "The round stays on this tablet so you can send it again.\n\nIf a bill was already opened for this table it is NOT cancelled — check the floor, and ask a manager to void it if it should not be there.",
+  "keepTrying": "Keep trying",
+  "stop": "Stop",
+  "sentToKitchen": "Sent to the kitchen.",
+  "sentToKitchenNumbered": "Sent to the kitchen · {orderNo}",
+  "@sentToKitchenNumbered": {
+    "placeholders": {
+      "orderNo": {
+        "type": "String"
+      }
+    }
+  },
+  "billClosedNoMore": "This bill is {status}. Nothing more can be added to it.",
+  "@billClosedNoMore": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "noOrderPermission": "Your sign-in cannot take orders. Ask a manager for the order permission.",
+  "sendStageCreating": "Opening the bill…",
+  "sendStageAddingItems": "Adding the items…",
+  "sendStagePlacing": "Placing the order…",
+  "sendStageConfirming": "Firing the kitchen…",
+  "sendUnfinishedTitle": "This round was not finished sending",
+  "sendFailedTitle": "This round did not reach the kitchen",
+  "sendInterruptedMessage": "The app closed part-way through sending. Nothing was lost — send it again to finish.",
+  "billAlreadyOpen": "A bill is already open for this table. Sending again continues it — it does not start a second one.",
+  "roundHeldAsSent": "The round is held exactly as it was sent. Stop first to change it.",
+  "resumeStage": "Resume · {stage}",
+  "@resumeStage": {
+    "placeholders": {
+      "stage": {
+        "type": "String"
+      }
+    }
+  },
+  "tryAgain": "Try again",
+  "outboxOneSent": "An order that was waiting has reached the kitchen.",
+  "outboxManySent": "{count} orders that were waiting have reached the kitchen.",
+  "@outboxManySent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "foodReadyAnywhere": "Food is ready to run.",
+  "foodReadyAtTable": "Table {code} — food is ready.",
+  "@foodReadyAtTable": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "addToTable": "Add to {code}",
+  "@addToTable": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "close": "Close",
+  "doneWithCount": "Done · {count}",
+  "@doneWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "menuLoading": "Loading the menu…",
+  "searchDishes": "Search dishes",
+  "allCategories": "All",
+  "uncategorised": "Other",
+  "noDishesTitle": "No dishes",
+  "noDishesMatch": "Nothing matches that search.",
+  "noteForKitchen": "Note for the kitchen",
+  "noteForKitchenHint": "No chilli, well done, serve last…",
+  "addedToTicket": "{name} added",
+  "@addedToTicket": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "billForTable": "Bill · Table {code}",
+  "@billForTable": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "fetchingBill": "Fetching the bill…",
+  "noOpenBillTitle": "No open bill",
+  "noOpenBillMessage": "This table has nothing to settle.",
+  "billIsStatus": "This bill is {status}",
+  "@billIsStatus": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "billCannotSettle": "It cannot be settled. Ask a manager if that looks wrong.",
+  "discount": "Discount",
+  "tip": "Tip",
+  "totalDue": "Total due",
+  "split": "Split",
+  "splitNone": "No",
+  "paymentMethod": "Method",
+  "paymentAmount": "Amount",
+  "removePayment": "Remove this payment",
+  "anotherPayment": "Another payment",
+  "cashGiven": "Cash given (optional)",
+  "cashGivenHelper": "Working out only — not sent to the server",
+  "changeDue": "Change due",
+  "stillToPay": "{amount} still to pay",
+  "@stillToPay": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "moreThanBill": "{amount} more than the bill",
+  "@moreThanBill": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "shortOfBill": "The payments are {amount} short of the bill.",
+  "@shortOfBill": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "overBill": "The payments are {amount} more than the bill.",
+  "@overBill": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "viewBill": "View bill",
+  "settleAmount": "Settle {amount}",
+  "@settleAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "settling": "Settling…",
+  "billSettled": "Bill settled",
+  "receipt": "Receipt",
+  "tableFreeWhenCleared": "The table is free once it has been cleared down.",
+  "proFormaWarning": "Not settled — this prints as a pro-forma, not a tax invoice.",
+  "reprint": "Reprint",
+  "print": "Print",
+  "printProForma": "Print pro-forma",
+  "printingNotAllowed": "Printing not allowed",
+  "reprintQueued": "Reprint queued.",
+  "printQueued": "Sent to the printer. It prints when the till agent picks it up.",
+  "emptySlipTitle": "The server returned an empty slip",
+  "emptySlipMessage": "Printing may still work. Tell a manager if it does not.",
+  "billCopied": "Bill copied.",
+  "clearSearch": "Clear",
+  "nothingHereTitle": "Nothing here",
+  "noMatchTitle": "No match for \"{query}\"",
+  "sectionOffMenu": "Every dish in this section is off the menu right now.",
+  "soldOutNotListed": "Sold-out dishes are not listed.",
+  "combo": "Combo",
+  "optionsLoading": "Loading options…",
+  "chooseExactly": "Choose {count}",
+  "chooseAtLeast": "Choose at least {count}",
+  "chooseUpTo": "Up to {count}",
+  "optional": "Optional",
+  "chooseFirst": "Choose {group} first",
+  "addWithQtyAndPrice": "Add {count} · {amount}",
+  "@noMatchTitle": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "@chooseExactly": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@chooseAtLeast": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@chooseUpTo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@chooseFirst": {
+    "placeholders": {
+      "group": {
+        "type": "String"
+      }
+    }
+  },
+  "@addWithQtyAndPrice": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "waiterSignIn": "Waiter sign in",
+  "notifyFoodReadyTitle": "Food is ready",
+  "notifyFoodReadyAtTable": "Table {code} — ready",
+  "notifyFoodReadyBody": "Food is up at the pass.",
+  "notifyOrderSentTitle": "Order sent",
+  "notifyOrderSentBody": "Table {code} reached the kitchen.",
+  "notifyOrderSentBodyNumbered": "Table {code} reached the kitchen · {orderNo}",
+  "@notifyFoodReadyAtTable": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "@notifyOrderSentBody": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "@notifyOrderSentBodyNumbered": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      },
+      "orderNo": {
+        "type": "String"
+      }
+    }
+  }
+}

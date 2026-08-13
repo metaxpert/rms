@@ -1,0 +1,115 @@
+{
+  "@@locale": "en",
+  "signInToOrder": "Sign in to order",
+  "chooseRestaurant": "Choose a restaurant",
+  "menu": "Menu",
+  "changeRestaurant": "Change restaurant",
+  "signOut": "Sign out",
+  "menuLoading": "Loading the menu…",
+  "searchTheMenu": "Search the menu",
+  "everything": "Everything",
+  "nothingMatchesTitle": "Nothing matches",
+  "nothingOnMenuTitle": "Nothing on the menu",
+  "tryAnotherWord": "Try a different word.",
+  "noMenuPublished": "This restaurant has not published a menu yet.",
+  "prepMinutes": "about {minutes} min to cook",
+  "@prepMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "addNamed": "Add {name}",
+  "@addNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "addedNamed": "{name} added",
+  "@addedNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "basketWithCount": "{count, plural, =1{Basket · 1 item} other{Basket · {count} items}}",
+  "@basketWithCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "yourBasket": "Your basket",
+  "basketEmptyTitle": "Your basket is empty",
+  "basketEmptyMessage": "Add something from the menu to get started.",
+  "backToMenu": "Back to the menu",
+  "delivery": "Delivery",
+  "collection": "Collection",
+  "addressLabel": "Where should we bring it?",
+  "addressHint": "House, street, area — and a landmark helps",
+  "oneFewer": "One fewer",
+  "remove": "Remove",
+  "oneMore": "One more",
+  "subtotal": "Subtotal",
+  "tax": "Tax",
+  "serviceCharge": "Service charge",
+  "rounding": "Rounding",
+  "total": "Total",
+  "priceConfirmedNote": "The restaurant confirms the final price when it accepts your order. Delivery charges, if any, are added by them.",
+  "sending": "Sending…",
+  "tryAgain": "Try again",
+  "placeOrder": "Place order",
+  "checkoutFailedTitle": "Your order did not go through",
+  "checkoutInterrupted": "Something interrupted it. Nothing has been lost — try again.",
+  "checkoutPartial": "The restaurant may already have part of this order. Trying again continues it rather than ordering twice.",
+  "startOrderAgain": "Start this order again",
+  "yourOrder": "Your order",
+  "findingOrder": "Finding your order…",
+  "orderPlaced": "Order placed",
+  "updatesAutomatically": "Updates automatically. Pull down if you are impatient.",
+  "whatYouOrdered": "What you ordered",
+  "addressWillCallTitle": "The restaurant will call about your address",
+  "addressCouldNotAttach": "We could not attach it to the order. Keep this handy:",
+  "stepOrderReceived": "Order received",
+  "stepBeingCooked": "Being cooked",
+  "stepReady": "Ready",
+  "stepOnTheWay": "On the way",
+  "stepDelivered": "Delivered",
+  "stepReadyToCollect": "Ready to collect",
+  "stepCollected": "Collected",
+  "headlineCancelled": "This order was cancelled. If that is unexpected, call the restaurant.",
+  "headlineReceived": "The restaurant has your order.",
+  "headlineCooking": "Your food is being cooked.",
+  "headlineWaitingRider": "Your food is ready and waiting for a rider.",
+  "headlineComeToCounter": "Ready to collect — come to the counter.",
+  "headlineOnItsWay": "Your order is on its way.",
+  "headlineOnItsWayEta": "On its way — about {minutes} minutes.",
+  "@headlineOnItsWayEta": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "headlineDelivered": "Delivered. Enjoy.",
+  "headlineCollected": "Collected. Enjoy.",
+  "semanticsHappeningNow": "happening now",
+  "semanticsDone": "done",
+  "semanticsToCome": "still to come",
+  "semanticsStep": "{label}: {state}",
+  "@semanticsStep": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  }
+}

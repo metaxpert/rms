@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rms_core/rms_core.dart';
+import 'package:rms_core/src/l10n/rms_localizations_en.dart';
 import 'package:rms_waiter/src/features/floor/data/floor_repository.dart';
 import 'package:rms_waiter/src/features/floor/presentation/floor_screen.dart';
 import 'package:rms_waiter/src/features/floor/presentation/table_card.dart';
@@ -217,10 +218,11 @@ void main() {
     });
 
     testWidgets('every order status has a distinct label and icon', (tester) async {
+      final shared = RmsLocalizationsEn();
       final labels = <String>{};
       final icons = <IconData>{};
       for (final status in OrderStatus.values) {
-        labels.add(status.label);
+        labels.add(status.labelIn(shared));
         icons.add(status.icon);
       }
       expect(labels.length, OrderStatus.values.length);

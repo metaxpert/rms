@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'package:rms_core/rms_core.dart';
 import '../../../app/router/app_router.dart';
+import '../../../l10n/app_text.dart';
 import '../data/delivery_repository.dart';
 
 /// The rider's board.
@@ -17,26 +18,27 @@ class RunListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final board = ref.watch(runBoardProvider);
+    final text = appText(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Runs'),
+        title: Text(text.runsTitle),
         actions: [
           IconButton(
             onPressed: () =>
                 ref.read(authControllerProvider.notifier).clearBranch(),
             icon: const Icon(Icons.swap_horiz_rounded),
-            tooltip: 'Switch outlet',
+            tooltip: text.switchOutlet,
           ),
           IconButton(
             onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
             icon: const Icon(Icons.logout_rounded),
-            tooltip: 'Sign out',
+            tooltip: text.signOut,
           ),
         ],
       ),
       body: board.when(
-        loading: () => const LoadingView(message: 'Loading your runs…'),
+        loading: () => LoadingView(message: text.runsLoading),
         error: (error, _) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(runBoardProvider),
@@ -47,13 +49,12 @@ class RunListScreen extends ConsumerWidget {
               ? ListView(
                   // Must scroll or pull-to-refresh cannot fire when empty.
                   physics: const AlwaysScrollableScrollPhysics(),
-                  children: const [
-                    SizedBox(height: 100),
+                  children: [
+                    const SizedBox(height: 100),
                     EmptyView(
                       icon: Icons.two_wheeler_outlined,
-                      title: 'Nothing to deliver',
-                      message: 'New runs appear here as the kitchen dispatches '
-                          'them. Pull down to check again.',
+                      title: text.nothingToDeliverTitle,
+                      message: text.nothingToDeliverMessage,
                     ),
                   ],
                 )
@@ -61,12 +62,12 @@ class RunListScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   children: [
                     if (board.active.isNotEmpty) ...[
-                      const _SectionHeader('On the go'),
+                      _SectionHeader(text.sectionOnTheGo),
                       for (final delivery in board.active)
                         _RunTile(delivery: delivery),
                     ],
                     if (board.finished.isNotEmpty) ...[
-                      const _SectionHeader('Done today'),
+                      _SectionHeader(text.sectionDoneToday),
                       for (final delivery in board.finished)
                         _RunTile(delivery: delivery, dimmed: true),
                     ],
@@ -74,8 +75,7 @@ class RunListScreen extends ConsumerWidget {
                     Text(
                       // Saying so beats a rider assuming a colleague's job is
                       // theirs, or that theirs is missing.
-                      'This is the whole outlet\'s board — the server does not '
-                      'offer a list of just your own runs.',
+                      text.wholeOutletBoard,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant),
                       textAlign: TextAlign.center,
@@ -121,6 +121,7 @@ class _RunTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
     final accent = delivery.status.color;
 
     return Card(
@@ -147,7 +148,7 @@ class _RunTile extends StatelessWidget {
                       ),
                     ),
                     StatusBadge(
-                      label: delivery.status.label,
+                      label: delivery.status.labelIn(strings(context)),
                       color: accent,
                       icon: delivery.status.icon,
                     ),
@@ -162,7 +163,7 @@ class _RunTile extends StatelessWidget {
                     const SizedBox(width: AppSpacing.xs),
                     Expanded(
                       child: Text(
-                        delivery.address ?? 'No address on file',
+                        delivery.address ?? text.noAddress,
                         style: theme.textTheme.bodyMedium,
                       ),
                     ),
@@ -174,9 +175,10 @@ class _RunTile extends StatelessWidget {
                   Text(
                     [
                       if (delivery.etaMinutes != null)
-                        'ETA ${delivery.etaMinutes} min',
+                        text.etaMinutes(delivery.etaMinutes!),
                       if (delivery.assignedAt != null)
-                        'assigned ${DateFormat.Hm().format(delivery.assignedAt!)}',
+                        text.assignedAt(
+                            DateFormat.Hm().format(delivery.assignedAt!)),
                     ].join(' · '),
                     style: theme.textTheme.bodySmall
                         ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
@@ -187,7 +189,7 @@ class _RunTile extends StatelessWidget {
                   StatusBadge(
                     // An aggregator's rider is tracked through their platform;
                     // offering buttons here would be a lie.
-                    label: '${delivery.provider} — not yours to drive',
+                    label: text.notYours(delivery.provider),
                     color: theme.colorScheme.outline,
                     icon: Icons.info_outline,
                   ),

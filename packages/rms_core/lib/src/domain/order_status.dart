@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/rms_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Order lifecycle, mirroring the backend exactly (brief §13 — map the real
@@ -47,17 +48,22 @@ enum OrderStatus {
   /// must notice immediately.
   bool get needsAttention => this == OrderStatus.ready;
 
-  String get label => switch (this) {
-        OrderStatus.draft => 'Draft',
-        OrderStatus.placed => 'Placed',
-        OrderStatus.confirmed => 'Confirmed',
-        OrderStatus.preparing => 'Cooking',
-        OrderStatus.ready => 'Ready',
-        OrderStatus.served => 'Served',
-        OrderStatus.settled => 'Settled',
-        OrderStatus.cancelled => 'Cancelled',
-        OrderStatus.voided => 'Voided',
-        OrderStatus.unknown => 'Unknown',
+  /// What staff call this status, in their language.
+  ///
+  /// Takes the localisations rather than a `BuildContext` so the mapping stays
+  /// usable from a controller, and so nothing is tempted to reach for a context
+  /// that is not there. [wire] remains the backend's name and is never shown.
+  String labelIn(RmsLocalizations text) => switch (this) {
+        OrderStatus.draft => text.orderStatusDraft,
+        OrderStatus.placed => text.orderStatusPlaced,
+        OrderStatus.confirmed => text.orderStatusConfirmed,
+        OrderStatus.preparing => text.orderStatusPreparing,
+        OrderStatus.ready => text.orderStatusReady,
+        OrderStatus.served => text.orderStatusServed,
+        OrderStatus.settled => text.orderStatusSettled,
+        OrderStatus.cancelled => text.orderStatusCancelled,
+        OrderStatus.voided => text.orderStatusVoided,
+        OrderStatus.unknown => text.orderStatusUnknown,
       };
 
   Color get color => switch (this) {

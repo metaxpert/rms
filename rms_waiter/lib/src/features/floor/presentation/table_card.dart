@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../../l10n/app_text.dart';
 
 /// A table on the floor.
 ///
@@ -40,6 +41,8 @@ class TableCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
+    final shared = strings(context);
     final status = table.status;
     final needsAttention = order?.status.needsAttention ?? false;
 
@@ -60,14 +63,15 @@ class TableCard extends StatelessWidget {
       // beautifully and cannot be activated is worse than the problem.
       container: true,
       label: [
-        'Table ${table.code}',
-        status.label,
-        'seats ${table.capacity}',
+        text.tableSemantics(table.code),
+        status.labelIn(shared),
+        text.tableSeatsSemantics(table.capacity),
         if (order != null)
-          'order ${order!.status.label} ${order!.total.display}',
-        if (needsAttention) 'food ready',
-        if (hasPendingSend) 'send unfinished',
-        if (hasDraft) 'unsent ticket',
+          text.tableOrderSemantics(
+              order!.status.labelIn(shared), order!.total.display),
+        if (needsAttention) text.tableFoodReadySemantics,
+        if (hasPendingSend) text.tableSendUnfinished.toLowerCase(),
+        if (hasDraft) text.tableUnsentTicket.toLowerCase(),
       ].join(', '),
       child: Material(
         color: accent.withValues(alpha: needsAttention ? 0.18 : 0.07),
@@ -141,7 +145,7 @@ class TableCard extends StatelessWidget {
                       const SizedBox(width: AppSpacing.sm),
                       Flexible(
                         child: Text(
-                          status.label,
+                          status.labelIn(shared),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.labelMedium?.copyWith(
@@ -155,7 +159,7 @@ class TableCard extends StatelessWidget {
                   if (hasPendingSend && !compact) ...[
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Send unfinished',
+                      text.tableSendUnfinished,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: theme.colorScheme.error,
                         fontWeight: FontWeight.w700,
@@ -164,7 +168,7 @@ class TableCard extends StatelessWidget {
                   ] else if (hasDraft && !compact) ...[
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Unsent ticket',
+                      text.tableUnsentTicket,
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w700,
@@ -174,7 +178,7 @@ class TableCard extends StatelessWidget {
                   if (table.isMerged) ...[
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Merged',
+                      text.tableMerged,
                       style: theme.textTheme.labelSmall
                           ?.copyWith(color: theme.colorScheme.outline),
                     ),
@@ -189,7 +193,7 @@ class TableCard extends StatelessWidget {
                         const SizedBox(width: AppSpacing.xs),
                         Expanded(
                           child: Text(
-                            order!.status.label,
+                            order!.status.labelIn(shared),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.labelSmall?.copyWith(

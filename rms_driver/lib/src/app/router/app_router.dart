@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../l10n/app_text.dart';
 import '../../features/runs/presentation/run_list_screen.dart';
 import '../../features/runs/presentation/run_screen.dart';
 
@@ -30,15 +31,15 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: Routes.signIn,
-        builder: (context, state) => const SignInScreen(
-          title: 'Driver sign in',
+        builder: (context, state) => SignInScreen(
+          title: appText(context).driverSignIn,
           icon: Icons.two_wheeler_rounded,
         ),
       ),
       GoRoute(
         path: Routes.selectBranch,
         builder: (context, state) =>
-            const BranchSelectionScreen(title: 'Which kitchen?'),
+            BranchSelectionScreen(title: appText(context).whichKitchen),
       ),
       GoRoute(
         path: Routes.home,

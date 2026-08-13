@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'package:rms_core/rms_core.dart';
 import '../../../app/router/app_router.dart';
+import '../../../l10n/app_text.dart';
 import '../../floor/data/floor_repository.dart';
 import '../../menu/presentation/menu_picker_sheet.dart';
 import '../../orders/data/order_repository.dart';
@@ -48,10 +49,10 @@ class TicketScreen extends ConsumerWidget {
         if (resolved == null) {
           return Scaffold(
             appBar: AppBar(),
-            body: const EmptyView(
+            body: EmptyView(
               icon: Icons.table_restaurant_outlined,
-              title: 'Table not found',
-              message: 'It may have been removed or merged into another table.',
+              title: appText(context).tableNotFoundTitle,
+              message: appText(context).tableNotFoundMessage,
             ),
           );
         }
@@ -73,11 +74,11 @@ class _TicketBody extends ConsumerWidget {
       // The router guards this; if it is ever reached, saying so beats writing
       // a draft under a branch key that will never be found again.
       return Scaffold(
-        appBar: AppBar(title: Text('Table ${table.code}')),
-        body: const EmptyView(
+        appBar: AppBar(title: Text(appText(context).tableTitle(table.code))),
+        body: EmptyView(
           icon: Icons.storefront_outlined,
-          title: 'No outlet selected',
-          message: 'Choose an outlet before taking orders.',
+          title: appText(context).noOutletTitle,
+          message: appText(context).noOutletMessage,
         ),
       );
     }
@@ -111,10 +112,11 @@ class _TicketBody extends ConsumerWidget {
     // is here so a waiter without ordering rights is not handed a button that
     // comes back 403 at a table, which is a dead end mid-service.
     final mayOrder = ref.watch(permissionsProvider).canTakeOrders;
+    final text = appText(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Table ${table.code}'),
+        title: Text(text.tableTitle(table.code)),
         actions: [
           if (order != null && order.isOpen)
             IconButton(
@@ -123,13 +125,13 @@ class _TicketBody extends ConsumerWidget {
                 extra: table.code,
               ),
               icon: const Icon(Icons.point_of_sale_rounded),
-              tooltip: 'Bill',
+              tooltip: text.bill,
             ),
           if (draft.isNotEmpty && !locked)
             IconButton(
               onPressed: () => _confirmClear(context, controller),
               icon: const Icon(Icons.delete_outline_rounded),
-              tooltip: 'Clear this round',
+              tooltip: text.clearThisRound,
             ),
         ],
       ),
@@ -196,8 +198,8 @@ class _TicketBody extends ConsumerWidget {
           SnackBar(
             content: Text(
               orderNo == null || orderNo.isEmpty
-                  ? 'Sent to the kitchen.'
-                  : 'Sent to the kitchen · $orderNo',
+                  ? appText(context).sentToKitchen
+                  : appText(context).sentToKitchenNumbered(orderNo),
             ),
           ),
         );
@@ -222,19 +224,16 @@ class _TicketBody extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear this round?'),
-        content: const Text(
-          'Every unsent line will be removed. Anything already sent to the '
-          'kitchen stays on the bill — but this round will have to be retaken.',
-        ),
+        title: Text(appText(context).clearRoundTitle),
+        content: Text(appText(context).clearRoundMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Keep it'),
+            child: Text(appText(context).keepIt),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Clear'),
+            child: Text(appText(context).clear),
           ),
         ],
       ),
@@ -249,21 +248,16 @@ class _TicketBody extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Stop trying to send?'),
-        content: const Text(
-          'The round stays on this tablet so you can send it again.\n\n'
-          'If a bill was already opened for this table it is NOT cancelled — '
-          'check the floor, and ask a manager to void it if it should not be '
-          'there.',
-        ),
+        title: Text(appText(context).stopSendingTitle),
+        content: Text(appText(context).stopSendingMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Keep trying'),
+            child: Text(appText(context).keepTrying),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Stop'),
+            child: Text(appText(context).stop),
           ),
         ],
       ),
@@ -293,6 +287,7 @@ class _TicketContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final text = appText(context);
     final sent = order;
 
     if (sent == null && draft.isEmpty) {
@@ -301,20 +296,20 @@ class _TicketContent extends StatelessWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
           if (orderAsync.isLoading)
-            const Padding(
-              padding: EdgeInsets.all(AppSpacing.xl),
-              child: LoadingView(message: 'Checking for an open bill…'),
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              child: LoadingView(message: text.checkingForBill),
             )
           else ...[
             const SizedBox(height: 80),
             EmptyView(
               icon: Icons.receipt_long_outlined,
-              title: 'Nothing ordered yet',
-              message: 'Add dishes from the menu to start this ticket.',
+              title: text.nothingOrderedTitle,
+              message: text.nothingOrderedMessage,
               action: FilledButton.icon(
                 onPressed: onOpenMenu,
                 icon: const Icon(Icons.restaurant_menu_rounded),
-                label: const Text('Open the menu'),
+                label: Text(text.openTheMenu),
               ),
             ),
           ],
@@ -353,6 +348,7 @@ class _OrderLoadWarning extends StatelessWidget {
     final theme = Theme.of(context);
     final message =
         error is ApiException ? (error as ApiException).message : '$error';
+    final text = appText(context);
 
     return Container(
       margin: const EdgeInsets.fromLTRB(
@@ -372,7 +368,7 @@ class _OrderLoadWarning extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
-              "Couldn't check this table's bill. $message",
+              text.couldNotCheckBill(message),
               style: theme.textTheme.bodySmall,
             ),
           ),
@@ -392,14 +388,17 @@ class _SentSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SectionHeader(
-          title: order.orderNo.isEmpty ? 'Sent' : 'Sent · ${order.orderNo}',
+          title: order.orderNo.isEmpty
+              ? text.sentHeader
+              : text.sentTo(order.orderNo),
           trailing: StatusBadge(
-            label: order.status.label,
+            label: order.status.labelIn(strings(context)),
             color: order.status.color,
             icon: order.status.icon,
           ),
@@ -408,7 +407,7 @@ class _SentSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Text(
-              'This bill is open but has no items on it yet.',
+              text.billHasNoItems,
               style: theme.textTheme.bodySmall
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
@@ -433,7 +432,7 @@ class _SentSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Bill so far',
+                text.billSoFar,
                 style: theme.textTheme.bodyMedium
                     ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
@@ -511,12 +510,13 @@ class _RoundSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SectionHeader(
-          title: hasSentLines ? 'This round — not sent' : 'Not sent yet',
+          title: hasSentLines ? text.thisRoundNotSent : text.notSentYet,
           trailing: Icon(
             Icons.edit_note_rounded,
             size: 20,
@@ -593,6 +593,7 @@ class _TableContext extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
     final restored = restoredAt;
     final ready = order?.status.needsAttention ?? false;
 
@@ -611,20 +612,20 @@ class _TableContext extends StatelessWidget {
           Row(
             children: [
               StatusBadge(
-                label: table.status.label,
+                label: table.status.labelIn(strings(context)),
                 color: table.status.color,
                 icon: table.status.icon,
               ),
               const SizedBox(width: AppSpacing.md),
               Text(
-                'Seats ${table.capacity}',
+                text.seats(table.capacity),
                 style: theme.textTheme.bodySmall
                     ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
               if (order?.placedAt != null) ...[
                 const SizedBox(width: AppSpacing.md),
                 Text(
-                  'Placed ${DateFormat.Hm().format(order!.placedAt!)}',
+                  text.placedAt(DateFormat.Hm().format(order!.placedAt!)),
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
@@ -639,7 +640,7 @@ class _TableContext extends StatelessWidget {
                     size: 18, color: AppStatusColors.ready),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
-                  'Food is ready to run',
+                  text.foodReadyToRun,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: AppStatusColors.ready,
                     fontWeight: FontWeight.w700,
@@ -659,7 +660,7 @@ class _TableContext extends StatelessWidget {
                   child: Text(
                     // Someone else may have started this round on another
                     // tablet's shift; it has NOT reached the kitchen.
-                    'Unsent round from ${DateFormat.Hm().format(restored)}',
+                    text.unsentRoundFrom(DateFormat.Hm().format(restored)),
                     style: theme.textTheme.bodySmall
                         ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
@@ -692,6 +693,7 @@ class _SendStatusPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
 
     if (send.isSending) {
       final stage = send.stage;
@@ -709,7 +711,7 @@ class _SendStatusPanel extends StatelessWidget {
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Text(
-                stage == null ? 'Sending…' : sendStageLabel(stage),
+                stage == null ? text.sending : sendStageLabel(text, stage),
                 style: theme.textTheme.bodyMedium,
               ),
             ),
@@ -734,8 +736,8 @@ class _SendStatusPanel extends StatelessWidget {
               Expanded(
                 child: Text(
                   send.isInterrupted
-                      ? 'This round was not finished sending'
-                      : 'This round did not reach the kitchen',
+                      ? text.sendUnfinishedTitle
+                      : text.sendFailedTitle,
                   style: theme.textTheme.titleSmall,
                 ),
               ),
@@ -743,9 +745,7 @@ class _SendStatusPanel extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            error?.message ??
-                'The app closed part-way through sending. Nothing was lost — '
-                    'send it again to finish.',
+            error?.message ?? text.sendInterruptedMessage,
             style: theme.textTheme.bodySmall,
           ),
           if (send.orderExists) ...[
@@ -753,8 +753,7 @@ class _SendStatusPanel extends StatelessWidget {
             Text(
               // Saying "nothing was sent" here would be a lie the kitchen could
               // contradict, so the screen says exactly what it knows.
-              'A bill is already open for this table. Sending again continues '
-              'it — it does not start a second one.',
+              text.billAlreadyOpen,
               style: theme.textTheme.bodySmall
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
@@ -763,7 +762,7 @@ class _SendStatusPanel extends StatelessWidget {
           Text(
             // Explains why the quantity buttons have gone flat, rather than
             // leaving a waiter jabbing at a dead control.
-            'The round is held exactly as it was sent. Stop first to change it.',
+            text.roundHeldAsSent,
             style: theme.textTheme.bodySmall
                 ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
@@ -776,15 +775,15 @@ class _SendStatusPanel extends StatelessWidget {
                   icon: const Icon(Icons.send_rounded),
                   label: Text(
                     send.stage == null
-                        ? 'Try again'
-                        : 'Resume · ${sendStageLabel(send.stage!)}',
+                        ? text.tryAgain
+                        : text.resumeStage(sendStageLabel(text, send.stage!)),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
-              TextButton(onPressed: onDiscard, child: const Text('Stop')),
+              TextButton(onPressed: onDiscard, child: Text(text.stop)),
             ],
           ),
         ],
@@ -873,7 +872,7 @@ class _QtyControl extends StatelessWidget {
           // At 1, this removes the line — the icon says so rather than the
           // count silently vanishing at zero.
           icon: Icon(qty > 1 ? Icons.remove_rounded : Icons.delete_outline_rounded),
-          tooltip: qty > 1 ? 'One fewer' : 'Remove',
+          tooltip: qty > 1 ? appText(context).oneFewer : appText(context).remove,
         ),
         SizedBox(
           width: 36,
@@ -886,7 +885,7 @@ class _QtyControl extends StatelessWidget {
         IconButton.outlined(
           onPressed: change == null || qty >= 99 ? null : () => change(qty + 1),
           icon: const Icon(Icons.add_rounded),
-          tooltip: 'One more',
+          tooltip: appText(context).oneMore,
         ),
       ],
     );
@@ -916,6 +915,7 @@ class _TotalsPanel extends StatelessWidget {
       );
     }
 
+    final text = appText(context);
     final totals = draft.totals(resolved);
     final isAddition = order != null;
 
@@ -933,17 +933,17 @@ class _TotalsPanel extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _TotalRow(label: 'Subtotal', amount: totals.subtotal),
-          if (!totals.tax.isZero) _TotalRow(label: 'Tax', amount: totals.tax),
+          _TotalRow(label: text.subtotal, amount: totals.subtotal),
+          if (!totals.tax.isZero) _TotalRow(label: text.tax, amount: totals.tax),
           if (!totals.serviceCharge.isZero)
-            _TotalRow(label: 'Service charge', amount: totals.serviceCharge),
+            _TotalRow(label: text.serviceCharge, amount: totals.serviceCharge),
           // Rounding applies to a whole bill, not to one round of it. Showing it
           // on an addition would predict a figure the server will not produce.
           if (!isAddition && !totals.rounding.isZero)
-            _TotalRow(label: 'Rounding', amount: totals.rounding),
+            _TotalRow(label: text.rounding, amount: totals.rounding),
           const Divider(),
           _TotalRow(
-            label: isAddition ? 'This round' : 'Total',
+            label: isAddition ? text.thisRound : text.total,
             amount: isAddition ? totals.subtotal + totals.tax : totals.total,
             emphasise: true,
           ),
@@ -955,7 +955,7 @@ class _TotalsPanel extends StatelessWidget {
                 // the whole bill when this round lands, and a figure that
                 // disagreed with the printed bill would cost the app its
                 // credibility at exactly the wrong moment.
-                'The bill is re-totalled by the server when this round is sent.',
+                text.serverRetotals,
                 style: theme.textTheme.bodySmall
                     ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
@@ -1027,6 +1027,7 @@ class _ActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     // A closed bill takes nothing more; the server would refuse, so the button
     // says why instead of producing a 422 the waiter has to interpret.
+    final text = appText(context);
     final closed = order != null && !order!.canAddItems;
     final canSend = draft.isNotEmpty && !locked && !closed && mayOrder;
 
@@ -1043,8 +1044,7 @@ class _ActionBar extends StatelessWidget {
                 child: Text(
                   // Names what is missing, so a manager can fix it rather than
                   // guess why the tablet "does not work".
-                  'Your sign-in cannot take orders. Ask a manager for the '
-                  'order permission.',
+                  text.noOrderPermission,
                   style: Theme.of(context).textTheme.bodySmall,
                   textAlign: TextAlign.center,
                 ),
@@ -1053,8 +1053,8 @@ class _ActionBar extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                 child: Text(
-                  'This bill is ${order!.status.label.toLowerCase()}. '
-                  'Nothing more can be added to it.',
+                  text.billClosedNoMore(
+                      order!.status.labelIn(strings(context)).toLowerCase()),
                   style: Theme.of(context).textTheme.bodySmall,
                   textAlign: TextAlign.center,
                 ),
@@ -1068,7 +1068,7 @@ class _ActionBar extends StatelessWidget {
                       onPressed:
                           locked || closed || !mayOrder ? null : onAddItems,
                       icon: const Icon(Icons.add_rounded),
-                      label: const Text('Add items'),
+                      label: Text(text.addItems),
                     ),
                   ),
                 ),
@@ -1090,8 +1090,8 @@ class _ActionBar extends StatelessWidget {
                           : const Icon(Icons.send_rounded),
                       label: Text(
                         send.isSending
-                            ? 'Sending…'
-                            : 'Send · ${draft.itemCount}',
+                            ? text.sending
+                            : text.sendWithCount(draft.itemCount),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),

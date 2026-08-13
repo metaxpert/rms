@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../../l10n/app_text.dart';
 import '../data/service_repository.dart';
 import 'dashboard_view.dart';
 import 'kitchen_view.dart';
@@ -23,11 +24,13 @@ class ManagerShell extends ConsumerStatefulWidget {
 class _ManagerShellState extends ConsumerState<ManagerShell> {
   int _tab = 0;
 
-  static const _titles = ['Service', 'Kitchen', 'Sales'];
+
 
   @override
   Widget build(BuildContext context) {
     final snapshot = ref.watch(serviceSnapshotProvider);
+    final text = appText(context);
+    final titles = [text.tabService, text.tabKitchen, text.tabSales];
 
     return Scaffold(
       appBar: AppBar(
@@ -35,7 +38,7 @@ class _ManagerShellState extends ConsumerState<ManagerShell> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(_titles[_tab]),
+            Text(titles[_tab]),
             const _OutletLabel(),
           ],
         ),
@@ -45,17 +48,17 @@ class _ManagerShellState extends ConsumerState<ManagerShell> {
           IconButton(
             onPressed: () => ref.invalidate(serviceSnapshotProvider),
             icon: const Icon(Icons.refresh_rounded),
-            tooltip: 'Refresh',
+            tooltip: text.refresh,
           ),
           IconButton(
             onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
             icon: const Icon(Icons.logout_rounded),
-            tooltip: 'Sign out',
+            tooltip: text.signOut,
           ),
         ],
       ),
       body: snapshot.when(
-        loading: () => const LoadingView(message: 'Reading the service…'),
+        loading: () => LoadingView(message: text.readingService),
         error: (error, _) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(serviceSnapshotProvider),
@@ -72,21 +75,21 @@ class _ManagerShellState extends ConsumerState<ManagerShell> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
         onDestinationSelected: (index) => setState(() => _tab = index),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard_rounded),
-            label: 'Service',
+            icon: const Icon(Icons.dashboard_outlined),
+            selectedIcon: const Icon(Icons.dashboard_rounded),
+            label: text.tabService,
           ),
           NavigationDestination(
-            icon: Icon(Icons.soup_kitchen_outlined),
-            selectedIcon: Icon(Icons.soup_kitchen_rounded),
-            label: 'Kitchen',
+            icon: const Icon(Icons.soup_kitchen_outlined),
+            selectedIcon: const Icon(Icons.soup_kitchen_rounded),
+            label: text.tabKitchen,
           ),
           NavigationDestination(
-            icon: Icon(Icons.payments_outlined),
-            selectedIcon: Icon(Icons.payments_rounded),
-            label: 'Sales',
+            icon: const Icon(Icons.payments_outlined),
+            selectedIcon: const Icon(Icons.payments_rounded),
+            label: text.tabSales,
           ),
         ],
       ),
@@ -104,13 +107,14 @@ class _OutletLabel extends ConsumerWidget {
     final branchId = ref.watch(sessionProvider).branchId;
     final branches = ref.watch(branchesProvider).valueOrNull;
 
+    final text = appText(context);
     final name = branchId == null
-        ? 'All outlets'
+        ? text.allOutlets
         : branches
                 ?.where((b) => b.id == branchId)
                 .map((b) => b.name)
                 .firstOrNull ??
-            'One outlet';
+            text.oneOutlet;
 
     return Text(
       name,
@@ -130,7 +134,7 @@ class _OutletMenu extends ConsumerWidget {
 
     return PopupMenuButton<String?>(
       icon: const Icon(Icons.store_mall_directory_outlined),
-      tooltip: 'Choose outlet',
+      tooltip: appText(context).chooseOutlet,
       onSelected: (id) async {
         // Unlike the waiter and driver apps, an outlet here is a filter and not
         // a gate — comparing outlets is the manager's job.
@@ -144,7 +148,7 @@ class _OutletMenu extends ConsumerWidget {
       itemBuilder: (context) => [
         CheckedPopupMenuItem<String?>(
           checked: current == null,
-          child: const Text('All outlets'),
+          child: Text(appText(context).allOutlets),
         ),
         for (final branch in branches)
           CheckedPopupMenuItem<String?>(
@@ -171,13 +175,16 @@ class _LiveDot extends ConsumerWidget {
         ref.watch(realtimeStatusProvider).valueOrNull ?? RealtimeStatus.idle;
     final takenAt = ref.watch(serviceSnapshotProvider).valueOrNull?.takenAt;
     final live = status == RealtimeStatus.live;
+    final text = appText(context);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
       child: Tooltip(
         message: live
-            ? 'Live. Last read ${takenAt == null ? 'just now' : DateFormat.Hms().format(takenAt)}'
-            : 'Not receiving live updates — pull down to refresh',
+            ? (takenAt == null
+                ? text.liveTooltipJustNow
+                : text.liveTooltip(DateFormat.Hms().format(takenAt)))
+            : text.offlineTooltip,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -190,7 +197,7 @@ class _LiveDot extends ConsumerWidget {
             ),
             const SizedBox(width: AppSpacing.xs),
             Text(
-              live ? 'Live' : 'Offline',
+              live ? text.live : text.offline,
               style: Theme.of(context).textTheme.labelSmall,
             ),
           ],

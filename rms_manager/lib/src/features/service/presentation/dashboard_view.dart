@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_text.dart';
 import '../data/service_repository.dart';
 
 /// What is happening right now, in the order a manager would ask.
@@ -17,6 +19,7 @@ class DashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
     final board = snapshot.board;
 
     return ListView(
@@ -27,64 +30,61 @@ class DashboardView extends StatelessWidget {
           _CallToAction(
             icon: Icons.room_service_rounded,
             colour: AppStatusColors.ready,
-            title: '${snapshot.readyToServe} '
-                '${snapshot.readyToServe == 1 ? 'order is' : 'orders are'} '
-                'ready to run',
-            message: 'Food is up and waiting at the pass.',
+            title: text.ordersReadyToRun(snapshot.readyToServe),
+            message: text.foodUpAtPass,
           ),
         if (board.overdueCount > 0)
           _CallToAction(
             icon: Icons.local_fire_department_rounded,
             colour: AppStatusColors.cancelled,
-            title: '${board.overdueCount} '
-                '${board.overdueCount == 1 ? 'ticket is' : 'tickets are'} '
-                'past target',
-            message: 'The longest has been waiting ${_wait(board.longestWait)}.',
+            title: text.ticketsPastTarget(board.overdueCount),
+            message: text.longestWaiting(_wait(text, board.longestWait)),
           ),
         _TileGrid(
           tiles: [
             _Kpi(
-              label: 'Open bills',
+              label: text.kpiOpenBills,
               value: '${snapshot.openOrders.length}',
               detail: snapshot.openValue.display,
               icon: Icons.receipt_long_outlined,
             ),
             _Kpi(
-              label: 'Ready to serve',
+              label: text.kpiReadyToServe,
               value: '${snapshot.readyToServe}',
-              detail: snapshot.readyToServe > 0 ? 'go now' : 'nothing waiting',
+              detail: snapshot.readyToServe > 0 ? text.goNow : text.nothingWaiting,
               icon: Icons.room_service_outlined,
               highlight: snapshot.readyToServe > 0,
             ),
             _Kpi(
-              label: 'Kitchen tickets',
+              label: text.kpiKitchenTickets,
               value: '${board.ticketCount}',
               detail: board.ticketCount == 0
-                  ? 'kitchen is clear'
-                  : 'longest ${_wait(board.longestWait)}',
+                  ? text.kitchenClear
+                  : text.longestIs(_wait(text, board.longestWait)),
               icon: Icons.soup_kitchen_outlined,
               highlight: board.overdueCount > 0,
             ),
             _Kpi(
-              label: 'Tables in use',
+              label: text.kpiTablesInUse,
               value: '${snapshot.occupiedTables}/${snapshot.totalTables}',
               detail: snapshot.totalTables == 0
-                  ? 'no tables set up'
-                  : '${_percent(snapshot.occupiedTables, snapshot.totalTables)} full',
+                  ? text.noTablesSetUp
+                  : text.percentFull(
+                      _percent(snapshot.occupiedTables, snapshot.totalTables)),
               icon: Icons.table_restaurant_outlined,
             ),
             _Kpi(
-              label: 'Settled',
+              label: text.kpiSettled,
               value: '${snapshot.settledOrders.length}',
               detail: snapshot.settledValue.display,
               icon: Icons.payments_outlined,
             ),
             _Kpi(
-              label: 'Deliveries out',
+              label: text.kpiDeliveriesOut,
               value: '${snapshot.activeDeliveries.length}',
               detail: snapshot.activeDeliveries.isEmpty
-                  ? 'none on the road'
-                  : 'on the road',
+                  ? text.noneOnTheRoad
+                  : text.onTheRoad,
               icon: Icons.two_wheeler_outlined,
             ),
           ],
@@ -93,7 +93,7 @@ class DashboardView extends StatelessWidget {
         Text(
           // Every figure here is derived from one read; saying when it was
           // taken is the difference between a dashboard and a guess.
-          'Read at ${DateFormat.Hms().format(snapshot.takenAt)}',
+          text.readAt(DateFormat.Hms().format(snapshot.takenAt)),
           textAlign: TextAlign.center,
           style: theme.textTheme.bodySmall
               ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
@@ -102,9 +102,9 @@ class DashboardView extends StatelessWidget {
     );
   }
 
-  static String _wait(Duration duration) {
+  static String _wait(AppText text, Duration duration) {
     final minutes = duration.inMinutes;
-    return minutes < 1 ? 'under a minute' : '$minutes min';
+    return minutes < 1 ? text.underAMinute : text.minutesShort(minutes);
   }
 
   static String _percent(int part, int whole) =>

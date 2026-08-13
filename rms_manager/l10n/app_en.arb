@@ -1,0 +1,148 @@
+{
+  "@@locale": "en",
+  "managerSignIn": "Manager sign in",
+  "tabService": "Service",
+  "tabKitchen": "Kitchen",
+  "tabSales": "Sales",
+  "allOutlets": "All outlets",
+  "oneOutlet": "One outlet",
+  "chooseOutlet": "Choose outlet",
+  "refresh": "Refresh",
+  "signOut": "Sign out",
+  "readingService": "Reading the service…",
+  "live": "Live",
+  "offline": "Offline",
+  "liveTooltip": "Live. Last read {time}",
+  "@liveTooltip": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "liveTooltipJustNow": "Live. Last read just now",
+  "offlineTooltip": "Not receiving live updates — pull down to refresh",
+  "ordersReadyToRun": "{count, plural, =1{1 order is ready to run} other{{count} orders are ready to run}}",
+  "@ordersReadyToRun": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "foodUpAtPass": "Food is up and waiting at the pass.",
+  "ticketsPastTarget": "{count, plural, =1{1 ticket is past target} other{{count} tickets are past target}}",
+  "@ticketsPastTarget": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "longestWaiting": "The longest has been waiting {wait}.",
+  "@longestWaiting": {
+    "placeholders": {
+      "wait": {
+        "type": "String"
+      }
+    }
+  },
+  "kpiOpenBills": "Open bills",
+  "kpiReadyToServe": "Ready to serve",
+  "kpiKitchenTickets": "Kitchen tickets",
+  "kpiTablesInUse": "Tables in use",
+  "kpiSettled": "Settled",
+  "kpiDeliveriesOut": "Deliveries out",
+  "goNow": "go now",
+  "nothingWaiting": "nothing waiting",
+  "kitchenClear": "kitchen is clear",
+  "longestIs": "longest {wait}",
+  "@longestIs": {
+    "placeholders": {
+      "wait": {
+        "type": "String"
+      }
+    }
+  },
+  "noTablesSetUp": "no tables set up",
+  "percentFull": "{percent} full",
+  "@percentFull": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "noneOnTheRoad": "none on the road",
+  "onTheRoad": "on the road",
+  "underAMinute": "under a minute",
+  "minutesShort": "{minutes} min",
+  "@minutesShort": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "readAt": "Read at {time}",
+  "@readAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "kitchenClearTitle": "The kitchen is clear",
+  "kitchenClearMessage": "Nothing is waiting to be cooked.",
+  "pastTargetCount": "{count} past target",
+  "@pastTargetCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ticketCount": "{count, plural, =1{1 ticket} other{{count} tickets}}",
+  "@ticketCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ticket": "Ticket",
+  "tableLabel": "Table {code}",
+  "@tableLabel": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "targetAndStatus": "Target {minutes} min · {status}",
+  "@targetAndStatus": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "stillOpen": "Still open",
+  "settled": "Settled",
+  "nothingSettled": "Nothing settled yet.",
+  "salesFootnote": "Covers the orders the server returns for this outlet. The ledger, not this screen, is the record of what was earned.",
+  "stillOnTables": "Still on tables",
+  "billsClosed": "Bills closed",
+  "averageBill": "Average bill",
+  "itemCount": "{count, plural, =1{1 item} other{{count} items}}",
+  "@itemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
+}

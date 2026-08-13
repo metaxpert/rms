@@ -11,10 +11,10 @@ class _NoNotifications implements ServiceNotifier {
   Future<bool> prepare() async => false;
 
   @override
-  Future<void> foodReady({String? tableCode}) async {}
+  Future<void> foodReady({required String title, required String body}) async {}
 
   @override
-  Future<void> orderSent({required String tableCode, String? orderNo}) async {}
+  Future<void> orderSent({required String title, required String body}) async {}
 }
 
 ServiceNotifier createServiceNotifier() => const _NoNotifications();

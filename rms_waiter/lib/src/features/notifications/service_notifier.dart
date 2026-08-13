@@ -22,11 +22,15 @@ abstract class ServiceNotifier {
   /// stop pretending they will.
   Future<bool> prepare();
 
-  /// Food is up for a table.
-  Future<void> foodReady({String? tableCode});
+  /// Show an alert.
+  ///
+  /// Takes finished strings rather than the facts behind them, because this
+  /// runs outside the widget tree and has no `BuildContext` to translate with.
+  /// The caller has one; pushing the lookup there is what keeps the last of the
+  /// app's copy out of a platform-channel wrapper.
+  Future<void> foodReady({required String title, required String body});
 
-  /// A submission the network had interrupted has now reached the kitchen.
-  Future<void> orderSent({required String tableCode, String? orderNo});
+  Future<void> orderSent({required String title, required String body});
 }
 
 final serviceNotifierProvider =

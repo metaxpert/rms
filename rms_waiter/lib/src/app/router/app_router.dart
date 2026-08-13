@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../l10n/app_text.dart';
 import '../../features/bill/presentation/bill_screen.dart';
 import '../../features/floor/presentation/floor_screen.dart';
 import '../../features/ticket/presentation/ticket_screen.dart';
@@ -42,7 +43,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.signIn,
         builder: (context, state) =>
-            const SignInScreen(title: 'Waiter sign in'),
+            SignInScreen(title: appText(context).waiterSignIn),
       ),
       GoRoute(
         path: Routes.selectBranch,

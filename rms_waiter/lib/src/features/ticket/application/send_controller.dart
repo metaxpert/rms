@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../floor/data/floor_repository.dart';
 import '../../orders/data/order_repository.dart';
 import '../data/pending_send_store.dart';
@@ -387,9 +388,9 @@ final sendControllerProvider =
 /// Named per step rather than one "Sending…" because the steps fail
 /// differently: "Adding the items" failing leaves an empty bill on the table,
 /// and a waiter who saw where it stopped can say so to a manager.
-String sendStageLabel(SendStage stage) => switch (stage) {
-      SendStage.creating => 'Opening the bill…',
-      SendStage.addingItems => 'Adding the items…',
-      SendStage.placing => 'Placing the order…',
-      SendStage.confirming => 'Firing the kitchen…',
+String sendStageLabel(AppText text, SendStage stage) => switch (stage) {
+      SendStage.creating => text.sendStageCreating,
+      SendStage.addingItems => text.sendStageAddingItems,
+      SendStage.placing => text.sendStagePlacing,
+      SendStage.confirming => text.sendStageConfirming,
     };

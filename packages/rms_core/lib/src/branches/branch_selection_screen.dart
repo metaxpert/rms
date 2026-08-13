@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../auth/auth_controller.dart';
+import '../l10n/strings.dart';
 import '../domain/branch.dart';
 import '../theme/app_theme.dart';
 import '../widgets/state_views.dart';
@@ -14,29 +15,32 @@ import 'branch_repository.dart';
 /// waiter, and the consequence of skipping it is the same everywhere — every
 /// branch-scoped read silently falls back to another outlet's data.
 class BranchSelectionScreen extends ConsumerWidget {
-  const BranchSelectionScreen({super.key, this.title = 'Choose your outlet'});
+  const BranchSelectionScreen({super.key, this.title});
 
-  final String title;
+  /// Defaults to the shared "Choose your outlet"; apps override it where their
+  /// own word is clearer ("Which kitchen?" for a rider).
+  final String? title;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final branches = ref.watch(branchesProvider);
+    final text = strings(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: Text(title ?? text.chooseOutlet),
         actions: [
           TextButton.icon(
             onPressed: () =>
                 ref.read(authControllerProvider.notifier).signOut(),
             icon: const Icon(Icons.logout_rounded),
-            label: const Text('Sign out'),
+            label: Text(text.signOut),
           ),
           const SizedBox(width: AppSpacing.sm),
         ],
       ),
       body: branches.when(
-        loading: () => const LoadingView(message: 'Loading outlets…'),
+        loading: () => LoadingView(message: text.outletsLoading),
         error: (error, _) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(branchesProvider),
@@ -45,13 +49,12 @@ class BranchSelectionScreen extends ConsumerWidget {
           if (list.isEmpty) {
             return EmptyView(
               icon: Icons.storefront_outlined,
-              title: 'No outlets available',
-              message: 'Your account is not assigned to any outlet. '
-                  'Ask your manager to add you to one.',
+              title: text.outletsEmptyTitle,
+              message: text.outletsEmptyMessage,
               action: FilledButton.icon(
                 onPressed: () => ref.invalidate(branchesProvider),
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Check again'),
+                label: Text(text.checkAgain),
               ),
             );
           }
@@ -85,10 +88,11 @@ class _BranchTile extends ConsumerWidget {
     // Why an outlet cannot be picked, in words a waiter can act on. An
     // unconfigured outlet would accept an order and then fail at settlement,
     // which is far worse than being unavailable up front.
+    final text = strings(context);
     final blockedReason = !branch.active
-        ? 'This outlet is closed'
+        ? text.outletClosed
         : !branch.configured
-            ? 'Not set up for service yet — ask your manager'
+            ? text.outletNotConfigured
             : null;
 
     return Card(

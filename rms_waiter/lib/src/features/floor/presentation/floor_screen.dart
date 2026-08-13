@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'package:rms_core/rms_core.dart';
 import '../../../app/router/app_router.dart';
+import '../../../l10n/app_text.dart';
 import '../../ticket/data/draft_store.dart';
 import '../../ticket/data/pending_send_store.dart';
 import '../data/floor_repository.dart';
@@ -24,28 +25,29 @@ class _FloorScreenState extends ConsumerState<FloorScreen> {
   @override
   Widget build(BuildContext context) {
     final snapshot = ref.watch(floorSnapshotProvider);
+    final text = appText(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Floor'),
+        title: Text(text.floorTitle),
         actions: [
           const _ConnectionIndicator(),
           IconButton(
             onPressed: () =>
                 ref.read(authControllerProvider.notifier).clearBranch(),
             icon: const Icon(Icons.swap_horiz_rounded),
-            tooltip: 'Switch outlet',
+            tooltip: text.switchOutlet,
           ),
           IconButton(
             onPressed: () =>
                 ref.read(authControllerProvider.notifier).signOut(),
             icon: const Icon(Icons.logout_rounded),
-            tooltip: 'Sign out',
+            tooltip: text.signOut,
           ),
         ],
       ),
       body: snapshot.when(
-        loading: () => const LoadingView(message: 'Loading floor…'),
+        loading: () => LoadingView(message: text.floorLoading),
         error: (error, _) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(floorSnapshotProvider),
@@ -78,6 +80,7 @@ class _ConnectionIndicator extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final status =
         ref.watch(realtimeStatusProvider).valueOrNull ?? RealtimeStatus.idle;
+    final text = appText(context);
 
     // A connected socket is the normal case and needs no chrome; only its
     // absence is worth a waiter's attention.
@@ -89,9 +92,7 @@ class _ConnectionIndicator extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
       child: Tooltip(
-        message: connecting
-            ? 'Connecting to live updates'
-            : 'Live updates are offline — pull down to refresh',
+        message: connecting ? text.liveConnectingHint : text.liveOfflineHint,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -102,7 +103,7 @@ class _ConnectionIndicator extends ConsumerWidget {
             ),
             const SizedBox(width: AppSpacing.xs),
             Text(
-              connecting ? 'Connecting' : 'Offline',
+              connecting ? text.liveConnecting : text.liveOffline,
               style: Theme.of(context).textTheme.labelSmall,
             ),
           ],
@@ -131,16 +132,16 @@ class _FloorBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final text = appText(context);
     if (floor.areas.isEmpty) {
       return EmptyView(
         icon: Icons.map_outlined,
-        title: 'No dining areas',
-        message: 'This outlet has no areas or tables set up yet. '
-            'A manager can add them in the web console.',
+        title: text.noAreasTitle,
+        message: text.noAreasMessage,
         action: FilledButton.icon(
           onPressed: onRefresh,
           icon: const Icon(Icons.refresh_rounded),
-          label: const Text('Check again'),
+          label: Text(text.checkAgain),
         ),
       );
     }
@@ -169,11 +170,11 @@ class _FloorBody extends StatelessWidget {
                 ? ListView(
                     // Must scroll, or pull-to-refresh cannot fire on an empty area.
                     physics: const AlwaysScrollableScrollPhysics(),
-                    children: const [
-                      SizedBox(height: 120),
+                    children: [
+                      const SizedBox(height: 120),
                       EmptyView(
                         icon: Icons.table_bar_outlined,
-                        title: 'No tables in this area',
+                        title: text.noTablesInArea,
                       ),
                     ],
                   )
@@ -204,6 +205,7 @@ class _StaleBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
 
     return Container(
       width: double.infinity,
@@ -220,11 +222,8 @@ class _StaleBanner extends StatelessWidget {
           Expanded(
             child: Text(
               readAt == null
-                  ? 'Offline — showing the last floor we could load. Order '
-                      'status may have changed.'
-                  : 'Offline — this floor is from '
-                      '${DateFormat.Hm().format(readAt!)}. Order status may '
-                      'have changed since.',
+                  ? text.floorStaleUnknown
+                  : text.floorStaleAt(DateFormat.Hm().format(readAt!)),
               style: theme.textTheme.bodySmall
                   ?.copyWith(color: theme.colorScheme.onErrorContainer),
             ),
@@ -243,6 +242,7 @@ class _SummaryBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
     final ready = floor.readyCount;
 
     return Container(
@@ -255,13 +255,13 @@ class _SummaryBar extends StatelessWidget {
       child: Row(
         children: [
           _Metric(
-            label: 'Open bills',
+            label: text.openBills,
             value: '${floor.openOrderCount}',
             icon: Icons.receipt_long_outlined,
           ),
           const SizedBox(width: AppSpacing.xl),
           _Metric(
-            label: 'Ready to serve',
+            label: text.readyToServe,
             value: '$ready',
             icon: Icons.room_service_outlined,
             // Only emphasised when there is something to do — a permanently
@@ -341,7 +341,8 @@ class _AreaSelector extends StatelessWidget {
             child: ChoiceChip(
               selected: area.id == activeId,
               onSelected: (_) => onSelected(area.id),
-              label: Text('${area.name} (${area.tableCount})'),
+              label: Text(
+                  appText(context).areaWithCount(area.name, area.tableCount)),
             ),
           );
         },

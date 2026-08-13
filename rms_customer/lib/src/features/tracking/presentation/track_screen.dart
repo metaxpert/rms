@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:rms_core/rms_core.dart';
 import '../../../app/router/app_router.dart';
+import '../../../l10n/app_text.dart';
 import '../../orders/data/customer_order_repository.dart';
 import '../application/order_progress.dart';
 
@@ -56,15 +57,15 @@ class _TrackScreenState extends ConsumerState<TrackScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your order'),
+        title: Text(appText(context).yourOrder),
         leading: IconButton(
           onPressed: () => context.go(Routes.home),
           icon: const Icon(Icons.restaurant_menu_rounded),
-          tooltip: 'Back to the menu',
+          tooltip: appText(context).backToMenu,
         ),
       ),
       body: tracked.when(
-        loading: () => const LoadingView(message: 'Finding your order…'),
+        loading: () => LoadingView(message: appText(context).findingOrder),
         error: (error, _) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(trackedOrderProvider(widget.orderId)),
@@ -91,7 +92,8 @@ class _TrackBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final progress = OrderProgress.of(tracked);
+    final text = appText(context);
+    final progress = OrderProgress.of(tracked, text);
     final order = tracked.order;
 
     return ListView(
@@ -105,7 +107,7 @@ class _TrackBody extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          order.orderNo.isEmpty ? 'Order placed' : order.orderNo,
+          order.orderNo.isEmpty ? text.orderPlaced : order.orderNo,
           style: theme.textTheme.bodyMedium
               ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
@@ -116,7 +118,7 @@ class _TrackBody extends StatelessWidget {
         if (order.lines.isNotEmpty) _OrderLines(order: order),
         const SizedBox(height: AppSpacing.lg),
         Text(
-          'Updates automatically. Pull down if you are impatient.',
+          text.updatesAutomatically,
           textAlign: TextAlign.center,
           style: theme.textTheme.bodySmall
               ?.copyWith(color: theme.colorScheme.outline),
@@ -136,6 +138,7 @@ class _AddressWarning extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
 
     return Container(
       margin: const EdgeInsets.only(top: AppSpacing.lg),
@@ -154,7 +157,7 @@ class _AddressWarning extends StatelessWidget {
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Text(
-                  'The restaurant will call about your address',
+                  text.addressWillCallTitle,
                   style: theme.textTheme.titleSmall,
                 ),
               ),
@@ -162,7 +165,7 @@ class _AddressWarning extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'We could not attach it to the order. Keep this handy:',
+            text.addressCouldNotAttach,
             style: theme.textTheme.bodySmall,
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -190,8 +193,14 @@ class _Step extends StatelessWidget {
     return Semantics(
       container: true,
       excludeSemantics: true,
-      label: '${step.label}: '
-          '${step.active ? 'happening now' : step.done ? 'done' : 'still to come'}',
+      label: appText(context).semanticsStep(
+        step.label,
+        step.active
+            ? appText(context).semanticsHappeningNow
+            : step.done
+                ? appText(context).semanticsDone
+                : appText(context).semanticsToCome,
+      ),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
         child: Row(
@@ -243,7 +252,7 @@ class _OrderLines extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('What you ordered', style: theme.textTheme.titleSmall),
+        Text(appText(context).whatYouOrdered, style: theme.textTheme.titleSmall),
         const SizedBox(height: AppSpacing.sm),
         for (final line in order.lines)
           Padding(
@@ -265,7 +274,7 @@ class _OrderLines extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Total', style: theme.textTheme.titleMedium),
+            Text(appText(context).total, style: theme.textTheme.titleMedium),
             Text(
               // The restaurant's figure, not the basket's estimate.
               order.totals.total.display,

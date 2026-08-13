@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:rms_core/rms_core.dart';
 import '../../floor/data/floor_repository.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../orders/data/order_repository.dart';
 
 enum SettlePhase { idle, settling, settled, failed }
@@ -143,7 +144,7 @@ class SettleController extends AutoDisposeFamilyNotifier<SettleState, String> {
       : state.copyWith(cashReceived: amount);
 
   /// Close the bill.
-  Future<void> settle(OrderDetail order) async {
+  Future<void> settle(OrderDetail order, AppText text) async {
     if (state.isSettling) return;
 
     final tender = state.tenderFor(order.totals.total);
@@ -155,8 +156,8 @@ class SettleController extends AutoDisposeFamilyNotifier<SettleState, String> {
         error: ApiException(
           ApiErrorKind.rejected,
           tender.isShort
-              ? 'The payments are ${tender.outstanding.display} short of the bill.'
-              : 'The payments are ${tender.over.display} more than the bill.',
+              ? text.shortOfBill(tender.outstanding.display)
+              : text.overBill(tender.over.display),
         ),
       );
       return;

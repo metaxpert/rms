@@ -1,0 +1,9 @@
+# App-specific copy. The strings shared by all four apps live in
+# packages/rms_core; only this app's own words are here, which keeps the
+# core/app boundary the rest of the codebase follows.
+arb-dir: l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppText
+output-dir: lib/src/l10n
+nullable-getter: false

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/rms_localizations.dart';
 import '../theme/app_theme.dart';
 
 /// Where in the kitchen a ticket is cooked. Stations are tenant-defined
@@ -72,12 +73,12 @@ class KdsTicket {
       targetMinutes != null && elapsed.inSeconds > targetMinutes! * 60;
 
   /// "14:05" against a wall clock is no use to a chef; time *waiting* is.
-  String get elapsedLabel {
+  String elapsedLabelIn(RmsLocalizations text) {
     final minutes = elapsed.inMinutes;
-    if (minutes < 1) return 'just now';
-    if (minutes < 60) return '$minutes min';
+    if (minutes < 1) return text.waitJustNow;
+    if (minutes < 60) return text.waitMinutes(minutes);
     final hours = elapsed.inHours;
-    return '${hours}h ${minutes - hours * 60}m';
+    return text.waitHoursMinutes(hours, minutes - hours * 60);
   }
 
   Color get urgencyColor => isOverdue

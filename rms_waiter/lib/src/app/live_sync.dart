@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:rms_core/rms_core.dart';
 import '../features/floor/data/floor_repository.dart';
+import '../l10n/app_text.dart';
 import '../features/notifications/service_notifier.dart';
 import '../features/orders/data/order_repository.dart';
 import '../features/ticket/application/outbox_controller.dart';
@@ -127,7 +128,17 @@ class _LiveSyncState extends ConsumerState<LiveSync>
     if (event.kind.isFoodReady) {
       _announceFoodReady(event);
       // Also buzzes the tablet, for the waiter who is not looking at the app.
-      ref.read(serviceNotifierProvider).foodReady(tableCode: event.tableCode);
+      final messenger = ref.read(scaffoldMessengerKeyProvider).currentState;
+      if (messenger != null) {
+        final text = appText(messenger.context);
+        final table = event.tableCode;
+        ref.read(serviceNotifierProvider).foodReady(
+              title: table == null
+                  ? text.notifyFoodReadyTitle
+                  : text.notifyFoodReadyAtTable(table),
+              body: text.notifyFoodReadyBody,
+            );
+      }
     }
     if (event.kind.touchesOrders) _scheduleReconcile();
   }
@@ -155,6 +166,8 @@ class _LiveSyncState extends ConsumerState<LiveSync>
     final messenger = ref.read(scaffoldMessengerKeyProvider).currentState;
     if (messenger == null) return;
     final table = event.tableCode;
+    final context = messenger.context;
+    final text = appText(context);
     messenger
       ..removeCurrentSnackBar()
       ..showSnackBar(
@@ -168,8 +181,8 @@ class _LiveSyncState extends ConsumerState<LiveSync>
               Expanded(
                 child: Text(
                   table == null
-                      ? 'Food is ready to run.'
-                      : 'Table $table — food is ready.',
+                      ? text.foodReadyAnywhere
+                      : text.foodReadyAtTable(table),
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
@@ -203,23 +216,28 @@ class _LiveSyncState extends ConsumerState<LiveSync>
     ref.read(outboxControllerProvider.notifier).acknowledge();
     if (sent.isEmpty) return;
 
+    final messenger = ref.read(scaffoldMessengerKeyProvider).currentState;
+    if (messenger == null) return;
+    final text = appText(messenger.context);
+
     for (final result in sent) {
+      final orderNo = result.orderNo;
       ref.read(serviceNotifierProvider).orderSent(
-            tableCode: result.tableId,
-            orderNo: result.orderNo,
+            title: text.notifyOrderSentTitle,
+            body: orderNo == null || orderNo.isEmpty
+                ? text.notifyOrderSentBody(result.tableId)
+                : text.notifyOrderSentBodyNumbered(result.tableId, orderNo),
           );
     }
 
-    final messenger = ref.read(scaffoldMessengerKeyProvider).currentState;
     messenger
-      ?..removeCurrentSnackBar()
+      ..removeCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
           content: Text(
             sent.length == 1
-                ? 'An order that was waiting has reached the kitchen.'
-                : '${sent.length} orders that were waiting have reached the '
-                    'kitchen.',
+                ? text.outboxOneSent
+                : text.outboxManySent(sent.length),
           ),
         ),
       );

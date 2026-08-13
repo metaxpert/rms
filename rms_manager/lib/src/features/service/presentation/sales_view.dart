@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../../l10n/app_text.dart';
 import '../data/service_repository.dart';
 
 /// What has been taken, and what is still on tables.
@@ -17,6 +18,7 @@ class SalesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
     final settled = snapshot.settledOrders;
 
     return ListView(
@@ -27,18 +29,18 @@ class SalesView extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         if (snapshot.openOrders.isNotEmpty) ...[
           _Header(
-            'Still open',
+            text.stillOpen,
             trailing: snapshot.openValue.display,
           ),
           for (final order in snapshot.openOrders) _OrderRow(order: order),
           const SizedBox(height: AppSpacing.lg),
         ],
-        _Header('Settled', trailing: '${settled.length}'),
+        _Header(text.settled, trailing: '${settled.length}'),
         if (settled.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
             child: Text(
-              'Nothing settled yet.',
+              text.nothingSettled,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
@@ -50,8 +52,7 @@ class SalesView extends StatelessWidget {
         Text(
           // The list endpoint's window was never verified, so the app does not
           // claim these are "today's" figures.
-          'Covers the orders the server returns for this outlet. The ledger, '
-          'not this screen, is the record of what was earned.',
+          text.salesFootnote,
           textAlign: TextAlign.center,
           style: theme.textTheme.bodySmall
               ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
@@ -69,6 +70,7 @@ class _Summary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
 
     Widget figure(String label, String value, {bool emphasise = false}) =>
         Expanded(
@@ -104,15 +106,16 @@ class _Summary extends StatelessWidget {
         children: [
           Row(
             children: [
-              figure('Settled', snapshot.settledValue.display, emphasise: true),
-              figure('Still on tables', snapshot.openValue.display),
+              figure(text.settled, snapshot.settledValue.display,
+                  emphasise: true),
+              figure(text.stillOnTables, snapshot.openValue.display),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
           Row(
             children: [
-              figure('Bills closed', '${snapshot.settledOrders.length}'),
-              figure('Average bill', snapshot.averageBill.display),
+              figure(text.billsClosed, '${snapshot.settledOrders.length}'),
+              figure(text.averageBill, snapshot.averageBill.display),
             ],
           ),
         ],
@@ -177,10 +180,10 @@ class _OrderRow extends StatelessWidget {
                 ),
                 Text(
                   [
-                    if (order.tableCode != null) 'Table ${order.tableCode}',
+                    if (order.tableCode != null)
+                      appText(context).tableLabel(order.tableCode!),
                     if (!order.isDineIn) order.channel,
-                    '${order.itemCount} '
-                        '${order.itemCount == 1 ? 'item' : 'items'}',
+                    appText(context).itemCount(order.itemCount),
                   ].join(' · '),
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.onSurfaceVariant),

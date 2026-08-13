@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../../l10n/app_text.dart';
 import '../../orders/data/order_repository.dart';
 
 /// The slip, exactly as the printer will render it.
@@ -68,9 +69,7 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-            reprint
-                ? 'Reprint queued.'
-                : 'Sent to the printer. It prints when the till agent picks it up.',
+            reprint ? appText(context).reprintQueued : appText(context).printQueued,
           ),
         ),
       );
@@ -89,6 +88,7 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
     // `restaurant:print` is one of the eight named permissions. Gated so a
     // waiter is not handed a button that comes back 403 while a guest waits.
     final mayPrint = ref.watch(permissionsProvider).canPrint;
+    final text = appText(context);
 
     return SafeArea(
       child: Padding(
@@ -103,7 +103,7 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              order.orderNo.isEmpty ? 'Bill' : order.orderNo,
+              order.orderNo.isEmpty ? text.bill : order.orderNo,
               style: theme.textTheme.titleMedium,
             ),
             if (!settled)
@@ -112,7 +112,7 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
                 child: Text(
                   // A slip for an unsettled bill is not a tax invoice, and a
                   // guest handed one as if it were has been misled.
-                  'Not settled — this prints as a pro-forma, not a tax invoice.',
+                  text.proFormaWarning,
                   style: theme.textTheme.bodySmall
                       ?.copyWith(color: theme.colorScheme.error),
                 ),
@@ -127,7 +127,7 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
                     child: OutlinedButton.icon(
                       onPressed: _queueing ? null : () => _queue(reprint: true),
                       icon: const Icon(Icons.replay_rounded),
-                      label: const Text('Reprint'),
+                      label: Text(text.reprint),
                     ),
                   ),
                 if (settled && mayPrint) const SizedBox(width: AppSpacing.md),
@@ -139,10 +139,10 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
                     icon: const Icon(Icons.print_outlined),
                     label: Text(
                       !mayPrint
-                          ? 'Printing not allowed'
+                          ? text.printingNotAllowed
                           : settled
-                              ? 'Print'
-                              : 'Print pro-forma',
+                              ? text.print
+                              : text.printProForma,
                     ),
                   ),
                 ),
@@ -167,10 +167,10 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
       );
     }
     if (text.isEmpty) {
-      return const EmptyView(
+      return EmptyView(
         icon: Icons.receipt_long_outlined,
-        title: 'The server returned an empty slip',
-        message: 'Printing may still work. Tell a manager if it does not.',
+        title: appText(context).emptySlipTitle,
+        message: appText(context).emptySlipMessage,
       );
     }
 
@@ -195,7 +195,8 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
             Clipboard.setData(ClipboardData(text: text));
             ScaffoldMessenger.of(context)
               ..clearSnackBars()
-              ..showSnackBar(const SnackBar(content: Text('Bill copied.')));
+              ..showSnackBar(
+                  SnackBar(content: Text(appText(context).billCopied)));
           },
         ),
       ),

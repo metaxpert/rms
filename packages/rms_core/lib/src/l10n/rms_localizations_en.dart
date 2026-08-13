@@ -107,4 +107,113 @@ class RmsLocalizationsEn extends RmsLocalizations {
 
   @override
   String get checkAgain => 'Check again';
+
+  @override
+  String get orderStatusDraft => 'Draft';
+
+  @override
+  String get orderStatusPlaced => 'Placed';
+
+  @override
+  String get orderStatusConfirmed => 'Confirmed';
+
+  @override
+  String get orderStatusPreparing => 'Cooking';
+
+  @override
+  String get orderStatusReady => 'Ready';
+
+  @override
+  String get orderStatusServed => 'Served';
+
+  @override
+  String get orderStatusSettled => 'Settled';
+
+  @override
+  String get orderStatusCancelled => 'Cancelled';
+
+  @override
+  String get orderStatusVoided => 'Voided';
+
+  @override
+  String get orderStatusUnknown => 'Unknown';
+
+  @override
+  String get tableStatusAvailable => 'Free';
+
+  @override
+  String get tableStatusReserved => 'Reserved';
+
+  @override
+  String get tableStatusWaiting => 'Waiting';
+
+  @override
+  String get tableStatusOccupied => 'Seated';
+
+  @override
+  String get tableStatusCleaning => 'Cleaning';
+
+  @override
+  String get tableStatusUnknown => 'Unknown';
+
+  @override
+  String get deliveryStatusPending => 'Unassigned';
+
+  @override
+  String get deliveryStatusAssigned => 'Assigned';
+
+  @override
+  String get deliveryStatusPickedUp => 'Picked up';
+
+  @override
+  String get deliveryStatusEnRoute => 'On the way';
+
+  @override
+  String get deliveryStatusDelivered => 'Delivered';
+
+  @override
+  String get deliveryStatusFailed => 'Failed';
+
+  @override
+  String get deliveryStatusCancelled => 'Cancelled';
+
+  @override
+  String get deliveryStatusUnknown => 'Unknown';
+
+  @override
+  String get deliveryActionPickUp => 'Picked up';
+
+  @override
+  String get deliveryActionStart => 'Start delivery';
+
+  @override
+  String get deliveryActionDeliver => 'Deliver with OTP';
+
+  @override
+  String get paymentCash => 'Cash';
+
+  @override
+  String get paymentCard => 'Card';
+
+  @override
+  String get paymentWallet => 'Wallet';
+
+  @override
+  String get paymentOnline => 'Online';
+
+  @override
+  String get waitJustNow => 'just now';
+
+  @override
+  String waitMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String waitHoursMinutes(int hours, int minutes) {
+    return '${hours}h ${minutes}m';
+  }
+
+  @override
+  String get chooseOutlet => 'Choose your outlet';
 }

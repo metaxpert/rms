@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../l10n/app_text.dart';
 import '../../location/data/location_source.dart';
 import '../application/run_controller.dart';
 import '../data/delivery_repository.dart';
@@ -28,7 +30,8 @@ class RunScreen extends ConsumerWidget {
     final delivery = run.delivery ?? async.valueOrNull;
 
     return Scaffold(
-      appBar: AppBar(title: Text(delivery?.deliveryNo ?? 'Run')),
+      appBar: AppBar(
+          title: Text(delivery?.deliveryNo ?? appText(context).run)),
       body: delivery == null
           ? async.when(
               loading: () => const LoadingView(),
@@ -96,6 +99,7 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
 
     return Row(
       children: [
@@ -113,7 +117,7 @@ class _Header extends StatelessWidget {
                 [
                   delivery.provider,
                   if (delivery.etaMinutes != null)
-                    'ETA ${delivery.etaMinutes} min',
+                    text.etaMinutes(delivery.etaMinutes!),
                 ].join(' · '),
                 style: theme.textTheme.bodySmall
                     ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
@@ -122,7 +126,7 @@ class _Header extends StatelessWidget {
           ),
         ),
         StatusBadge(
-          label: delivery.status.label,
+          label: delivery.status.labelIn(strings(context)),
           color: delivery.status.color,
           icon: delivery.status.icon,
         ),
@@ -139,6 +143,7 @@ class _DropOffCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
     final address = delivery.address;
     final location = delivery.location;
 
@@ -153,12 +158,12 @@ class _DropOffCard extends StatelessWidget {
                 Icon(Icons.location_on_rounded,
                     color: theme.colorScheme.primary),
                 const SizedBox(width: AppSpacing.sm),
-                Text('Drop-off', style: theme.textTheme.titleMedium),
+                Text(text.dropOff, style: theme.textTheme.titleMedium),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
             SelectableText(
-              address ?? 'No address on file — call the restaurant.',
+              address ?? text.noAddressCall,
               style: theme.textTheme.bodyLarge,
             ),
             if (location != null) ...[
@@ -184,12 +189,12 @@ class _DropOffCard extends StatelessWidget {
                           text: '${location.lat},${location.lng}'));
                       ScaffoldMessenger.of(context)
                         ..clearSnackBars()
-                        ..showSnackBar(const SnackBar(
-                          content: Text('Coordinates copied — paste into Maps.'),
+                        ..showSnackBar(SnackBar(
+                          content: Text(text.coordinatesCopied),
                         ));
                     },
                     icon: const Icon(Icons.copy_rounded, size: 18),
-                    label: const Text('Copy'),
+                    label: Text(text.copy),
                   ),
                 ],
               ),
@@ -216,6 +221,7 @@ class _SharingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
     final problem = run.locationProblem;
 
     return Card(
@@ -237,7 +243,7 @@ class _SharingCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    run.sharing ? 'Sharing your location' : 'Location off',
+                    run.sharing ? text.sharingLocation : text.locationOff,
                     style: theme.textTheme.titleMedium,
                   ),
                 ),
@@ -249,22 +255,18 @@ class _SharingCard extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              run.sharing
-                  ? 'The customer can see roughly where you are. It stops when '
-                      'the run finishes.'
-                  // Explicit rather than implied: a rider's whereabouts is the
-                  // restaurant's business while they carry an order, and not
-                  // otherwise.
-                  : 'Turn on while you are carrying this order so the customer '
-                      'can follow it.',
+              // Explicit rather than implied: a rider's whereabouts is the
+              // restaurant's business while they carry an order, and not
+              // otherwise.
+              run.sharing ? text.sharingOnHint : text.sharingOffHint,
               style: theme.textTheme.bodySmall
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             if (run.sharing && run.lastPingAt != null) ...[
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Last sent ${DateFormat.Hms().format(run.lastPingAt!)} '
-                '· ${run.pingsSent} updates',
+                text.lastSent(
+                    DateFormat.Hms().format(run.lastPingAt!), run.pingsSent),
                 style: theme.textTheme.labelSmall
                     ?.copyWith(color: theme.colorScheme.outline),
               ),
@@ -291,16 +293,11 @@ class _LocationProblem extends StatelessWidget {
 
     // Each of these has a different remedy, and a rider on a bike has no
     // patience for a generic "location unavailable".
+    final text = appText(context);
     final message = switch (problem) {
-      LocationAvailability.serviceOff =>
-        'Location is switched off on this phone. Turn it on in the pull-down '
-            'settings, then try again.',
-      LocationAvailability.denied =>
-        'The app was not given permission this time. Tap the switch again to '
-            'be asked once more.',
-      LocationAvailability.blocked =>
-        'Location permission is blocked for this app. It can only be turned '
-            'back on in the phone\'s Settings → Apps.',
+      LocationAvailability.serviceOff => text.locationServiceOff,
+      LocationAvailability.denied => text.locationDenied,
+      LocationAvailability.blocked => text.locationBlocked,
       LocationAvailability.ready => '',
     };
 
@@ -326,10 +323,11 @@ class _Timeline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
     final stamps = <(String, DateTime?)>[
-      ('Assigned', delivery.assignedAt),
-      ('Picked up', delivery.pickedUpAt),
-      ('Delivered', delivery.deliveredAt),
+      (text.progressAssigned, delivery.assignedAt),
+      (text.progressPickedUp, delivery.pickedUpAt),
+      (text.progressDelivered, delivery.deliveredAt),
     ].where((entry) => entry.$2 != null).toList();
 
     if (stamps.isEmpty) return const SizedBox.shrink();
@@ -337,7 +335,7 @@ class _Timeline extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Progress', style: theme.textTheme.titleSmall),
+        Text(text.progress, style: theme.textTheme.titleSmall),
         const SizedBox(height: AppSpacing.sm),
         for (final (label, at) in stamps)
           Padding(
@@ -402,6 +400,7 @@ class _ActionBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final text = appText(context);
     final controller = ref.read(runControllerProvider(delivery.id).notifier);
 
     if (delivery.status.isTerminal) {
@@ -415,7 +414,8 @@ class _ActionBar extends ConsumerWidget {
               Icon(delivery.status.icon, color: delivery.status.color),
               const SizedBox(width: AppSpacing.sm),
               Text(
-                'This run is ${delivery.status.label.toLowerCase()}.',
+                text.runIsStatus(
+                    delivery.status.labelIn(strings(context)).toLowerCase()),
                 style: theme.textTheme.titleMedium,
               ),
             ],
@@ -430,8 +430,7 @@ class _ActionBar extends ConsumerWidget {
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Text(
-            '${delivery.provider} is carrying this one. Track it through their '
-            'app — nothing here changes it.',
+            text.aggregatorCarrying(delivery.provider),
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium,
           ),
@@ -439,7 +438,7 @@ class _ActionBar extends ConsumerWidget {
       );
     }
 
-    final label = delivery.status.nextActionLabel;
+    final label = delivery.status.nextActionLabelIn(strings(context));
     if (label == null) {
       return SafeArea(
         top: false,
@@ -448,7 +447,7 @@ class _ActionBar extends ConsumerWidget {
           child: Text(
             // PENDING: dispatch is a manager's permission, so a rider waiting
             // to be given the job is told that rather than shown a dead button.
-            'Waiting for the restaurant to assign this run.',
+            text.waitingForAssignment,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium,
           ),
@@ -478,7 +477,7 @@ class _ActionBar extends ConsumerWidget {
                           await controller.advance(delivery);
                           return;
                         }
-                        final otp = await _askForOtp(context);
+                        final otp = await _askForOtp(context, text);
                         if (otp != null && otp.isNotEmpty) {
                           await controller.advance(delivery, otp: otp);
                         }
@@ -504,9 +503,9 @@ class _ActionBar extends ConsumerWidget {
             TextButton.icon(
               onPressed: run.isWorking
                   ? null
-                  : () => _reportFailure(context, controller, delivery),
+                  : () => _reportFailure(context, text, controller, delivery),
               icon: const Icon(Icons.report_gmailerrorred_rounded),
-              label: const Text('Something went wrong'),
+              label: Text(text.somethingWentWrong),
             ),
           ],
         ),
@@ -520,17 +519,17 @@ class _ActionBar extends ConsumerWidget {
   /// the delivery is created, so staff can pass it to the customer. A rider who
   /// could see it could close a job without arriving, which is the entire point
   /// of the check.
-  Future<String?> _askForOtp(BuildContext context) {
+  Future<String?> _askForOtp(BuildContext context, AppText text) {
     final controller = TextEditingController();
     return showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirm the handover'),
+        title: Text(text.confirmHandover),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Ask the customer to read out the code on their order.'),
+            Text(text.askForCode),
             const SizedBox(height: AppSpacing.lg),
             TextField(
               controller: controller,
@@ -539,9 +538,9 @@ class _ActionBar extends ConsumerWidget {
               textInputAction: TextInputAction.done,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               onSubmitted: (value) => Navigator.of(context).pop(value.trim()),
-              decoration: const InputDecoration(
-                labelText: 'Delivery code',
-                prefixIcon: Icon(Icons.password_rounded),
+              decoration: InputDecoration(
+                labelText: text.deliveryCode,
+                prefixIcon: const Icon(Icons.password_rounded),
               ),
             ),
           ],
@@ -549,12 +548,12 @@ class _ActionBar extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(text.cancel),
           ),
           FilledButton(
             onPressed: () =>
                 Navigator.of(context).pop(controller.text.trim()),
-            child: const Text('Delivered'),
+            child: Text(text.delivered),
           ),
         ],
       ),
@@ -563,17 +562,18 @@ class _ActionBar extends ConsumerWidget {
 
   Future<void> _reportFailure(
     BuildContext context,
+    AppText text,
     RunController controller,
     Delivery delivery,
   ) async {
     // The backend takes free text, but a rider at a door should be picking, not
     // typing. These are the reasons a run actually fails.
-    const reasons = [
-      'Nobody at the address',
-      'Customer refused the order',
-      'Address could not be found',
-      'Customer would not give the code',
-      'Accident or vehicle problem',
+    final reasons = [
+      text.failNobodyThere,
+      text.failRefused,
+      text.failAddressNotFound,
+      text.failNoCode,
+      text.failVehicle,
     ];
 
     final reason = await showModalBottomSheet<String>(
@@ -586,7 +586,7 @@ class _ActionBar extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: Text(
-                'What happened?',
+                text.whatHappened,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
@@ -606,19 +606,16 @@ class _ActionBar extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Mark this run failed?'),
-        content: Text(
-          '"$reason"\n\nThe restaurant is told straight away. This cannot be '
-          'undone from here.',
-        ),
+        title: Text(text.markFailedTitle),
+        content: Text(text.markFailedMessage(reason)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Go back'),
+            child: Text(text.goBack),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Mark failed'),
+            child: Text(text.markFailed),
           ),
         ],
       ),

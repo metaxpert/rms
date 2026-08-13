@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:rms_core/rms_core.dart';
 import '../../../app/router/app_router.dart';
+import '../../../l10n/app_text.dart';
 import '../../cart/application/cart_controller.dart';
 
 /// The menu a guest orders from.
@@ -26,26 +27,27 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
   Widget build(BuildContext context) {
     final catalogue = ref.watch(menuCatalogueProvider);
     final cart = ref.watch(cartControllerProvider);
+    final text = appText(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Menu'),
+        title: Text(text.menu),
         actions: [
           IconButton(
             onPressed: () =>
                 ref.read(authControllerProvider.notifier).clearBranch(),
             icon: const Icon(Icons.storefront_outlined),
-            tooltip: 'Change restaurant',
+            tooltip: text.changeRestaurant,
           ),
           IconButton(
             onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
             icon: const Icon(Icons.logout_rounded),
-            tooltip: 'Sign out',
+            tooltip: text.signOut,
           ),
         ],
       ),
       body: catalogue.when(
-        loading: () => const LoadingView(message: 'Loading the menu…'),
+        loading: () => LoadingView(message: text.menuLoading),
         error: (error, _) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(menuCatalogueProvider),
@@ -68,10 +70,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                   child: FilledButton.icon(
                     onPressed: () => context.push(Routes.cart),
                     icon: const Icon(Icons.shopping_bag_rounded),
-                    label: Text(
-                      'Basket · ${cart.itemCount} '
-                      '${cart.itemCount == 1 ? 'item' : 'items'}',
-                    ),
+                    label: Text(text.basketWithCount(cart.itemCount)),
                   ),
                 ),
               ),
@@ -97,6 +96,7 @@ class _MenuBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final text = appText(context);
     final searching = query.trim().isNotEmpty;
     final items = searching
         ? catalogue.search(query)
@@ -110,10 +110,10 @@ class _MenuBody extends ConsumerWidget {
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: TextField(
             onChanged: onQuery,
-            decoration: const InputDecoration(
-              hintText: 'Search the menu',
-              prefixIcon: Icon(Icons.search_rounded),
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: text.searchTheMenu,
+              prefixIcon: const Icon(Icons.search_rounded),
+              border: const OutlineInputBorder(),
               isDense: true,
             ),
           ),
@@ -130,7 +130,7 @@ class _MenuBody extends ConsumerWidget {
                   child: ChoiceChip(
                     selected: categoryId == null,
                     onSelected: (_) => onCategory(null),
-                    label: const Text('Everything'),
+                    label: Text(text.everything),
                   ),
                 ),
                 for (final category in catalogue.populatedCategories)
@@ -149,10 +149,12 @@ class _MenuBody extends ConsumerWidget {
           child: items.isEmpty
               ? EmptyView(
                   icon: Icons.search_off_rounded,
-                  title: searching ? 'Nothing matches' : 'Nothing on the menu',
+                  title: searching
+                      ? text.nothingMatchesTitle
+                      : text.nothingOnMenuTitle,
                   message: searching
-                      ? 'Try a different word.'
-                      : 'This restaurant has not published a menu yet.',
+                      ? text.tryAnotherWord
+                      : text.noMenuPublished,
                 )
               : ListView.separated(
                   padding: const EdgeInsets.all(AppSpacing.lg),
@@ -179,6 +181,7 @@ class _DishTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final text = appText(context);
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -189,7 +192,7 @@ class _DishTile extends ConsumerWidget {
             ..clearSnackBars()
             ..showSnackBar(
               SnackBar(
-                content: Text('${item.name} added'),
+                content: Text(text.addedNamed(item.name)),
                 duration: const Duration(milliseconds: 900),
               ),
             );
@@ -228,7 +231,7 @@ class _DishTile extends ConsumerWidget {
                     if (item.prepMinutes > 0) ...[
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        'about ${item.prepMinutes} min to cook',
+                        text.prepMinutes(item.prepMinutes),
                         style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant),
                       ),
@@ -246,7 +249,7 @@ class _DishTile extends ConsumerWidget {
                 onPressed: () =>
                     ref.read(cartControllerProvider.notifier).add(item, config),
                 icon: const Icon(Icons.add_rounded),
-                tooltip: 'Add ${item.name}',
+                tooltip: text.addNamed(item.name),
               ),
             ],
           ),

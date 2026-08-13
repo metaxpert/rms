@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:rms_core/rms_core.dart';
+import '../../../l10n/app_text.dart';
 
 import 'item_options_sheet.dart';
 
@@ -93,6 +94,7 @@ class _MenuPickerSheetState extends ConsumerState<_MenuPickerSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final catalogue = ref.watch(menuCatalogueProvider);
+    final text = appText(context);
     // Warmed here so `_pick` has a settled answer — see the note there.
     ref.watch(tenantHasModifiersProvider);
 
@@ -114,20 +116,21 @@ class _MenuPickerSheetState extends ConsumerState<_MenuPickerSheet> {
               children: [
                 Expanded(
                   child: Text(
-                    'Add to ${widget.tableCode}',
+                    text.addToTable(widget.tableCode),
                     style: theme.textTheme.titleLarge,
                   ),
                 ),
                 FilledButton.tonal(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: Text(_added == 0 ? 'Close' : 'Done · $_added'),
+                  child: Text(
+                      _added == 0 ? text.close : text.doneWithCount(_added)),
                 ),
               ],
             ),
           ),
           Expanded(
             child: catalogue.when(
-              loading: () => const LoadingView(message: 'Loading the menu…'),
+              loading: () => LoadingView(message: text.menuLoading),
               error: (error, _) => ErrorView(
                 error: error,
                 onRetry: () => ref.invalidate(menuCatalogueProvider),
@@ -189,7 +192,7 @@ class _Browser extends StatelessWidget {
             onChanged: onSearchChanged,
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
-              hintText: 'Search dishes',
+              hintText: appText(context).searchDishes,
               prefixIcon: const Icon(Icons.search_rounded),
               suffixIcon: query.isEmpty
                   ? null
@@ -199,7 +202,7 @@ class _Browser extends StatelessWidget {
                         onSearchChanged('');
                       },
                       icon: const Icon(Icons.close_rounded),
-                      tooltip: 'Clear',
+                      tooltip: appText(context).clearSearch,
                     ),
             ),
           ),
@@ -217,10 +220,12 @@ class _Browser extends StatelessWidget {
           child: items.isEmpty
               ? EmptyView(
                   icon: Icons.search_off_rounded,
-                  title: query.isEmpty ? 'Nothing here' : 'No match for "$query"',
+                  title: query.isEmpty
+                      ? appText(context).nothingHereTitle
+                      : appText(context).noMatchTitle(query),
                   message: query.isEmpty
-                      ? 'Every dish in this section is off the menu right now.'
-                      : 'Sold-out dishes are not listed.',
+                      ? appText(context).sectionOffMenu
+                      : appText(context).soldOutNotListed,
                 )
               : GridView.builder(
                   controller: scrollController,
@@ -273,7 +278,7 @@ class _Categories extends StatelessWidget {
           ChoiceChip(
             selected: selectedId == null,
             onSelected: (_) => onSelected(null),
-            label: const Text('All'),
+            label: Text(appText(context).allCategories),
           ),
           for (final category in categories) ...[
             const SizedBox(width: AppSpacing.sm),
@@ -288,7 +293,7 @@ class _Categories extends StatelessWidget {
             ChoiceChip(
               selected: selectedId == _uncategorised,
               onSelected: (_) => onSelected(_uncategorised),
-              label: const Text('Other'),
+              label: Text(appText(context).uncategorised),
             ),
           ],
         ],
@@ -339,7 +344,7 @@ class _ItemTile extends StatelessWidget {
               ),
               if (item.isCombo)
                 Text(
-                  'Combo',
+                  appText(context).combo,
                   style: theme.textTheme.labelSmall
                       ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../config/environment.dart';
+import '../l10n/strings.dart';
 import '../providers.dart';
 import '../theme/app_theme.dart';
 
@@ -43,14 +44,15 @@ class _ServerSettingsSheetState extends ConsumerState<ServerSettingsSheet> {
   }
 
   String? _validate(String? value) {
-    final text = value?.trim() ?? '';
-    if (text.isEmpty) return 'Enter the server address';
-    final uri = Uri.tryParse(text);
+    final strings_ = strings(context);
+    final entered = value?.trim() ?? '';
+    if (entered.isEmpty) return strings_.serverAddressMissing;
+    final uri = Uri.tryParse(entered);
     if (uri == null || !uri.hasScheme || uri.host.isEmpty) {
-      return 'Include http:// or https://';
+      return strings_.serverAddressNeedsScheme;
     }
     if (uri.scheme != 'http' && uri.scheme != 'https') {
-      return 'Address must start with http:// or https://';
+      return strings_.serverAddressNeedsScheme;
     }
     return null;
   }
@@ -65,6 +67,7 @@ class _ServerSettingsSheetState extends ConsumerState<ServerSettingsSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final env = Environment.current;
+    final text = strings(context);
 
     return Padding(
       padding: EdgeInsets.only(
@@ -80,11 +83,10 @@ class _ServerSettingsSheetState extends ConsumerState<ServerSettingsSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Server settings', style: theme.textTheme.titleLarge),
+            Text(text.serverSettings, style: theme.textTheme.titleLarge),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'The address of your restaurant server. Ask your manager if you '
-              'are not sure.',
+              text.serverSettingsBlurb,
               style: theme.textTheme.bodyMedium
                   ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
@@ -96,10 +98,10 @@ class _ServerSettingsSheetState extends ConsumerState<ServerSettingsSheet> {
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (_) => _save(),
               validator: _validate,
-              decoration: const InputDecoration(
-                labelText: 'Server address',
+              decoration: InputDecoration(
+                labelText: text.serverAddress,
                 hintText: 'https://rms.example.com/api',
-                prefixIcon: Icon(Icons.dns_outlined),
+                prefixIcon: const Icon(Icons.dns_outlined),
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -110,7 +112,7 @@ class _ServerSettingsSheetState extends ConsumerState<ServerSettingsSheet> {
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
-                    'Default for this build (${env.label}): ${env.defaultApiBase}',
+                    text.serverDefaultForBuild(env.label, env.defaultApiBase),
                     style: theme.textTheme.labelSmall
                         ?.copyWith(color: theme.colorScheme.outline),
                   ),
@@ -120,7 +122,7 @@ class _ServerSettingsSheetState extends ConsumerState<ServerSettingsSheet> {
             const SizedBox(height: AppSpacing.xl),
             FilledButton(
               onPressed: _save,
-              child: const Text('Save'),
+              child: Text(text.save),
             ),
           ],
         ),
