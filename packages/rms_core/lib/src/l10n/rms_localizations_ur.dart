@@ -9,9 +9,6 @@ class RmsLocalizationsUr extends RmsLocalizations {
   RmsLocalizationsUr([String locale = 'ur']) : super(locale);
 
   @override
-  String get loading => 'لوڈ ہو رہا ہے…';
-
-  @override
   String get tryAgain => 'دوبارہ کوشش کریں';
 
   @override

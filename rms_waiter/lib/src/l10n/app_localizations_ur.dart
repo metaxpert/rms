@@ -338,21 +338,10 @@ class AppTextUr extends AppText {
   String get uncategorised => 'دیگر';
 
   @override
-  String get noDishesTitle => 'کوئی پکوان نہیں';
-
-  @override
-  String get noDishesMatch => 'اس تلاش سے کچھ نہیں ملا۔';
-
-  @override
   String get noteForKitchen => 'کچن کے لیے نوٹ';
 
   @override
   String get noteForKitchenHint => 'مرچ نہیں، اچھی طرح پکا ہوا، آخر میں دیں…';
-
-  @override
-  String addedToTicket(String name) {
-    return '$name شامل کر دیا';
-  }
 
   @override
   String billForTable(String code) {

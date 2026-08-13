@@ -232,18 +232,8 @@
   "searchDishes": "Search dishes",
   "allCategories": "All",
   "uncategorised": "Other",
-  "noDishesTitle": "No dishes",
-  "noDishesMatch": "Nothing matches that search.",
   "noteForKitchen": "Note for the kitchen",
   "noteForKitchenHint": "No chilli, well done, serve last…",
-  "addedToTicket": "{name} added",
-  "@addedToTicket": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
   "billForTable": "Bill · Table {code}",
   "@billForTable": {
     "placeholders": {

@@ -41,7 +41,9 @@ class CustomerApp extends ConsumerWidget {
               maxScaleFactor: 2.0,
             ),
           ),
-          child: child ?? const SizedBox.shrink(),
+          // Keeps DateFormat/NumberFormat on the same locale as the
+          // strings; see LocaleBinding.
+          child: LocaleBinding(child: child ?? const SizedBox.shrink()),
         );
       },
     );

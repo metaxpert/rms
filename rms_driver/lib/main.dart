@@ -8,6 +8,10 @@ import 'src/app/app.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // DateFormat throws on a locale whose symbols were never loaded, so this
+  // must finish before the first timestamp is rendered.
+  await LocaleBinding.ensureInitialised();
+
   // Session.load reads the platform keystore, so it must finish before the
   // first frame — otherwise the router would decide the rider is signed out and
   // bounce them to the login screen on every cold start.

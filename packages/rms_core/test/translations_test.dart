@@ -36,4 +36,22 @@ void main() {
       );
     }
   });
+
+  test('no key is translated that nothing uses', () {
+    // A translator's time is not free, and a key orphaned by a refactor is
+    // indistinguishable from one that is merely hard to find. Scanning the
+    // source is the only way to tell.
+    final keys = keysOf(arb('l10n/rms_en.arb'));
+    final source = Directory('lib')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.dart') && !f.path.contains('/l10n/'))
+        .map((f) => f.readAsStringSync())
+        .join('\n');
+
+    final orphans = keys
+        .where((key) => !RegExp('\\.$key\\b').hasMatch(source))
+        .toList();
+    expect(orphans, isEmpty, reason: 'translated but never shown');
+  });
 }

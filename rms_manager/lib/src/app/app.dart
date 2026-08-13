@@ -42,7 +42,9 @@ class ManagerApp extends ConsumerWidget {
               maxScaleFactor: 1.3,
             ),
           ),
-          child: LiveSync(child: child ?? const SizedBox.shrink()),
+          // Keeps DateFormat/NumberFormat on the same locale as the
+          // strings; see LocaleBinding.
+          child: LocaleBinding(child: LiveSync(child: child ?? const SizedBox.shrink())),
         );
       },
     );

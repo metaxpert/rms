@@ -43,7 +43,9 @@ class DriverApp extends ConsumerWidget {
               maxScaleFactor: 1.5,
             ),
           ),
-          child: LiveSync(child: child ?? const SizedBox.shrink()),
+          // Keeps DateFormat/NumberFormat on the same locale as the
+          // strings; see LocaleBinding.
+          child: LocaleBinding(child: LiveSync(child: child ?? const SizedBox.shrink())),
         );
       },
     );

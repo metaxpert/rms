@@ -339,21 +339,10 @@ class AppTextEn extends AppText {
   String get uncategorised => 'Other';
 
   @override
-  String get noDishesTitle => 'No dishes';
-
-  @override
-  String get noDishesMatch => 'Nothing matches that search.';
-
-  @override
   String get noteForKitchen => 'Note for the kitchen';
 
   @override
   String get noteForKitchenHint => 'No chilli, well done, serve last…';
-
-  @override
-  String addedToTicket(String name) {
-    return '$name added';
-  }
 
   @override
   String billForTable(String code) {

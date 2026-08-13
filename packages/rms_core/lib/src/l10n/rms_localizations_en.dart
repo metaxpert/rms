@@ -9,9 +9,6 @@ class RmsLocalizationsEn extends RmsLocalizations {
   RmsLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get loading => 'Loading…';
-
-  @override
   String get tryAgain => 'Try again';
 
   @override

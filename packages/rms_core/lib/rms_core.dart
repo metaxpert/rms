@@ -22,6 +22,7 @@ export 'src/config/environment.dart';
 // four translations drift.
 export 'src/l10n/rms_localizations.dart';
 export 'src/l10n/strings.dart';
+export 'src/l10n/locale_binding.dart';
 
 // Money — integer minor units; never floats (see ARCHITECTURE.md §6).
 export 'src/money.dart';

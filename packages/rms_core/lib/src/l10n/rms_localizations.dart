@@ -98,12 +98,6 @@ abstract class RmsLocalizations {
     Locale('ur')
   ];
 
-  /// Generic wait state.
-  ///
-  /// In en, this message translates to:
-  /// **'Loading…'**
-  String get loading;
-
   /// Retry button on an error surface.
   ///
   /// In en, this message translates to:

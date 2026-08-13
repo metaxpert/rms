@@ -1,0 +1,4838 @@
+[
+ {
+  "package": "rms_core",
+  "key": "tryAgain",
+  "en": "Try again",
+  "ur": "دوبارہ کوشش کریں",
+  "placeholders": [],
+  "where": [
+   "src/widgets/state_views.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "errorNoConnectionTitle",
+  "en": "No connection",
+  "ur": "کوئی کنکشن نہیں",
+  "placeholders": [],
+  "where": [
+   "src/widgets/state_views.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "errorSignedOutTitle",
+  "en": "Signed out",
+  "ur": "سائن آؤٹ ہو گئے",
+  "placeholders": [],
+  "where": [
+   "src/widgets/state_views.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "errorNotAllowedTitle",
+  "en": "Not allowed",
+  "ur": "اجازت نہیں",
+  "placeholders": [],
+  "where": [
+   "src/widgets/state_views.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "errorNotFoundTitle",
+  "en": "Not found",
+  "ur": "نہیں ملا",
+  "placeholders": [],
+  "where": [
+   "src/widgets/state_views.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "errorRejectedTitle",
+  "en": "Could not be done",
+  "ur": "یہ نہیں ہو سکا",
+  "placeholders": [],
+  "where": [
+   "src/widgets/state_views.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "errorServerTitle",
+  "en": "Server problem",
+  "ur": "سرور کا مسئلہ",
+  "placeholders": [],
+  "where": [
+   "src/widgets/state_views.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "errorUnknownTitle",
+  "en": "Something went wrong",
+  "ur": "کچھ غلط ہو گیا",
+  "placeholders": [],
+  "where": [
+   "src/widgets/state_views.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "errorReference",
+  "en": "Ref: {traceId}",
+  "ur": "حوالہ: {traceId}",
+  "placeholders": [
+   "traceId"
+  ],
+  "where": [
+   "src/widgets/state_views.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "signIn",
+  "en": "Sign in",
+  "ur": "سائن ان",
+  "placeholders": [],
+  "where": [
+   "src/auth/auth_controller.dart",
+   "src/auth/sign_in_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "signInEmail",
+  "en": "Email",
+  "ur": "ای میل",
+  "placeholders": [],
+  "where": [
+   "src/auth/sign_in_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "signInPassword",
+  "en": "Password",
+  "ur": "پاس ورڈ",
+  "placeholders": [],
+  "where": [
+   "src/auth/sign_in_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "signInEmailMissing",
+  "en": "Enter your email",
+  "ur": "اپنا ای میل درج کریں",
+  "placeholders": [],
+  "where": [
+   "src/auth/sign_in_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "signInPasswordMissing",
+  "en": "Enter your password",
+  "ur": "اپنا پاس ورڈ درج کریں",
+  "placeholders": [],
+  "where": [
+   "src/auth/sign_in_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "signInShowPassword",
+  "en": "Show password",
+  "ur": "پاس ورڈ دکھائیں",
+  "placeholders": [],
+  "where": [
+   "src/auth/sign_in_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "signInHidePassword",
+  "en": "Hide password",
+  "ur": "پاس ورڈ چھپائیں",
+  "placeholders": [],
+  "where": [
+   "src/auth/sign_in_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "serverSettings",
+  "en": "Server settings",
+  "ur": "سرور کی ترتیبات",
+  "placeholders": [],
+  "where": [
+   "src/auth/server_settings_sheet.dart",
+   "src/auth/sign_in_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "serverSettingsBlurb",
+  "en": "The address of your restaurant server. Ask your manager if you are not sure.",
+  "ur": "آپ کے ریسٹورنٹ سرور کا پتہ۔ اگر یقین نہ ہو تو اپنے مینیجر سے پوچھیں۔",
+  "placeholders": [],
+  "where": [
+   "src/auth/server_settings_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "serverAddress",
+  "en": "Server address",
+  "ur": "سرور کا پتہ",
+  "placeholders": [],
+  "where": [
+   "src/auth/server_settings_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "serverAddressMissing",
+  "en": "Enter the server address",
+  "ur": "سرور کا پتہ درج کریں",
+  "placeholders": [],
+  "where": [
+   "src/auth/server_settings_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "serverAddressNeedsScheme",
+  "en": "Include http:// or https://",
+  "ur": "http:// یا https:// شامل کریں",
+  "placeholders": [],
+  "where": [
+   "src/auth/server_settings_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "serverDefaultForBuild",
+  "en": "Default for this build ({environment}): {url}",
+  "ur": "اس بلڈ کا ڈیفالٹ ({environment}): {url}",
+  "placeholders": [
+   "environment",
+   "url"
+  ],
+  "where": [
+   "src/auth/server_settings_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "save",
+  "en": "Save",
+  "ur": "محفوظ کریں",
+  "placeholders": [],
+  "where": [
+   "src/auth/server_settings_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "signOut",
+  "en": "Sign out",
+  "ur": "سائن آؤٹ",
+  "placeholders": [],
+  "where": [
+   "src/auth/auth_controller.dart",
+   "src/branches/branch_selection_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "outletsEmptyTitle",
+  "en": "No outlets available",
+  "ur": "کوئی آؤٹ لیٹ دستیاب نہیں",
+  "placeholders": [],
+  "where": [
+   "src/branches/branch_selection_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "outletsEmptyMessage",
+  "en": "Your account is not assigned to any outlet. Ask your manager to add you to one.",
+  "ur": "آپ کا اکاؤنٹ کسی آؤٹ لیٹ سے منسلک نہیں۔ اپنے مینیجر سے کہیں کہ آپ کو شامل کریں۔",
+  "placeholders": [],
+  "where": [
+   "src/branches/branch_selection_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "outletsLoading",
+  "en": "Loading outlets…",
+  "ur": "آؤٹ لیٹس لوڈ ہو رہے ہیں…",
+  "placeholders": [],
+  "where": [
+   "src/branches/branch_selection_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "outletClosed",
+  "en": "This outlet is closed",
+  "ur": "یہ آؤٹ لیٹ بند ہے",
+  "placeholders": [],
+  "where": [
+   "src/branches/branch_selection_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "outletNotConfigured",
+  "en": "Not set up for service yet — ask your manager",
+  "ur": "ابھی سروس کے لیے تیار نہیں — اپنے مینیجر سے پوچھیں",
+  "placeholders": [],
+  "where": [
+   "src/branches/branch_selection_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "checkAgain",
+  "en": "Check again",
+  "ur": "دوبارہ دیکھیں",
+  "placeholders": [],
+  "where": [
+   "src/branches/branch_selection_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "orderStatusDraft",
+  "en": "Draft",
+  "ur": "مسودہ",
+  "placeholders": [],
+  "where": [
+   "src/domain/order_status.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "orderStatusPlaced",
+  "en": "Placed",
+  "ur": "دیا گیا",
+  "placeholders": [],
+  "where": [
+   "src/domain/order_status.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "orderStatusConfirmed",
+  "en": "Confirmed",
+  "ur": "تصدیق شدہ",
+  "placeholders": [],
+  "where": [
+   "src/domain/order_status.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "orderStatusPreparing",
+  "en": "Cooking",
+  "ur": "پک رہا ہے",
+  "placeholders": [],
+  "where": [
+   "src/domain/order_status.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "orderStatusReady",
+  "en": "Ready",
+  "ur": "تیار",
+  "placeholders": [],
+  "where": [
+   "src/domain/order_status.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "orderStatusServed",
+  "en": "Served",
+  "ur": "پیش کر دیا",
+  "placeholders": [],
+  "where": [
+   "src/domain/order_status.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "orderStatusSettled",
+  "en": "Settled",
+  "ur": "ادائیگی مکمل",
+  "placeholders": [],
+  "where": [
+   "src/domain/order_status.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "orderStatusCancelled",
+  "en": "Cancelled",
+  "ur": "منسوخ",
+  "placeholders": [],
+  "where": [
+   "src/domain/order_status.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "orderStatusVoided",
+  "en": "Voided",
+  "ur": "کالعدم",
+  "placeholders": [],
+  "where": [
+   "src/domain/order_status.dart"
+  ],
+  "flag": "check",
+  "note": "کالعدم is legal register. Right for a voided bill, or too formal?"
+ },
+ {
+  "package": "rms_core",
+  "key": "orderStatusUnknown",
+  "en": "Unknown",
+  "ur": "نامعلوم",
+  "placeholders": [],
+  "where": [
+   "src/domain/order_status.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "tableStatusAvailable",
+  "en": "Free",
+  "ur": "خالی",
+  "placeholders": [],
+  "where": [
+   "src/domain/table_status.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "tableStatusReserved",
+  "en": "Reserved",
+  "ur": "محفوظ",
+  "placeholders": [],
+  "where": [
+   "src/domain/table_status.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "tableStatusWaiting",
+  "en": "Waiting",
+  "ur": "انتظار میں",
+  "placeholders": [],
+  "where": [
+   "src/domain/table_status.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "tableStatusOccupied",
+  "en": "Seated",
+  "ur": "مہمان بیٹھے ہیں",
+  "placeholders": [],
+  "where": [
+   "src/domain/table_status.dart"
+  ],
+  "flag": "check",
+  "note": "مہمان بیٹھے ہیں is descriptive but long for a small table card. Shorter alternative?"
+ },
+ {
+  "package": "rms_core",
+  "key": "tableStatusCleaning",
+  "en": "Cleaning",
+  "ur": "صفائی",
+  "placeholders": [],
+  "where": [
+   "src/domain/table_status.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "tableStatusUnknown",
+  "en": "Unknown",
+  "ur": "نامعلوم",
+  "placeholders": [],
+  "where": [
+   "src/domain/table_status.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "deliveryStatusPending",
+  "en": "Unassigned",
+  "ur": "غیر مختص",
+  "placeholders": [],
+  "where": [
+   "src/domain/delivery.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "deliveryStatusAssigned",
+  "en": "Assigned",
+  "ur": "مختص",
+  "placeholders": [],
+  "where": [
+   "src/domain/delivery.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "deliveryStatusPickedUp",
+  "en": "Picked up",
+  "ur": "اٹھا لیا",
+  "placeholders": [],
+  "where": [
+   "src/domain/delivery.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "deliveryStatusEnRoute",
+  "en": "On the way",
+  "ur": "راستے میں",
+  "placeholders": [],
+  "where": [
+   "src/domain/delivery.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "deliveryStatusDelivered",
+  "en": "Delivered",
+  "ur": "پہنچا دیا",
+  "placeholders": [],
+  "where": [
+   "src/domain/delivery.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "deliveryStatusFailed",
+  "en": "Failed",
+  "ur": "ناکام",
+  "placeholders": [],
+  "where": [
+   "src/domain/delivery.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "deliveryStatusCancelled",
+  "en": "Cancelled",
+  "ur": "منسوخ",
+  "placeholders": [],
+  "where": [
+   "src/domain/delivery.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "deliveryStatusUnknown",
+  "en": "Unknown",
+  "ur": "نامعلوم",
+  "placeholders": [],
+  "where": [
+   "src/domain/delivery.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "deliveryActionPickUp",
+  "en": "Picked up",
+  "ur": "اٹھا لیا",
+  "placeholders": [],
+  "where": [
+   "src/domain/delivery.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "deliveryActionStart",
+  "en": "Start delivery",
+  "ur": "ڈیلیوری شروع کریں",
+  "placeholders": [],
+  "where": [
+   "src/domain/delivery.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "deliveryActionDeliver",
+  "en": "Deliver with OTP",
+  "ur": "OTP کے ساتھ پہنچائیں",
+  "placeholders": [],
+  "where": [
+   "src/domain/delivery.dart"
+  ],
+  "flag": "check",
+  "note": "I left \"OTP\" in Latin. Is that what riders say, or should it be کوڈ?"
+ },
+ {
+  "package": "rms_core",
+  "key": "paymentCash",
+  "en": "Cash",
+  "ur": "نقد",
+  "placeholders": [],
+  "where": [
+   "src/domain/payment.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "paymentCard",
+  "en": "Card",
+  "ur": "کارڈ",
+  "placeholders": [],
+  "where": [
+   "src/domain/payment.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "paymentWallet",
+  "en": "Wallet",
+  "ur": "والٹ",
+  "placeholders": [],
+  "where": [
+   "src/domain/payment.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "paymentOnline",
+  "en": "Online",
+  "ur": "آن لائن",
+  "placeholders": [],
+  "where": [
+   "src/domain/payment.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "waitJustNow",
+  "en": "just now",
+  "ur": "ابھی",
+  "placeholders": [],
+  "where": [
+   "src/domain/kds_ticket.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "waitMinutes",
+  "en": "{minutes} min",
+  "ur": "{minutes} منٹ",
+  "placeholders": [
+   "minutes"
+  ],
+  "where": [
+   "src/domain/kds_ticket.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "waitHoursMinutes",
+  "en": "{hours}h {minutes}m",
+  "ur": "{hours} گھنٹے {minutes} منٹ",
+  "placeholders": [
+   "hours",
+   "minutes"
+  ],
+  "where": [
+   "src/domain/kds_ticket.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_core",
+  "key": "chooseOutlet",
+  "en": "Choose your outlet",
+  "ur": "اپنا آؤٹ لیٹ منتخب کریں",
+  "placeholders": [],
+  "where": [
+   "src/branches/branch_selection_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "floorTitle",
+  "en": "Floor",
+  "ur": "فلور",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "check",
+  "note": "فلور is a transliteration. Is ہال the word staff actually use for the dining room?"
+ },
+ {
+  "package": "rms_waiter",
+  "key": "switchOutlet",
+  "en": "Switch outlet",
+  "ur": "آؤٹ لیٹ بدلیں",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "signOut",
+  "en": "Sign out",
+  "ur": "سائن آؤٹ",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "floorLoading",
+  "en": "Loading floor…",
+  "ur": "فلور لوڈ ہو رہا ہے…",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "liveConnecting",
+  "en": "Connecting",
+  "ur": "منسلک ہو رہا ہے",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "liveOffline",
+  "en": "Offline",
+  "ur": "آف لائن",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "liveConnectingHint",
+  "en": "Connecting to live updates",
+  "ur": "لائیو اپ ڈیٹس سے منسلک ہو رہا ہے",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "liveOfflineHint",
+  "en": "Live updates are offline — pull down to refresh",
+  "ur": "لائیو اپ ڈیٹس آف لائن ہیں — تازہ کرنے کے لیے نیچے کھینچیں",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "check",
+  "note": "\"pull down to refresh\" — is نیچے کھینچیں the gesture wording Pakistani users know?"
+ },
+ {
+  "package": "rms_waiter",
+  "key": "floorStaleAt",
+  "en": "Offline — this floor is from {time}. Order status may have changed since.",
+  "ur": "آف لائن — یہ فلور {time} کا ہے۔ آرڈر کی حالت بدل چکی ہو سکتی ہے۔",
+  "placeholders": [
+   "time"
+  ],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "floorStaleUnknown",
+  "en": "Offline — showing the last floor we could load. Order status may have changed.",
+  "ur": "آف لائن — آخری دستیاب فلور دکھایا جا رہا ہے۔ آرڈر کی حالت بدل چکی ہو سکتی ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "openBills",
+  "en": "Open bills",
+  "ur": "کھلے بل",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "readyToServe",
+  "en": "Ready to serve",
+  "ur": "پیش کرنے کو تیار",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "noAreasTitle",
+  "en": "No dining areas",
+  "ur": "کوئی ڈائننگ ایریا نہیں",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "noAreasMessage",
+  "en": "This outlet has no areas or tables set up yet. A manager can add them in the web console.",
+  "ur": "اس آؤٹ لیٹ میں ابھی کوئی ایریا یا میز ترتیب نہیں دی گئی۔ مینیجر ویب کنسول میں شامل کر سکتا ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "checkAgain",
+  "en": "Check again",
+  "ur": "دوبارہ دیکھیں",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "noTablesInArea",
+  "en": "No tables in this area",
+  "ur": "اس ایریا میں کوئی میز نہیں",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "areaWithCount",
+  "en": "{name} ({count})",
+  "ur": "{name} ({count})",
+  "placeholders": [
+   "count",
+   "name"
+  ],
+  "where": [
+   "src/features/floor/presentation/floor_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "tableUnsentTicket",
+  "en": "Unsent ticket",
+  "ur": "غیر بھیجی ٹکٹ",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/table_card.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "tableSendUnfinished",
+  "en": "Send unfinished",
+  "ur": "بھیجنا ادھورا",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/table_card.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "tableMerged",
+  "en": "Merged",
+  "ur": "ضم شدہ",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/table_card.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "tableSemantics",
+  "en": "Table {code}",
+  "ur": "میز {code}",
+  "placeholders": [
+   "code"
+  ],
+  "where": [
+   "src/features/floor/presentation/table_card.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "tableSeatsSemantics",
+  "en": "seats {count}",
+  "ur": "{count} نشستیں",
+  "placeholders": [
+   "count"
+  ],
+  "where": [
+   "src/features/floor/presentation/table_card.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "tableOrderSemantics",
+  "en": "order {status} {total}",
+  "ur": "آرڈر {status} {total}",
+  "placeholders": [
+   "status",
+   "total"
+  ],
+  "where": [
+   "src/features/floor/presentation/table_card.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "tableFoodReadySemantics",
+  "en": "food ready",
+  "ur": "کھانا تیار",
+  "placeholders": [],
+  "where": [
+   "src/features/floor/presentation/table_card.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "tableTitle",
+  "en": "Table {code}",
+  "ur": "میز {code}",
+  "placeholders": [
+   "code"
+  ],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "bill",
+  "en": "Bill",
+  "ur": "بل",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart",
+   "src/features/bill/presentation/receipt_sheet.dart",
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "clearThisRound",
+  "en": "Clear this round",
+  "ur": "یہ راؤنڈ صاف کریں",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "noOutletTitle",
+  "en": "No outlet selected",
+  "ur": "کوئی آؤٹ لیٹ منتخب نہیں",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "noOutletMessage",
+  "en": "Choose an outlet before taking orders.",
+  "ur": "آرڈر لینے سے پہلے آؤٹ لیٹ منتخب کریں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "tableNotFoundTitle",
+  "en": "Table not found",
+  "ur": "میز نہیں ملی",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "tableNotFoundMessage",
+  "en": "It may have been removed or merged into another table.",
+  "ur": "ہو سکتا ہے اسے ہٹا دیا گیا ہو یا کسی اور میز میں ضم کر دیا گیا ہو۔",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "checkingForBill",
+  "en": "Checking for an open bill…",
+  "ur": "کھلے بل کی جانچ ہو رہی ہے…",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "nothingOrderedTitle",
+  "en": "Nothing ordered yet",
+  "ur": "ابھی کچھ آرڈر نہیں ہوا",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "nothingOrderedMessage",
+  "en": "Add dishes from the menu to start this ticket.",
+  "ur": "ٹکٹ شروع کرنے کے لیے مینو سے پکوان شامل کریں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "openTheMenu",
+  "en": "Open the menu",
+  "ur": "مینو کھولیں",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "addItems",
+  "en": "Add items",
+  "ur": "آئٹم شامل کریں",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/application/send_controller.dart",
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "sendWithCount",
+  "en": "Send · {count}",
+  "ur": "بھیجیں · {count}",
+  "placeholders": [
+   "count"
+  ],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "sending",
+  "en": "Sending…",
+  "ur": "بھیجا جا رہا ہے…",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/application/send_controller.dart",
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "sentTo",
+  "en": "Sent · {orderNo}",
+  "ur": "بھیجا گیا · {orderNo}",
+  "placeholders": [
+   "orderNo"
+  ],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "sentHeader",
+  "en": "Sent",
+  "ur": "بھیجا گیا",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "thisRoundNotSent",
+  "en": "This round — not sent",
+  "ur": "یہ راؤنڈ — نہیں بھیجا",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "notSentYet",
+  "en": "Not sent yet",
+  "ur": "ابھی نہیں بھیجا",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "billSoFar",
+  "en": "Bill so far",
+  "ur": "اب تک کا بل",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "billHasNoItems",
+  "en": "This bill is open but has no items on it yet.",
+  "ur": "یہ بل کھلا ہے لیکن ابھی اس پر کوئی آئٹم نہیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "couldNotCheckBill",
+  "en": "Couldn't check this table's bill. {message}",
+  "ur": "اس میز کا بل نہیں دیکھا جا سکا۔ {message}",
+  "placeholders": [
+   "message"
+  ],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "seats",
+  "en": "Seats {count}",
+  "ur": "{count} نشستیں",
+  "placeholders": [
+   "count"
+  ],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "placedAt",
+  "en": "Placed {time}",
+  "ur": "{time} پر دیا گیا",
+  "placeholders": [
+   "time"
+  ],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "foodReadyToRun",
+  "en": "Food is ready to run",
+  "ur": "کھانا لے جانے کے لیے تیار ہے",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "unsentRoundFrom",
+  "en": "Unsent round from {time}",
+  "ur": "{time} کا غیر بھیجا راؤنڈ",
+  "placeholders": [
+   "time"
+  ],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "oneFewer",
+  "en": "One fewer",
+  "ur": "ایک کم",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/item_options_sheet.dart",
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "remove",
+  "en": "Remove",
+  "ur": "ہٹائیں",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/item_options_sheet.dart",
+   "src/features/ticket/data/draft_store.dart",
+   "src/features/ticket/data/pending_send_store.dart",
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "oneMore",
+  "en": "One more",
+  "ur": "ایک اور",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/item_options_sheet.dart",
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "subtotal",
+  "en": "Subtotal",
+  "ur": "ذیلی میزان",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart",
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "check",
+  "note": "ذیلی میزان is technically right but stiff. Is there a shorter till word?"
+ },
+ {
+  "package": "rms_waiter",
+  "key": "tax",
+  "en": "Tax",
+  "ur": "ٹیکس",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart",
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "serviceCharge",
+  "en": "Service charge",
+  "ur": "سروس چارج",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart",
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "rounding",
+  "en": "Rounding",
+  "ur": "راؤنڈنگ",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart",
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "total",
+  "en": "Total",
+  "ur": "کل",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/application/settle_controller.dart",
+   "src/features/bill/presentation/bill_screen.dart",
+   "src/features/floor/presentation/table_card.dart",
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "thisRound",
+  "en": "This round",
+  "ur": "یہ راؤنڈ",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "serverRetotals",
+  "en": "The bill is re-totalled by the server when this round is sent.",
+  "ur": "یہ راؤنڈ بھیجنے پر سرور پورے بل کا حساب دوبارہ لگاتا ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "clearRoundTitle",
+  "en": "Clear this round?",
+  "ur": "یہ راؤنڈ صاف کریں؟",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "clearRoundMessage",
+  "en": "Every unsent line will be removed. Anything already sent to the kitchen stays on the bill — but this round will have to be retaken.",
+  "ur": "ہر غیر بھیجی لائن ہٹ جائے گی۔ جو کچن کو بھیجا جا چکا ہے وہ بل پر رہے گا — لیکن یہ راؤنڈ دوبارہ لینا ہو گا۔",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "keepIt",
+  "en": "Keep it",
+  "ur": "رہنے دیں",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "clear",
+  "en": "Clear",
+  "ur": "صاف کریں",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/item_options_sheet.dart",
+   "src/features/menu/presentation/menu_picker_sheet.dart",
+   "src/features/ticket/application/send_controller.dart",
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "stopSendingTitle",
+  "en": "Stop trying to send?",
+  "ur": "بھیجنا روک دیں؟",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "stopSendingMessage",
+  "en": "The round stays on this tablet so you can send it again.\n\nIf a bill was already opened for this table it is NOT cancelled — check the floor, and ask a manager to void it if it should not be there.",
+  "ur": "راؤنڈ اسی ٹیبلٹ پر رہے گا تاکہ آپ دوبارہ بھیج سکیں۔\n\nاگر اس میز کے لیے بل پہلے ہی کھل چکا ہے تو وہ منسوخ نہیں ہوتا — فلور دیکھیں، اور اگر وہ نہیں ہونا چاہیے تو مینیجر سے کالعدم کرائیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "keepTrying",
+  "en": "Keep trying",
+  "ur": "کوشش جاری رکھیں",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "stop",
+  "en": "Stop",
+  "ur": "روکیں",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "sentToKitchen",
+  "en": "Sent to the kitchen.",
+  "ur": "کچن کو بھیج دیا گیا۔",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "sentToKitchenNumbered",
+  "en": "Sent to the kitchen · {orderNo}",
+  "ur": "کچن کو بھیج دیا گیا · {orderNo}",
+  "placeholders": [
+   "orderNo"
+  ],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "billClosedNoMore",
+  "en": "This bill is {status}. Nothing more can be added to it.",
+  "ur": "یہ بل {status} ہے۔ اس میں مزید کچھ شامل نہیں ہو سکتا۔",
+  "placeholders": [
+   "status"
+  ],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "noOrderPermission",
+  "en": "Your sign-in cannot take orders. Ask a manager for the order permission.",
+  "ur": "آپ کا سائن اِن آرڈر نہیں لے سکتا۔ مینیجر سے آرڈر کی اجازت لیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "sendStageCreating",
+  "en": "Opening the bill…",
+  "ur": "بل کھولا جا رہا ہے…",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/application/send_controller.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "sendStageAddingItems",
+  "en": "Adding the items…",
+  "ur": "آئٹم شامل کیے جا رہے ہیں…",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/application/send_controller.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "sendStagePlacing",
+  "en": "Placing the order…",
+  "ur": "آرڈر دیا جا رہا ہے…",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/application/send_controller.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "sendStageConfirming",
+  "en": "Firing the kitchen…",
+  "ur": "کچن کو بھیجا جا رہا ہے…",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/application/send_controller.dart"
+  ],
+  "flag": "check",
+  "note": "\"Firing the kitchen\" is trade jargon. کچن کو بھیجا جا رہا ہے is literal — does it convey urgency?"
+ },
+ {
+  "package": "rms_waiter",
+  "key": "sendUnfinishedTitle",
+  "en": "This round was not finished sending",
+  "ur": "یہ راؤنڈ مکمل نہیں بھیجا جا سکا",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "sendFailedTitle",
+  "en": "This round did not reach the kitchen",
+  "ur": "یہ راؤنڈ کچن تک نہیں پہنچا",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "sendInterruptedMessage",
+  "en": "The app closed part-way through sending. Nothing was lost — send it again to finish.",
+  "ur": "بھیجتے ہوئے ایپ بند ہو گئی۔ کچھ ضائع نہیں ہوا — مکمل کرنے کے لیے دوبارہ بھیجیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "billAlreadyOpen",
+  "en": "A bill is already open for this table. Sending again continues it — it does not start a second one.",
+  "ur": "اس میز کے لیے بل پہلے ہی کھلا ہے۔ دوبارہ بھیجنے سے وہی جاری رہے گا — دوسرا بل نہیں بنے گا۔",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "roundHeldAsSent",
+  "en": "The round is held exactly as it was sent. Stop first to change it.",
+  "ur": "راؤنڈ بالکل اسی حالت میں محفوظ ہے جیسے بھیجا گیا تھا۔ بدلنے کے لیے پہلے روکیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "resumeStage",
+  "en": "Resume · {stage}",
+  "ur": "جاری رکھیں · {stage}",
+  "placeholders": [
+   "stage"
+  ],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "tryAgain",
+  "en": "Try again",
+  "ur": "دوبارہ کوشش کریں",
+  "placeholders": [],
+  "where": [
+   "src/features/ticket/presentation/ticket_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "outboxOneSent",
+  "en": "An order that was waiting has reached the kitchen.",
+  "ur": "زیرِ التوا ایک آرڈر کچن تک پہنچ گیا۔",
+  "placeholders": [],
+  "where": [
+   "src/app/live_sync.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "outboxManySent",
+  "en": "{count} orders that were waiting have reached the kitchen.",
+  "ur": "زیرِ التوا {count} آرڈر کچن تک پہنچ گئے۔",
+  "placeholders": [
+   "count"
+  ],
+  "where": [
+   "src/app/live_sync.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "foodReadyAnywhere",
+  "en": "Food is ready to run.",
+  "ur": "کھانا لے جانے کے لیے تیار ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/app/live_sync.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "foodReadyAtTable",
+  "en": "Table {code} — food is ready.",
+  "ur": "میز {code} — کھانا تیار ہے۔",
+  "placeholders": [
+   "code"
+  ],
+  "where": [
+   "src/app/live_sync.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "addToTable",
+  "en": "Add to {code}",
+  "ur": "{code} میں شامل کریں",
+  "placeholders": [
+   "code"
+  ],
+  "where": [
+   "src/features/menu/presentation/menu_picker_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "close",
+  "en": "Close",
+  "ur": "بند کریں",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/application/settle_controller.dart",
+   "src/features/menu/presentation/menu_picker_sheet.dart",
+   "src/features/ticket/application/send_controller.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "doneWithCount",
+  "en": "Done · {count}",
+  "ur": "مکمل · {count}",
+  "placeholders": [
+   "count"
+  ],
+  "where": [
+   "src/features/menu/presentation/menu_picker_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "menuLoading",
+  "en": "Loading the menu…",
+  "ur": "مینو لوڈ ہو رہا ہے…",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/menu_picker_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "searchDishes",
+  "en": "Search dishes",
+  "ur": "پکوان تلاش کریں",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/menu_picker_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "allCategories",
+  "en": "All",
+  "ur": "سب",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/menu_picker_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "uncategorised",
+  "en": "Other",
+  "ur": "دیگر",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/menu_picker_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "noteForKitchen",
+  "en": "Note for the kitchen",
+  "ur": "کچن کے لیے نوٹ",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/item_options_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "noteForKitchenHint",
+  "en": "No chilli, well done, serve last…",
+  "ur": "مرچ نہیں، اچھی طرح پکا ہوا، آخر میں دیں…",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/item_options_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "billForTable",
+  "en": "Bill · Table {code}",
+  "ur": "بل · میز {code}",
+  "placeholders": [
+   "code"
+  ],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "fetchingBill",
+  "en": "Fetching the bill…",
+  "ur": "بل لایا جا رہا ہے…",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "noOpenBillTitle",
+  "en": "No open bill",
+  "ur": "کوئی کھلا بل نہیں",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "noOpenBillMessage",
+  "en": "This table has nothing to settle.",
+  "ur": "اس میز پر ادائیگی کے لیے کچھ نہیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "billIsStatus",
+  "en": "This bill is {status}",
+  "ur": "یہ بل {status} ہے",
+  "placeholders": [
+   "status"
+  ],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "billCannotSettle",
+  "en": "It cannot be settled. Ask a manager if that looks wrong.",
+  "ur": "اس کی ادائیگی نہیں ہو سکتی۔ اگر یہ غلط لگے تو مینیجر سے پوچھیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "discount",
+  "en": "Discount",
+  "ur": "رعایت",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "tip",
+  "en": "Tip",
+  "ur": "ٹِپ",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "totalDue",
+  "en": "Total due",
+  "ur": "کل واجب",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "split",
+  "en": "Split",
+  "ur": "تقسیم",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/application/settle_controller.dart",
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "splitNone",
+  "en": "No",
+  "ur": "نہیں",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "paymentMethod",
+  "en": "Method",
+  "ur": "طریقہ",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "paymentAmount",
+  "en": "Amount",
+  "ur": "رقم",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "removePayment",
+  "en": "Remove this payment",
+  "ur": "یہ ادائیگی ہٹائیں",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "anotherPayment",
+  "en": "Another payment",
+  "ur": "ایک اور ادائیگی",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "cashGiven",
+  "en": "Cash given (optional)",
+  "ur": "دی گئی نقد رقم (اختیاری)",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "cashGivenHelper",
+  "en": "Working out only — not sent to the server",
+  "ur": "صرف حساب کے لیے — سرور کو نہیں بھیجی جاتی",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "changeDue",
+  "en": "Change due",
+  "ur": "واپسی",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "high",
+  "note": "I used واپسی (\"a return\"). Pakistani counter usage for change owed is normally بقایا. Getting this wrong on a cash screen is a real till error."
+ },
+ {
+  "package": "rms_waiter",
+  "key": "stillToPay",
+  "en": "{amount} still to pay",
+  "ur": "{amount} ابھی باقی",
+  "placeholders": [
+   "amount"
+  ],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "moreThanBill",
+  "en": "{amount} more than the bill",
+  "ur": "بل سے {amount} زیادہ",
+  "placeholders": [
+   "amount"
+  ],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "shortOfBill",
+  "en": "The payments are {amount} short of the bill.",
+  "ur": "ادائیگیاں بل سے {amount} کم ہیں۔",
+  "placeholders": [
+   "amount"
+  ],
+  "where": [
+   "src/features/bill/application/settle_controller.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "overBill",
+  "en": "The payments are {amount} more than the bill.",
+  "ur": "ادائیگیاں بل سے {amount} زیادہ ہیں۔",
+  "placeholders": [
+   "amount"
+  ],
+  "where": [
+   "src/features/bill/application/settle_controller.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "viewBill",
+  "en": "View bill",
+  "ur": "بل دیکھیں",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "settleAmount",
+  "en": "Settle {amount}",
+  "ur": "{amount} وصول کریں",
+  "placeholders": [
+   "amount"
+  ],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "check",
+  "note": "وصول کریں means \"collect\". Correct for taking payment, or should it be ادائیگی?"
+ },
+ {
+  "package": "rms_waiter",
+  "key": "settling",
+  "en": "Settling…",
+  "ur": "ادائیگی ہو رہی ہے…",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/application/settle_controller.dart",
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "billSettled",
+  "en": "Bill settled",
+  "ur": "بل ادا ہو گیا",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "receipt",
+  "en": "Receipt",
+  "ur": "رسید",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart",
+   "src/features/bill/presentation/receipt_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "tableFreeWhenCleared",
+  "en": "The table is free once it has been cleared down.",
+  "ur": "میز صاف ہونے کے بعد خالی ہو جائے گی۔",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/bill_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "proFormaWarning",
+  "en": "Not settled — this prints as a pro-forma, not a tax invoice.",
+  "ur": "ادائیگی باقی ہے — یہ پرو فارما چھپے گا، ٹیکس انوائس نہیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/receipt_sheet.dart"
+  ],
+  "flag": "check",
+  "note": "\"pro-forma\" left untranslated. Does that term carry in Urdu, or is it جعلی/عارضی بل?"
+ },
+ {
+  "package": "rms_waiter",
+  "key": "reprint",
+  "en": "Reprint",
+  "ur": "دوبارہ پرنٹ",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/receipt_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "print",
+  "en": "Print",
+  "ur": "پرنٹ",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/receipt_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "printProForma",
+  "en": "Print pro-forma",
+  "ur": "پرو فارما پرنٹ کریں",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/receipt_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "printingNotAllowed",
+  "en": "Printing not allowed",
+  "ur": "پرنٹ کی اجازت نہیں",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/receipt_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "reprintQueued",
+  "en": "Reprint queued.",
+  "ur": "دوبارہ پرنٹ قطار میں ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/receipt_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "printQueued",
+  "en": "Sent to the printer. It prints when the till agent picks it up.",
+  "ur": "پرنٹر کو بھیج دیا۔ ٹِل ایجنٹ اٹھاتے ہی چھپ جائے گا۔",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/receipt_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "emptySlipTitle",
+  "en": "The server returned an empty slip",
+  "ur": "سرور نے خالی پرچی دی",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/receipt_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "emptySlipMessage",
+  "en": "Printing may still work. Tell a manager if it does not.",
+  "ur": "پرنٹ پھر بھی ہو سکتا ہے۔ نہ ہو تو مینیجر کو بتائیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/receipt_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "billCopied",
+  "en": "Bill copied.",
+  "ur": "بل کاپی ہو گیا۔",
+  "placeholders": [],
+  "where": [
+   "src/features/bill/presentation/receipt_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "clearSearch",
+  "en": "Clear",
+  "ur": "صاف کریں",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/menu_picker_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "nothingHereTitle",
+  "en": "Nothing here",
+  "ur": "یہاں کچھ نہیں",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/menu_picker_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "noMatchTitle",
+  "en": "No match for \"{query}\"",
+  "ur": "\"{query}\" سے کچھ نہیں ملا",
+  "placeholders": [
+   "query"
+  ],
+  "where": [
+   "src/features/menu/presentation/menu_picker_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "sectionOffMenu",
+  "en": "Every dish in this section is off the menu right now.",
+  "ur": "اس حصے کا ہر پکوان اس وقت مینو سے باہر ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/menu_picker_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "soldOutNotListed",
+  "en": "Sold-out dishes are not listed.",
+  "ur": "ختم شدہ پکوان درج نہیں کیے جاتے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/menu_picker_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "combo",
+  "en": "Combo",
+  "ur": "کومبو",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/menu_picker_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "optionsLoading",
+  "en": "Loading options…",
+  "ur": "آپشنز لوڈ ہو رہے ہیں…",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/item_options_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "chooseExactly",
+  "en": "Choose {count}",
+  "ur": "{count} منتخب کریں",
+  "placeholders": [
+   "count"
+  ],
+  "where": [
+   "src/features/menu/presentation/item_options_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "chooseAtLeast",
+  "en": "Choose at least {count}",
+  "ur": "کم از کم {count} منتخب کریں",
+  "placeholders": [
+   "count"
+  ],
+  "where": [
+   "src/features/menu/presentation/item_options_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "chooseUpTo",
+  "en": "Up to {count}",
+  "ur": "زیادہ سے زیادہ {count}",
+  "placeholders": [
+   "count"
+  ],
+  "where": [
+   "src/features/menu/presentation/item_options_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "optional",
+  "en": "Optional",
+  "ur": "اختیاری",
+  "placeholders": [],
+  "where": [
+   "src/features/menu/presentation/item_options_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "chooseFirst",
+  "en": "Choose {group} first",
+  "ur": "پہلے {group} منتخب کریں",
+  "placeholders": [
+   "group"
+  ],
+  "where": [
+   "src/features/menu/presentation/item_options_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "addWithQtyAndPrice",
+  "en": "Add {count} · {amount}",
+  "ur": "{count} شامل کریں · {amount}",
+  "placeholders": [
+   "amount",
+   "count"
+  ],
+  "where": [
+   "src/features/menu/presentation/item_options_sheet.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "waiterSignIn",
+  "en": "Waiter sign in",
+  "ur": "ویٹر سائن ان",
+  "placeholders": [],
+  "where": [
+   "src/app/router/app_router.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "notifyFoodReadyTitle",
+  "en": "Food is ready",
+  "ur": "کھانا تیار ہے",
+  "placeholders": [],
+  "where": [
+   "src/app/live_sync.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "notifyFoodReadyAtTable",
+  "en": "Table {code} — ready",
+  "ur": "میز {code} — تیار",
+  "placeholders": [
+   "code"
+  ],
+  "where": [
+   "src/app/live_sync.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "notifyFoodReadyBody",
+  "en": "Food is up at the pass.",
+  "ur": "کھانا پاس پر تیار ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/app/live_sync.dart"
+  ],
+  "flag": "high",
+  "note": "I translated the kitchen \"pass\" as پاس, which in Urdu means \"near/beside\", not a serving counter. This likely reads as nonsense. Needs the real trade word (گزرگاہ? کاؤنٹر? or just \"کچن سے\")."
+ },
+ {
+  "package": "rms_waiter",
+  "key": "notifyOrderSentTitle",
+  "en": "Order sent",
+  "ur": "آرڈر بھیج دیا",
+  "placeholders": [],
+  "where": [
+   "src/app/live_sync.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "notifyOrderSentBody",
+  "en": "Table {code} reached the kitchen.",
+  "ur": "میز {code} کچن تک پہنچ گئی۔",
+  "placeholders": [
+   "code"
+  ],
+  "where": [
+   "src/app/live_sync.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_waiter",
+  "key": "notifyOrderSentBodyNumbered",
+  "en": "Table {code} reached the kitchen · {orderNo}",
+  "ur": "میز {code} کچن تک پہنچ گئی · {orderNo}",
+  "placeholders": [
+   "code",
+   "orderNo"
+  ],
+  "where": [
+   "src/app/live_sync.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "runsTitle",
+  "en": "Runs",
+  "ur": "رنز",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_list_screen.dart"
+  ],
+  "flag": "check",
+  "note": "رنز is a transliteration of \"runs\". Would ڈیلیوریاں read better to a rider?"
+ },
+ {
+  "package": "rms_driver",
+  "key": "switchOutlet",
+  "en": "Switch outlet",
+  "ur": "آؤٹ لیٹ بدلیں",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_list_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "signOut",
+  "en": "Sign out",
+  "ur": "سائن آؤٹ",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_list_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "runsLoading",
+  "en": "Loading your runs…",
+  "ur": "آپ کے رنز لوڈ ہو رہے ہیں…",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_list_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "nothingToDeliverTitle",
+  "en": "Nothing to deliver",
+  "ur": "پہنچانے کو کچھ نہیں",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_list_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "nothingToDeliverMessage",
+  "en": "New runs appear here as the kitchen dispatches them. Pull down to check again.",
+  "ur": "جیسے ہی کچن رن بھیجے گا یہاں نظر آئے گا۔ دوبارہ دیکھنے کے لیے نیچے کھینچیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_list_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "sectionOnTheGo",
+  "en": "On the go",
+  "ur": "جاری",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_list_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "sectionDoneToday",
+  "en": "Done today",
+  "ur": "آج مکمل",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_list_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "wholeOutletBoard",
+  "en": "This is the whole outlet's board — the server does not offer a list of just your own runs.",
+  "ur": "یہ پورے آؤٹ لیٹ کا بورڈ ہے — سرور صرف آپ کے اپنے رنز کی فہرست نہیں دیتا۔",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_list_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "noAddress",
+  "en": "No address on file",
+  "ur": "کوئی پتہ درج نہیں",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_list_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "etaMinutes",
+  "en": "ETA {minutes} min",
+  "ur": "متوقع {minutes} منٹ",
+  "placeholders": [
+   "minutes"
+  ],
+  "where": [
+   "src/features/runs/presentation/run_list_screen.dart",
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "assignedAt",
+  "en": "assigned {time}",
+  "ur": "{time} پر مختص",
+  "placeholders": [
+   "time"
+  ],
+  "where": [
+   "src/features/runs/presentation/run_list_screen.dart",
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "notYours",
+  "en": "{provider} — not yours to drive",
+  "ur": "{provider} — یہ آپ کا نہیں",
+  "placeholders": [
+   "provider"
+  ],
+  "where": [
+   "src/features/runs/presentation/run_list_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "run",
+  "en": "Run",
+  "ur": "رن",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_list_screen.dart",
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "dropOff",
+  "en": "Drop-off",
+  "ur": "پہنچانے کی جگہ",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "noAddressCall",
+  "en": "No address on file — call the restaurant.",
+  "ur": "کوئی پتہ درج نہیں — ریسٹورنٹ کو فون کریں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "copy",
+  "en": "Copy",
+  "ur": "کاپی",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "coordinatesCopied",
+  "en": "Coordinates copied — paste into Maps.",
+  "ur": "کوآرڈینیٹس کاپی ہو گئے — میپس میں پیسٹ کریں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "sharingLocation",
+  "en": "Sharing your location",
+  "ur": "آپ کا مقام شیئر ہو رہا ہے",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "locationOff",
+  "en": "Location off",
+  "ur": "مقام بند",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "sharingOnHint",
+  "en": "The customer can see roughly where you are. It stops when the run finishes.",
+  "ur": "گاہک تقریباً دیکھ سکتا ہے کہ آپ کہاں ہیں۔ رن ختم ہوتے ہی بند ہو جائے گا۔",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "sharingOffHint",
+  "en": "Turn on while you are carrying this order so the customer can follow it.",
+  "ur": "جب تک یہ آرڈر آپ کے پاس ہے، آن رکھیں تاکہ گاہک اسے دیکھ سکے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "lastSent",
+  "en": "Last sent {time} · {count} updates",
+  "ur": "آخری بار {time} · {count} اپ ڈیٹس",
+  "placeholders": [
+   "count",
+   "time"
+  ],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "locationServiceOff",
+  "en": "Location is switched off on this phone. Turn it on in the pull-down settings, then try again.",
+  "ur": "اس فون پر مقام بند ہے۔ اوپر سے کھینچ کر سیٹنگز میں آن کریں، پھر دوبارہ کوشش کریں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "locationDenied",
+  "en": "The app was not given permission this time. Tap the switch again to be asked once more.",
+  "ur": "اس بار ایپ کو اجازت نہیں ملی۔ دوبارہ پوچھنے کے لیے سوئچ دبائیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "locationBlocked",
+  "en": "Location permission is blocked for this app. It can only be turned back on in the phone's Settings → Apps.",
+  "ur": "اس ایپ کے لیے مقام کی اجازت بند ہے۔ یہ صرف فون کی Settings → Apps سے دوبارہ آن ہو سکتی ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "progress",
+  "en": "Progress",
+  "ur": "پیش رفت",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "progressAssigned",
+  "en": "Assigned",
+  "ur": "مختص",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "progressPickedUp",
+  "en": "Picked up",
+  "ur": "اٹھا لیا",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "progressDelivered",
+  "en": "Delivered",
+  "ur": "پہنچا دیا",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "runIsStatus",
+  "en": "This run is {status}.",
+  "ur": "یہ رن {status} ہے۔",
+  "placeholders": [
+   "status"
+  ],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "aggregatorCarrying",
+  "en": "{provider} is carrying this one. Track it through their app — nothing here changes it.",
+  "ur": "{provider} یہ لے جا رہا ہے۔ اسے ان کی ایپ سے دیکھیں — یہاں سے کچھ نہیں بدلتا۔",
+  "placeholders": [
+   "provider"
+  ],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "waitingForAssignment",
+  "en": "Waiting for the restaurant to assign this run.",
+  "ur": "ریسٹورنٹ کے یہ رن مختص کرنے کا انتظار ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "somethingWentWrong",
+  "en": "Something went wrong",
+  "ur": "کچھ غلط ہو گیا",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "confirmHandover",
+  "en": "Confirm the handover",
+  "ur": "حوالگی کی تصدیق کریں",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "askForCode",
+  "en": "Ask the customer to read out the code on their order.",
+  "ur": "گاہک سے کہیں کہ اپنے آرڈر کا کوڈ پڑھ کر سنائے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "deliveryCode",
+  "en": "Delivery code",
+  "ur": "ڈیلیوری کوڈ",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "cancel",
+  "en": "Cancel",
+  "ur": "منسوخ",
+  "placeholders": [],
+  "where": [
+   "src/app/live_sync.dart",
+   "src/features/runs/application/run_controller.dart",
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "delivered",
+  "en": "Delivered",
+  "ur": "پہنچا دیا",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "failNobodyThere",
+  "en": "Nobody at the address",
+  "ur": "پتے پر کوئی نہیں تھا",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "failRefused",
+  "en": "Customer refused the order",
+  "ur": "گاہک نے آرڈر لینے سے انکار کیا",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "failAddressNotFound",
+  "en": "Address could not be found",
+  "ur": "پتہ نہیں مل سکا",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "failNoCode",
+  "en": "Customer would not give the code",
+  "ur": "گاہک نے کوڈ نہیں دیا",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "failVehicle",
+  "en": "Accident or vehicle problem",
+  "ur": "حادثہ یا گاڑی کا مسئلہ",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "whatHappened",
+  "en": "What happened?",
+  "ur": "کیا ہوا؟",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "markFailedTitle",
+  "en": "Mark this run failed?",
+  "ur": "اس رن کو ناکام قرار دیں؟",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "markFailedMessage",
+  "en": "\"{reason}\"\n\nThe restaurant is told straight away. This cannot be undone from here.",
+  "ur": "\"{reason}\"\n\nریسٹورنٹ کو فوراً بتا دیا جائے گا۔ یہاں سے واپس نہیں ہو سکتا۔",
+  "placeholders": [
+   "reason"
+  ],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "goBack",
+  "en": "Go back",
+  "ur": "واپس",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "markFailed",
+  "en": "Mark failed",
+  "ur": "ناکام قرار دیں",
+  "placeholders": [],
+  "where": [
+   "src/features/runs/presentation/run_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "driverSignIn",
+  "en": "Driver sign in",
+  "ur": "ڈرائیور سائن ان",
+  "placeholders": [],
+  "where": [
+   "src/app/router/app_router.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "whichKitchen",
+  "en": "Which kitchen?",
+  "ur": "کون سا کچن؟",
+  "placeholders": [],
+  "where": [
+   "src/app/router/app_router.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_driver",
+  "key": "runAssigned",
+  "en": "A run has been assigned.",
+  "ur": "ایک رن مختص ہوا ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/app/live_sync.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "managerSignIn",
+  "en": "Manager sign in",
+  "ur": "مینیجر سائن ان",
+  "placeholders": [],
+  "where": [
+   "src/app/router/app_router.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "tabService",
+  "en": "Service",
+  "ur": "سروس",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/manager_shell.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "tabKitchen",
+  "en": "Kitchen",
+  "ur": "کچن",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/manager_shell.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "tabSales",
+  "en": "Sales",
+  "ur": "سیلز",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/manager_shell.dart"
+  ],
+  "flag": "check",
+  "note": "سیلز is a transliteration; فروخت is the proper word. Which does a Pakistani manager expect on a tab?"
+ },
+ {
+  "package": "rms_manager",
+  "key": "allOutlets",
+  "en": "All outlets",
+  "ur": "تمام آؤٹ لیٹس",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/manager_shell.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "oneOutlet",
+  "en": "One outlet",
+  "ur": "ایک آؤٹ لیٹ",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/manager_shell.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "chooseOutlet",
+  "en": "Choose outlet",
+  "ur": "آؤٹ لیٹ منتخب کریں",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/manager_shell.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "refresh",
+  "en": "Refresh",
+  "ur": "تازہ کریں",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/manager_shell.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "signOut",
+  "en": "Sign out",
+  "ur": "سائن آؤٹ",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/manager_shell.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "readingService",
+  "en": "Reading the service…",
+  "ur": "سروس پڑھی جا رہی ہے…",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/manager_shell.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "live",
+  "en": "Live",
+  "ur": "لائیو",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/manager_shell.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "offline",
+  "en": "Offline",
+  "ur": "آف لائن",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/manager_shell.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "liveTooltip",
+  "en": "Live. Last read {time}",
+  "ur": "لائیو۔ آخری بار {time} پر پڑھا",
+  "placeholders": [
+   "time"
+  ],
+  "where": [
+   "src/features/service/presentation/manager_shell.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "liveTooltipJustNow",
+  "en": "Live. Last read just now",
+  "ur": "لائیو۔ ابھی پڑھا",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/manager_shell.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "offlineTooltip",
+  "en": "Not receiving live updates — pull down to refresh",
+  "ur": "لائیو اپ ڈیٹس نہیں آ رہیں — تازہ کرنے کے لیے نیچے کھینچیں",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/manager_shell.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "ordersReadyToRun",
+  "en": "{count, plural, =1{1 order is ready to run} other{{count} orders are ready to run}}",
+  "ur": "{count, plural, =1{1 آرڈر لے جانے کو تیار ہے} other{{count} آرڈر لے جانے کو تیار ہیں}}",
+  "placeholders": [
+   "count"
+  ],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "foodUpAtPass",
+  "en": "Food is up and waiting at the pass.",
+  "ur": "کھانا تیار ہے اور پاس پر انتظار میں ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "high",
+  "note": "Same پاس problem as notifyFoodReadyBody."
+ },
+ {
+  "package": "rms_manager",
+  "key": "ticketsPastTarget",
+  "en": "{count, plural, =1{1 ticket is past target} other{{count} tickets are past target}}",
+  "ur": "{count, plural, =1{1 ٹکٹ مقررہ وقت سے آگے ہے} other{{count} ٹکٹ مقررہ وقت سے آگے ہیں}}",
+  "placeholders": [
+   "count"
+  ],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "longestWaiting",
+  "en": "The longest has been waiting {wait}.",
+  "ur": "سب سے زیادہ انتظار {wait} کا ہے۔",
+  "placeholders": [
+   "wait"
+  ],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "kpiOpenBills",
+  "en": "Open bills",
+  "ur": "کھلے بل",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "kpiReadyToServe",
+  "en": "Ready to serve",
+  "ur": "پیش کرنے کو تیار",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "kpiKitchenTickets",
+  "en": "Kitchen tickets",
+  "ur": "کچن ٹکٹس",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "kpiTablesInUse",
+  "en": "Tables in use",
+  "ur": "زیرِ استعمال میزیں",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "kpiSettled",
+  "en": "Settled",
+  "ur": "ادا شدہ",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "kpiDeliveriesOut",
+  "en": "Deliveries out",
+  "ur": "باہر ڈیلیوریاں",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "goNow",
+  "en": "go now",
+  "ur": "ابھی جائیں",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "nothingWaiting",
+  "en": "nothing waiting",
+  "ur": "کچھ زیرِ التوا نہیں",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "kitchenClear",
+  "en": "kitchen is clear",
+  "ur": "کچن خالی ہے",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "longestIs",
+  "en": "longest {wait}",
+  "ur": "سب سے زیادہ {wait}",
+  "placeholders": [
+   "wait"
+  ],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "noTablesSetUp",
+  "en": "no tables set up",
+  "ur": "کوئی میز ترتیب نہیں",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "percentFull",
+  "en": "{percent} full",
+  "ur": "{percent} بھری",
+  "placeholders": [
+   "percent"
+  ],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "noneOnTheRoad",
+  "en": "none on the road",
+  "ur": "کوئی راستے میں نہیں",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "onTheRoad",
+  "en": "on the road",
+  "ur": "راستے میں",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "underAMinute",
+  "en": "under a minute",
+  "ur": "ایک منٹ سے کم",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "minutesShort",
+  "en": "{minutes} min",
+  "ur": "{minutes} منٹ",
+  "placeholders": [
+   "minutes"
+  ],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "readAt",
+  "en": "Read at {time}",
+  "ur": "{time} پر پڑھا گیا",
+  "placeholders": [
+   "time"
+  ],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "kitchenClearTitle",
+  "en": "The kitchen is clear",
+  "ur": "کچن خالی ہے",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/kitchen_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "kitchenClearMessage",
+  "en": "Nothing is waiting to be cooked.",
+  "ur": "پکانے کے لیے کچھ زیرِ التوا نہیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/kitchen_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "pastTargetCount",
+  "en": "{count} past target",
+  "ur": "{count} مقررہ وقت سے آگے",
+  "placeholders": [
+   "count"
+  ],
+  "where": [
+   "src/features/service/presentation/kitchen_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "ticketCount",
+  "en": "{count, plural, =1{1 ticket} other{{count} tickets}}",
+  "ur": "{count, plural, =1{1 ٹکٹ} other{{count} ٹکٹ}}",
+  "placeholders": [
+   "count"
+  ],
+  "where": [
+   "src/features/service/presentation/dashboard_view.dart",
+   "src/features/service/presentation/kitchen_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "ticket",
+  "en": "Ticket",
+  "ur": "ٹکٹ",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/kitchen_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "tableLabel",
+  "en": "Table {code}",
+  "ur": "میز {code}",
+  "placeholders": [
+   "code"
+  ],
+  "where": [
+   "src/features/service/presentation/kitchen_view.dart",
+   "src/features/service/presentation/sales_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "targetAndStatus",
+  "en": "Target {minutes} min · {status}",
+  "ur": "ہدف {minutes} منٹ · {status}",
+  "placeholders": [
+   "minutes",
+   "status"
+  ],
+  "where": [
+   "src/features/service/presentation/kitchen_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "stillOpen",
+  "en": "Still open",
+  "ur": "ابھی کھلے",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/sales_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "settled",
+  "en": "Settled",
+  "ur": "ادا شدہ",
+  "placeholders": [],
+  "where": [
+   "src/features/service/data/service_repository.dart",
+   "src/features/service/presentation/sales_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "nothingSettled",
+  "en": "Nothing settled yet.",
+  "ur": "ابھی کوئی ادائیگی نہیں ہوئی۔",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/sales_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "salesFootnote",
+  "en": "Covers the orders the server returns for this outlet. The ledger, not this screen, is the record of what was earned.",
+  "ur": "اس آؤٹ لیٹ کے وہ آرڈر جو سرور دیتا ہے۔ کمائی کا ریکارڈ لیجر ہے، یہ اسکرین نہیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/sales_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "stillOnTables",
+  "en": "Still on tables",
+  "ur": "میزوں پر باقی",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/sales_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "billsClosed",
+  "en": "Bills closed",
+  "ur": "بند بل",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/sales_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "averageBill",
+  "en": "Average bill",
+  "ur": "اوسط بل",
+  "placeholders": [],
+  "where": [
+   "src/features/service/presentation/sales_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_manager",
+  "key": "itemCount",
+  "en": "{count, plural, =1{1 item} other{{count} items}}",
+  "ur": "{count, plural, =1{1 آئٹم} other{{count} آئٹم}}",
+  "placeholders": [
+   "count"
+  ],
+  "where": [
+   "src/features/service/presentation/sales_view.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "signInToOrder",
+  "en": "Sign in to order",
+  "ur": "آرڈر کے لیے سائن ان کریں",
+  "placeholders": [],
+  "where": [
+   "src/app/router/app_router.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "chooseRestaurant",
+  "en": "Choose a restaurant",
+  "ur": "ریسٹورنٹ منتخب کریں",
+  "placeholders": [],
+  "where": [
+   "src/app/router/app_router.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "menu",
+  "en": "Menu",
+  "ur": "مینو",
+  "placeholders": [],
+  "where": [
+   "src/features/catalogue/presentation/menu_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "changeRestaurant",
+  "en": "Change restaurant",
+  "ur": "ریسٹورنٹ بدلیں",
+  "placeholders": [],
+  "where": [
+   "src/features/catalogue/presentation/menu_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "signOut",
+  "en": "Sign out",
+  "ur": "سائن آؤٹ",
+  "placeholders": [],
+  "where": [
+   "src/features/catalogue/presentation/menu_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "menuLoading",
+  "en": "Loading the menu…",
+  "ur": "مینو لوڈ ہو رہا ہے…",
+  "placeholders": [],
+  "where": [
+   "src/features/catalogue/presentation/menu_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "searchTheMenu",
+  "en": "Search the menu",
+  "ur": "مینو میں تلاش کریں",
+  "placeholders": [],
+  "where": [
+   "src/features/catalogue/presentation/menu_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "everything",
+  "en": "Everything",
+  "ur": "سب کچھ",
+  "placeholders": [],
+  "where": [
+   "src/features/catalogue/presentation/menu_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "nothingMatchesTitle",
+  "en": "Nothing matches",
+  "ur": "کچھ نہیں ملا",
+  "placeholders": [],
+  "where": [
+   "src/features/catalogue/presentation/menu_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "nothingOnMenuTitle",
+  "en": "Nothing on the menu",
+  "ur": "مینو میں کچھ نہیں",
+  "placeholders": [],
+  "where": [
+   "src/features/catalogue/presentation/menu_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "tryAnotherWord",
+  "en": "Try a different word.",
+  "ur": "کوئی اور لفظ آزمائیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/catalogue/presentation/menu_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "noMenuPublished",
+  "en": "This restaurant has not published a menu yet.",
+  "ur": "اس ریسٹورنٹ نے ابھی مینو شائع نہیں کیا۔",
+  "placeholders": [],
+  "where": [
+   "src/features/catalogue/presentation/menu_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "prepMinutes",
+  "en": "about {minutes} min to cook",
+  "ur": "پکنے میں تقریباً {minutes} منٹ",
+  "placeholders": [
+   "minutes"
+  ],
+  "where": [
+   "src/features/catalogue/presentation/menu_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "addNamed",
+  "en": "Add {name}",
+  "ur": "{name} شامل کریں",
+  "placeholders": [
+   "name"
+  ],
+  "where": [
+   "src/features/catalogue/presentation/menu_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "addedNamed",
+  "en": "{name} added",
+  "ur": "{name} شامل کر دیا",
+  "placeholders": [
+   "name"
+  ],
+  "where": [
+   "src/features/catalogue/presentation/menu_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "basketWithCount",
+  "en": "{count, plural, =1{Basket · 1 item} other{Basket · {count} items}}",
+  "ur": "{count, plural, =1{ٹوکری · 1 آئٹم} other{ٹوکری · {count} آئٹم}}",
+  "placeholders": [
+   "count"
+  ],
+  "where": [
+   "src/features/catalogue/presentation/menu_screen.dart"
+  ],
+  "flag": "check",
+  "note": "Same ٹوکری vs کارٹ question, and the plural form needs checking."
+ },
+ {
+  "package": "rms_customer",
+  "key": "yourBasket",
+  "en": "Your basket",
+  "ur": "آپ کی ٹوکری",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "check",
+  "note": "ٹوکری is literally a basket. Pakistani e-commerce more often says کارٹ. Which reads more naturally to a phone user?"
+ },
+ {
+  "package": "rms_customer",
+  "key": "basketEmptyTitle",
+  "en": "Your basket is empty",
+  "ur": "آپ کی ٹوکری خالی ہے",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "check",
+  "note": "Same ٹوکری vs کارٹ question."
+ },
+ {
+  "package": "rms_customer",
+  "key": "basketEmptyMessage",
+  "en": "Add something from the menu to get started.",
+  "ur": "شروع کرنے کے لیے مینو سے کچھ شامل کریں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "backToMenu",
+  "en": "Back to the menu",
+  "ur": "مینو پر واپس",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart",
+   "src/features/tracking/presentation/track_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "delivery",
+  "en": "Delivery",
+  "ur": "ڈیلیوری",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart",
+   "src/features/orders/data/customer_order_repository.dart",
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "collection",
+  "en": "Collection",
+  "ur": "خود لے جانا",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "addressLabel",
+  "en": "Where should we bring it?",
+  "ur": "ہم کہاں پہنچائیں؟",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "addressHint",
+  "en": "House, street, area — and a landmark helps",
+  "ur": "مکان، گلی، علاقہ — اور کوئی نشانی مددگار ہوتی ہے",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "oneFewer",
+  "en": "One fewer",
+  "ur": "ایک کم",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "remove",
+  "en": "Remove",
+  "ur": "ہٹائیں",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/application/cart_controller.dart",
+   "src/features/cart/presentation/cart_screen.dart",
+   "src/features/checkout/application/checkout_controller.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "oneMore",
+  "en": "One more",
+  "ur": "ایک اور",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "subtotal",
+  "en": "Subtotal",
+  "ur": "ذیلی میزان",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "check",
+  "note": "ذیلی میزان is technically right but stiff. Is there a shorter till word?"
+ },
+ {
+  "package": "rms_customer",
+  "key": "tax",
+  "en": "Tax",
+  "ur": "ٹیکس",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "serviceCharge",
+  "en": "Service charge",
+  "ur": "سروس چارج",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "rounding",
+  "en": "Rounding",
+  "ur": "راؤنڈنگ",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "total",
+  "en": "Total",
+  "ur": "کل",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart",
+   "src/features/tracking/presentation/track_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "priceConfirmedNote",
+  "en": "The restaurant confirms the final price when it accepts your order. Delivery charges, if any, are added by them.",
+  "ur": "آرڈر قبول کرتے وقت ریسٹورنٹ حتمی قیمت کی تصدیق کرتا ہے۔ ڈیلیوری چارجز، اگر ہوں، وہی شامل کرتے ہیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "sending",
+  "en": "Sending…",
+  "ur": "بھیجا جا رہا ہے…",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "tryAgain",
+  "en": "Try again",
+  "ur": "دوبارہ کوشش کریں",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "placeOrder",
+  "en": "Place order",
+  "ur": "آرڈر دیں",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "checkoutFailedTitle",
+  "en": "Your order did not go through",
+  "ur": "آپ کا آرڈر نہیں گیا",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "checkoutInterrupted",
+  "en": "Something interrupted it. Nothing has been lost — try again.",
+  "ur": "کسی چیز نے اسے روک دیا۔ کچھ ضائع نہیں ہوا — دوبارہ کوشش کریں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "checkoutPartial",
+  "en": "The restaurant may already have part of this order. Trying again continues it rather than ordering twice.",
+  "ur": "ہو سکتا ہے ریسٹورنٹ کے پاس اس آرڈر کا کچھ حصہ پہلے سے ہو۔ دوبارہ کوشش سے وہی جاری رہے گا، دوہرا آرڈر نہیں ہو گا۔",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "startOrderAgain",
+  "en": "Start this order again",
+  "ur": "یہ آرڈر دوبارہ شروع کریں",
+  "placeholders": [],
+  "where": [
+   "src/features/cart/presentation/cart_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "yourOrder",
+  "en": "Your order",
+  "ur": "آپ کا آرڈر",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/presentation/track_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "findingOrder",
+  "en": "Finding your order…",
+  "ur": "آپ کا آرڈر تلاش ہو رہا ہے…",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/presentation/track_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "orderPlaced",
+  "en": "Order placed",
+  "ur": "آرڈر دے دیا گیا",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/presentation/track_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "updatesAutomatically",
+  "en": "Updates automatically. Pull down if you are impatient.",
+  "ur": "خودکار طور پر اپ ڈیٹ ہوتا ہے۔ بے چینی ہو تو نیچے کھینچیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/presentation/track_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "whatYouOrdered",
+  "en": "What you ordered",
+  "ur": "آپ نے کیا آرڈر کیا",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/presentation/track_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "addressWillCallTitle",
+  "en": "The restaurant will call about your address",
+  "ur": "ریسٹورنٹ آپ کے پتے کے بارے میں فون کرے گا",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/presentation/track_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "addressCouldNotAttach",
+  "en": "We could not attach it to the order. Keep this handy:",
+  "ur": "ہم اسے آرڈر کے ساتھ منسلک نہیں کر سکے۔ یہ سامنے رکھیں:",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/presentation/track_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "stepOrderReceived",
+  "en": "Order received",
+  "ur": "آرڈر موصول",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "stepBeingCooked",
+  "en": "Being cooked",
+  "ur": "پک رہا ہے",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "stepReady",
+  "en": "Ready",
+  "ur": "تیار",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "stepOnTheWay",
+  "en": "On the way",
+  "ur": "راستے میں",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "stepDelivered",
+  "en": "Delivered",
+  "ur": "پہنچا دیا",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "stepReadyToCollect",
+  "en": "Ready to collect",
+  "ur": "لے جانے کو تیار",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "check",
+  "note": "Consistency: does لے جانے کو تیار match how the counter would say it?"
+ },
+ {
+  "package": "rms_customer",
+  "key": "stepCollected",
+  "en": "Collected",
+  "ur": "لے لیا گیا",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "headlineCancelled",
+  "en": "This order was cancelled. If that is unexpected, call the restaurant.",
+  "ur": "یہ آرڈر منسوخ ہو گیا۔ اگر یہ غیر متوقع ہے تو ریسٹورنٹ کو فون کریں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "headlineReceived",
+  "en": "The restaurant has your order.",
+  "ur": "ریسٹورنٹ کو آپ کا آرڈر مل گیا ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "headlineCooking",
+  "en": "Your food is being cooked.",
+  "ur": "آپ کا کھانا پک رہا ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "headlineWaitingRider",
+  "en": "Your food is ready and waiting for a rider.",
+  "ur": "آپ کا کھانا تیار ہے اور رائیڈر کا انتظار ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "headlineComeToCounter",
+  "en": "Ready to collect — come to the counter.",
+  "ur": "لے جانے کو تیار — کاؤنٹر پر آ جائیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "headlineOnItsWay",
+  "en": "Your order is on its way.",
+  "ur": "آپ کا آرڈر راستے میں ہے۔",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "headlineOnItsWayEta",
+  "en": "On its way — about {minutes} minutes.",
+  "ur": "راستے میں — تقریباً {minutes} منٹ۔",
+  "placeholders": [
+   "minutes"
+  ],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "headlineDelivered",
+  "en": "Delivered. Enjoy.",
+  "ur": "پہنچا دیا۔ مزے سے کھائیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "headlineCollected",
+  "en": "Collected. Enjoy.",
+  "ur": "لے لیا گیا۔ مزے سے کھائیں۔",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/application/order_progress.dart"
+  ],
+  "flag": "check",
+  "note": "\"Enjoy\" → مزے سے کھائیں. Natural sign-off, or too casual for a receipt-adjacent screen?"
+ },
+ {
+  "package": "rms_customer",
+  "key": "semanticsHappeningNow",
+  "en": "happening now",
+  "ur": "ابھی ہو رہا ہے",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/presentation/track_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "semanticsDone",
+  "en": "done",
+  "ur": "مکمل",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/presentation/track_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "semanticsToCome",
+  "en": "still to come",
+  "ur": "ابھی باقی",
+  "placeholders": [],
+  "where": [
+   "src/features/tracking/presentation/track_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ },
+ {
+  "package": "rms_customer",
+  "key": "semanticsStep",
+  "en": "{label}: {state}",
+  "ur": "{label}: {state}",
+  "placeholders": [
+   "label",
+   "state"
+  ],
+  "where": [
+   "src/features/tracking/presentation/track_screen.dart"
+  ],
+  "flag": "",
+  "note": ""
+ }
+]

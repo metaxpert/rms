@@ -1,9 +1,5 @@
 {
   "@@locale": "en",
-  "loading": "Loading…",
-  "@loading": {
-    "description": "Generic wait state."
-  },
   "tryAgain": "Try again",
   "@tryAgain": {
     "description": "Retry button on an error surface."

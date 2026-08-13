@@ -51,7 +51,9 @@ class WaiterApp extends ConsumerWidget {
           // Above the router rather than inside a screen: the socket must
           // outlive any one route, and must be closed on sign-out wherever the
           // waiter was when the session ended.
-          child: LiveSync(child: child ?? const SizedBox.shrink()),
+          // Keeps DateFormat/NumberFormat on the same locale as the
+          // strings; see LocaleBinding.
+          child: LocaleBinding(child: LiveSync(child: child ?? const SizedBox.shrink())),
         );
       },
     );

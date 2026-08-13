@@ -655,18 +655,6 @@ abstract class AppText {
   /// **'Other'**
   String get uncategorised;
 
-  /// No description provided for @noDishesTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'No dishes'**
-  String get noDishesTitle;
-
-  /// No description provided for @noDishesMatch.
-  ///
-  /// In en, this message translates to:
-  /// **'Nothing matches that search.'**
-  String get noDishesMatch;
-
   /// No description provided for @noteForKitchen.
   ///
   /// In en, this message translates to:
@@ -678,12 +666,6 @@ abstract class AppText {
   /// In en, this message translates to:
   /// **'No chilli, well done, serve last…'**
   String get noteForKitchenHint;
-
-  /// No description provided for @addedToTicket.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} added'**
-  String addedToTicket(String name);
 
   /// No description provided for @billForTable.
   ///
