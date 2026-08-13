@@ -221,48 +221,35 @@ class _TicketBody extends ConsumerWidget {
     BuildContext context,
     TicketController controller,
   ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(appText(context).clearRoundTitle),
-        content: Text(appText(context).clearRoundMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(appText(context).keepIt),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(appText(context).clear),
-          ),
-        ],
-      ),
+    final text = appText(context);
+    final confirmed = await confirmAction(
+      context,
+      title: text.clearRoundTitle,
+      message: text.clearRoundMessage,
+      cancelLabel: text.keepIt,
+      confirmLabel: text.clear,
+      // Throws away a round the waiter has just walked a table to take, and
+      // nothing on the server has a copy of it.
+      isDestructive: true,
     );
-    if (confirmed ?? false) controller.clear();
+    if (confirmed) controller.clear();
   }
 
   Future<void> _confirmDiscard(
     BuildContext context,
     SendController sender,
   ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(appText(context).stopSendingTitle),
-        content: Text(appText(context).stopSendingMessage),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(appText(context).keepTrying),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(appText(context).stop),
-          ),
-        ],
-      ),
+    final text = appText(context);
+    final confirmed = await confirmAction(
+      context,
+      title: text.stopSendingTitle,
+      message: text.stopSendingMessage,
+      cancelLabel: text.keepTrying,
+      confirmLabel: text.stop,
+      // Abandons a send that may already have reached the kitchen.
+      isDestructive: true,
     );
-    if (confirmed ?? false) await sender.discard();
+    if (confirmed) await sender.discard();
   }
 }
 
@@ -393,10 +380,9 @@ class _SentSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SectionHeader(
-          title: order.orderNo.isEmpty
-              ? text.sentHeader
-              : text.sentTo(order.orderNo),
+        SectionHeader(
+          order.orderNo.isEmpty ? text.sentHeader : text.sentTo(order.orderNo),
+          padding: _sectionInset,
           trailing: StatusBadge(
             label: order.status.labelIn(strings(context)),
             color: order.status.color,
@@ -515,8 +501,9 @@ class _RoundSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SectionHeader(
-          title: hasSentLines ? text.thisRoundNotSent : text.notSentYet,
+        SectionHeader(
+          hasSentLines ? text.thisRoundNotSent : text.notSentYet,
+          padding: _sectionInset,
           trailing: Icon(
             Icons.edit_note_rounded,
             size: 20,
@@ -543,40 +530,15 @@ class _RoundSection extends StatelessWidget {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, this.trailing});
-
-  final String title;
-  final Widget? trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.sm,
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              title.toUpperCase(),
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.6,
-              ),
-            ),
-          ),
-          if (trailing != null) trailing!,
-        ],
-      ),
-    );
-  }
-}
+/// This screen's lists are padded by their rows rather than by the ListView, so
+/// its section headers have to inset themselves to line up with the lines
+/// underneath them.
+const _sectionInset = EdgeInsets.fromLTRB(
+  AppSpacing.lg,
+  AppSpacing.lg,
+  AppSpacing.lg,
+  AppSpacing.sm,
+);
 
 /// What the waiter needs to know about this table before adding to it.
 class _TableContext extends StatelessWidget {
@@ -604,7 +566,7 @@ class _TableContext extends StatelessWidget {
         vertical: AppSpacing.md,
       ),
       color: ready
-          ? AppStatusColors.ready.withValues(alpha: 0.16)
+          ? context.statusFill(AppStatusColors.ready).withValues(alpha: 0.16)
           : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -636,13 +598,16 @@ class _TableContext extends StatelessWidget {
             const SizedBox(height: AppSpacing.sm),
             Row(
               children: [
-                const Icon(Icons.room_service_rounded,
-                    size: 18, color: AppStatusColors.ready),
+                Icon(
+                  Icons.room_service_rounded,
+                  size: 18,
+                  color: context.statusText(AppStatusColors.ready),
+                ),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   text.foodReadyToRun,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: AppStatusColors.ready,
+                    color: context.statusText(AppStatusColors.ready),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -930,6 +895,7 @@ class _TotalsPanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
         border: Border(top: BorderSide(color: theme.colorScheme.outlineVariant)),
+        boxShadow: AppElevation.lift(theme.brightness),
       ),
       child: Column(
         children: [

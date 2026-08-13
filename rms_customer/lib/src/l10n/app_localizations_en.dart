@@ -30,6 +30,9 @@ class AppTextEn extends AppText {
   String get searchTheMenu => 'Search the menu';
 
   @override
+  String get clearSearch => 'Clear';
+
+  @override
   String get everything => 'Everything';
 
   @override

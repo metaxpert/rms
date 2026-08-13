@@ -187,24 +187,13 @@ class _Browser extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          child: TextField(
+          // The same field the guest's menu uses, so the one control both
+          // audiences type into behaves identically in both apps.
+          child: AppSearchField(
             controller: search,
+            hintText: appText(context).searchDishes,
+            clearTooltip: appText(context).clearSearch,
             onChanged: onSearchChanged,
-            textInputAction: TextInputAction.search,
-            decoration: InputDecoration(
-              hintText: appText(context).searchDishes,
-              prefixIcon: const Icon(Icons.search_rounded),
-              suffixIcon: query.isEmpty
-                  ? null
-                  : IconButton(
-                      onPressed: () {
-                        search.clear();
-                        onSearchChanged('');
-                      },
-                      icon: const Icon(Icons.close_rounded),
-                      tooltip: appText(context).clearSearch,
-                    ),
-            ),
           ),
         ),
         if (query.isEmpty) ...[

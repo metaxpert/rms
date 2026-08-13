@@ -58,7 +58,10 @@ class _ManagerShellState extends ConsumerState<ManagerShell> {
         ],
       ),
       body: snapshot.when(
-        loading: () => LoadingView(message: text.readingService),
+        loading: () => LoadingView(
+          message: text.readingService,
+          skeleton: _ShellSkeleton(tab: _tab),
+        ),
         error: (error, _) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(serviceSnapshotProvider),
@@ -94,6 +97,46 @@ class _ManagerShellState extends ConsumerState<ManagerShell> {
         ],
       ),
     );
+  }
+}
+
+/// The shape of whichever tab is open, while the one read behind all three is
+/// in flight.
+///
+/// Tab-aware rather than one generic placeholder: a manager who switches to
+/// Sales and sees a grid of squares forming has been told the wrong thing about
+/// what is coming, and the correction — squares replaced by rows — is exactly
+/// the re-assembly a skeleton exists to avoid.
+class _ShellSkeleton extends StatelessWidget {
+  const _ShellSkeleton({required this.tab});
+
+  final int tab;
+
+  @override
+  Widget build(BuildContext context) {
+    if (tab == 0) {
+      return SkeletonGroup(
+        child: ListView(
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          children: [
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              // The delegate the real grid uses, so the columns do not re-flow
+              // the moment the data lands.
+              gridDelegate: kpiGridDelegate,
+              itemCount: 6,
+              itemBuilder: (_, __) => const Skeleton.fill(),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Kitchen tickets and settled bills are both lists of cards; the row height
+    // differs enough to be worth two numbers rather than one.
+    return SkeletonList(rows: tab == 1 ? 4 : 7, rowHeight: tab == 1 ? 132 : 56);
   }
 }
 
@@ -192,7 +235,7 @@ class _LiveDot extends ConsumerWidget {
               live ? Icons.circle : Icons.cloud_off_rounded,
               size: live ? 10 : 16,
               color: live
-                  ? AppStatusColors.available
+                  ? context.statusFill(AppStatusColors.available)
                   : Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: AppSpacing.xs),

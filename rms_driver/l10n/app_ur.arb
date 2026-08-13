@@ -8,7 +8,6 @@
   "nothingToDeliverMessage": "جیسے ہی کچن رن بھیجے گا یہاں نظر آئے گا۔ دوبارہ دیکھنے کے لیے نیچے کھینچیں۔",
   "sectionOnTheGo": "جاری",
   "sectionDoneToday": "آج مکمل",
-  "wholeOutletBoard": "یہ پورے آؤٹ لیٹ کا بورڈ ہے — سرور صرف آپ کے اپنے رنز کی فہرست نہیں دیتا۔",
   "noAddress": "کوئی پتہ درج نہیں",
   "etaMinutes": "متوقع {minutes} منٹ",
   "assignedAt": "{time} پر مختص",
@@ -51,5 +50,22 @@
   "markFailed": "ناکام قرار دیں",
   "driverSignIn": "ڈرائیور سائن ان",
   "whichKitchen": "کون سا کچن؟",
-  "runAssigned": "ایک رن مختص ہوا ہے۔"
+  "runAssigned": "ایک رن مختص ہوا ہے۔",
+  "startShift": "شفٹ شروع کریں",
+  "endShift": "شفٹ ختم کریں",
+  "offShift": "شفٹ بند ہے — آپ کو ڈیلیوری نہیں دی جائے گی",
+  "onShiftSummary": "شفٹ جاری · {live} زیرِ تکمیل · آج {done} پہنچائی گئیں",
+  "@onShiftSummary": {
+    "placeholders": {
+      "live": {
+        "type": "int"
+      },
+      "done": {
+        "type": "int"
+      }
+    }
+  },
+  "riderNotLinked": "یہ لاگ اِن ابھی کسی رائیڈر سے منسلک نہیں۔ اپنے مینیجر سے رائیڈر فہرست میں منسلک کرنے کو کہیں۔",
+  "riderProfileUnavailable": "آپ کی رائیڈر تفصیلات لوڈ نہیں ہو سکیں۔",
+  "yourRunsOnly": "یہ صرف آپ کی ڈیلیوریاں ہیں۔ جو کام یہاں نظر نہیں آتا وہ کسی اور رائیڈر کو دیا گیا ہے۔"
 }

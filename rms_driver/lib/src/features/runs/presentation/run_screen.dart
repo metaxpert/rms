@@ -237,7 +237,7 @@ class _SharingCard extends StatelessWidget {
                       ? Icons.share_location_rounded
                       : Icons.location_disabled_rounded,
                   color: run.sharing
-                      ? AppStatusColors.ready
+                      ? context.statusText(AppStatusColors.ready)
                       : theme.colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: AppSpacing.sm),
@@ -366,26 +366,11 @@ class _ErrorNote extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.error_outline, color: theme.colorScheme.onErrorContainer),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Text(
-              error.message,
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: theme.colorScheme.onErrorContainer),
-            ),
-          ),
-        ],
-      ),
+    return AppNotice(
+      tone: NoticeTone.danger,
+      title: strings(context).errorRejectedTitle,
+      message: error.message,
+      margin: EdgeInsets.zero,
     );
   }
 }
@@ -411,12 +396,20 @@ class _ActionBar extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(delivery.status.icon, color: delivery.status.color),
+              Icon(
+                delivery.status.icon,
+                color: context.statusFill(delivery.status.color),
+              ),
               const SizedBox(width: AppSpacing.sm),
-              Text(
-                text.runIsStatus(
-                    delivery.status.labelIn(strings(context)).toLowerCase()),
-                style: theme.textTheme.titleMedium,
+              // Flexed, because it was not: "This run is delivered" at the 1.5x
+              // text a rider is likely to have set ran 81 pixels off the right
+              // of an entry-level phone, and the word it cut was the status.
+              Flexible(
+                child: Text(
+                  text.runIsStatus(
+                      delivery.status.labelIn(strings(context)).toLowerCase()),
+                  style: theme.textTheme.titleMedium,
+                ),
               ),
             ],
           ),
@@ -603,23 +596,17 @@ class _ActionBar extends ConsumerWidget {
     if (reason == null) return;
     if (!context.mounted) return;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(text.markFailedTitle),
-        content: Text(text.markFailedMessage(reason)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(text.goBack),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(text.markFailed),
-          ),
-        ],
-      ),
+    final confirmed = await confirmAction(
+      context,
+      title: text.markFailedTitle,
+      message: text.markFailedMessage(reason),
+      cancelLabel: text.goBack,
+      confirmLabel: text.markFailed,
+      // Ends the run and puts a customer's dinner back on the restaurant. The
+      // error colour is the difference between a rider confirming and a rider
+      // tapping the button on the right out of habit.
+      isDestructive: true,
     );
-    if (confirmed ?? false) await controller.markFailed(delivery, reason);
+    if (confirmed) await controller.markFailed(delivery, reason);
   }
 }

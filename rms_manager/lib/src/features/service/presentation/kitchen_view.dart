@@ -63,39 +63,20 @@ class _Station extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(
-            top: AppSpacing.md,
-            bottom: AppSpacing.sm,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  // Station keys are tenant-defined ("grill", "tandoor"), so
-                  // they are shown as configured rather than mapped to a list
-                  // this app made up.
-                  name.toUpperCase(),
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.6,
-                  ),
-                ),
-              ),
-              if (overdue > 0)
-                StatusBadge(
+        SectionHeader(
+          // Station keys are tenant-defined ("grill", "tandoor"), so they are
+          // shown as configured rather than mapped to a list this app made up.
+          name,
+          trailing: overdue > 0
+              ? StatusBadge(
                   label: text.pastTargetCount(overdue),
                   color: AppStatusColors.cancelled,
                   icon: Icons.timer_outlined,
                 )
-              else
-                Text(
+              : Text(
                   text.ticketCount(tickets.length),
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.bodySmall,
                 ),
-            ],
-          ),
         ),
         for (final ticket in tickets) _TicketCard(ticket: ticket),
       ],
@@ -113,7 +94,10 @@ class _TicketCard extends StatelessWidget {
     final theme = Theme.of(context);
     final text = appText(context);
     final shared = strings(context);
-    final colour = ticket.urgencyColor;
+    final colour = context.statusFill(ticket.urgencyColor);
+    // The elapsed time is the one figure a manager reads across the room, and
+    // it is small; it needs the corrected variant rather than the fill.
+    final ink = context.statusText(ticket.urgencyColor);
 
     return Semantics(
       // Replaces the children's labels rather than preceding them; otherwise a
@@ -153,12 +137,12 @@ class _TicketCard extends StatelessWidget {
                         ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
-                Icon(Icons.timer_outlined, size: 16, color: colour),
+                Icon(Icons.timer_outlined, size: 16, color: ink),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   ticket.elapsedLabelIn(shared),
                   style: theme.textTheme.labelLarge
-                      ?.copyWith(color: colour, fontWeight: FontWeight.w700),
+                      ?.copyWith(color: ink, fontWeight: FontWeight.w700),
                 ),
               ],
             ),

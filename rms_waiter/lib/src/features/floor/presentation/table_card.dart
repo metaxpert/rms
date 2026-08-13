@@ -48,7 +48,16 @@ class TableCard extends StatelessWidget {
 
     // A ready ticket outranks the table's own status: the table is still
     // "seated", but the thing the waiter must DO is run the food.
-    final accent = needsAttention ? AppStatusColors.ready : status.color;
+    //
+    // Resolved for the current brightness before it is painted: the domain
+    // hands back the status's light-mode identity, which on a dark tablet is a
+    // near-invisible border and a label to match.
+    final accent = context.statusFill(
+      needsAttention ? AppStatusColors.ready : status.color,
+    );
+    final accentInk = context.statusText(
+      needsAttention ? AppStatusColors.ready : status.color,
+    );
     final enabled = onTap != null && table.isOperable;
 
     return Semantics(
@@ -76,11 +85,19 @@ class TableCard extends StatelessWidget {
       child: Material(
         color: accent.withValues(alpha: needsAttention ? 0.18 : 0.07),
         borderRadius: BorderRadius.circular(AppRadius.md),
+        // A table turning "ready" is the one change on this screen a waiter
+        // must catch, and a card that snaps between two states is easy to miss
+        // in peripheral vision. Fading the fill and thickening the border over
+        // a fifth of a second is enough to draw the eye without becoming
+        // something to wait for.
+        animationDuration: AppMotion.of(context),
         child: InkWell(
           onTap: enabled ? onTap : null,
           borderRadius: BorderRadius.circular(AppRadius.md),
           child: ExcludeSemantics(
-            child: Container(
+            child: AnimatedContainer(
+              duration: AppMotion.of(context),
+              curve: AppMotion.standard,
               padding: EdgeInsets.all(compact ? AppSpacing.sm : AppSpacing.md),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadius.md),
@@ -149,7 +166,7 @@ class TableCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.labelMedium?.copyWith(
-                            color: AppStatusColors.textOn(accent),
+                            color: accentInk,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -197,7 +214,7 @@ class TableCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.labelSmall?.copyWith(
-                              color: AppStatusColors.textOn(accent),
+                              color: accentInk,
                               fontWeight: FontWeight.w700,
                             ),
                           ),

@@ -173,7 +173,12 @@ class _LiveSyncState extends ConsumerState<LiveSync>
       ..showSnackBar(
         SnackBar(
           duration: const Duration(seconds: 6),
-          backgroundColor: AppStatusColors.ready,
+          // The darkened cyan, not the fill: this snackbar writes white on its
+          // own background, and the fill measures 4.47:1 against white — under
+          // AA for anything that is not large text. Fixed rather than resolved
+          // for brightness, precisely because the foreground is fixed too; the
+          // dark-mode tone would be a light cyan with white text on it.
+          backgroundColor: AppStatusColors.textOn(AppStatusColors.ready),
           content: Row(
             children: [
               const Icon(Icons.room_service_rounded, color: Colors.white),

@@ -7,6 +7,10 @@
   "signOut": "Sign out",
   "menuLoading": "Loading the menu…",
   "searchTheMenu": "Search the menu",
+  "clearSearch": "Clear",
+  "@clearSearch": {
+    "description": "Tooltip on the button that empties the menu search box."
+  },
   "everything": "Everything",
   "nothingMatchesTitle": "Nothing matches",
   "nothingOnMenuTitle": "Nothing on the menu",

@@ -14,15 +14,16 @@ class DeliveryRepository {
 
   final ApiClient _client;
 
-  /// The outlet's delivery board.
+  /// This rider's own runs.
   ///
-  /// **Not scoped to the signed-in rider**, because no endpoint offers that: the
-  /// list is branch-scoped and the JWT carries a user id, not the
-  /// `driverEmployeeId` a job is assigned by. The app therefore shows the
-  /// outlet's runs and says so, rather than filtering on a guess and hiding a
-  /// job someone is waiting on.
+  /// Scoped by the server, not by the app. This used to read the outlet's whole
+  /// board because no endpoint offered anything narrower — the JWT carried a
+  /// user id and nothing tied it to the rider a job is assigned by. The rider
+  /// roster added that link, so `/restaurant/driver/runs` now returns exactly
+  /// the jobs assigned to whoever is signed in, and a rider can no longer see
+  /// (or touch) a colleague's drop.
   Future<List<Delivery>> runs() async {
-    final data = await _client.get(_client.branchScoped('/restaurant/deliveries'));
+    final data = await _client.get('/restaurant/driver/runs');
     if (data is! List) return const [];
     return data
         .whereType<Map<String, dynamic>>()
@@ -31,7 +32,7 @@ class DeliveryRepository {
   }
 
   Future<Delivery> fetch(String id) async {
-    final json = await _client.get('/restaurant/deliveries/$id');
+    final json = await _client.get('/restaurant/driver/runs/$id');
     return Delivery.fromJson(json as Map<String, dynamic>);
   }
 
@@ -53,7 +54,7 @@ class DeliveryRepository {
     final path = from.nextActionPath;
     if (path == null) return null;
     final response = await _client.post(
-      '/restaurant/deliveries/$id/$path',
+      '/restaurant/driver/runs/$id/$path',
       {if (otp != null) 'otp': otp},
       'delivery:$id:$path${otp == null ? '' : ':$otp'}',
     );
@@ -62,7 +63,7 @@ class DeliveryRepository {
 
   Future<Delivery?> fail({required String id, required String reason}) async {
     final response = await _client.post(
-      '/restaurant/deliveries/$id/fail',
+      '/restaurant/driver/runs/$id/fail',
       {'reason': reason},
       'delivery:$id:fail:${reason.hashCode}',
     );
@@ -81,7 +82,7 @@ class DeliveryRepository {
     double? speedKph,
   }) =>
       _client.post(
-        '/restaurant/deliveries/$id/track',
+        '/restaurant/driver/runs/$id/track',
         {
           'geoLat': lat,
           'geoLng': lng,

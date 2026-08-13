@@ -139,6 +139,12 @@ abstract class AppText {
   /// **'Search the menu'**
   String get searchTheMenu;
 
+  /// Tooltip on the button that empties the menu search box.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clearSearch;
+
   /// No description provided for @everything.
   ///
   /// In en, this message translates to:

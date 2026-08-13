@@ -15,8 +15,8 @@ class WaiterApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'RMS Waiter',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
+      theme: AppTheme.light(flavor: AppFlavor.waiter),
+      darkTheme: AppTheme.dark(flavor: AppFlavor.waiter),
       routerConfig: ref.watch(routerProvider),
       // English today, Urdu proven end to end — including right-to-left
       // layout, which is the part that breaks silently if nobody exercises it.

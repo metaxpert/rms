@@ -105,6 +105,31 @@ class GeoPoint {
   }
 }
 
+/// Who the rider is delivering to.
+///
+/// The name to ask for at the door and the number to ring from the gate — the
+/// two things that turn an address into a completed drop. Deliberately does not
+/// carry the OTP: the customer says that aloud, and a rider who could read it
+/// could complete a delivery without ever arriving.
+@immutable
+class DeliveryCustomer {
+  const DeliveryCustomer({this.name, this.phone});
+
+  final String? name;
+  final String? phone;
+
+  bool get isEmpty => (name?.isEmpty ?? true) && (phone?.isEmpty ?? true);
+
+  static DeliveryCustomer? fromJson(Map<String, dynamic>? json) {
+    if (json == null) return null;
+    final customer = DeliveryCustomer(
+      name: (json['name'] as String?)?.trim(),
+      phone: (json['phone'] as String?)?.trim(),
+    );
+    return customer.isEmpty ? null : customer;
+  }
+}
+
 /// A delivery job. Shape verified against `delivery.service.ts`.
 ///
 /// Note there is no `otp` field: the backend returns the code ONLY at creation,
@@ -122,7 +147,9 @@ class Delivery {
     required this.status,
     this.branchId,
     this.driverEmployeeId,
+    this.driverId,
     this.customerId,
+    this.customer,
     this.address,
     this.location,
     this.etaMinutes,
@@ -142,7 +169,15 @@ class Delivery {
   final DeliveryStatus status;
   final String? branchId;
   final String? driverEmployeeId;
+
+  /// The rider on the roster, as opposed to [driverEmployeeId], which is the HR
+  /// record they may not have — a contractor rider has the former and not the
+  /// latter.
+  final String? driverId;
   final String? customerId;
+
+  /// Present on the rider's own board; absent on a dispatcher's list.
+  final DeliveryCustomer? customer;
   final String? address;
   final GeoPoint? location;
   final int? etaMinutes;
@@ -165,6 +200,8 @@ class Delivery {
         status: DeliveryStatus.fromWire(json['status'] as String?),
         branchId: json['branchId'] as String?,
         driverEmployeeId: json['driverEmployeeId'] as String?,
+        driverId: json['driverId'] as String?,
+        customer: DeliveryCustomer.fromJson(json['customer'] as Map<String, dynamic>?),
         customerId: json['customerId'] as String?,
         address: json['address'] as String?,
         location: GeoPoint.fromJson(json['location'] as Map<String, dynamic>?),

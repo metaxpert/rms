@@ -57,7 +57,10 @@ class _BillScreenState extends ConsumerState<BillScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: orderAsync.when(
-        loading: () => LoadingView(message: text.fetchingBill),
+        loading: () => LoadingView(
+          message: text.fetchingBill,
+          skeleton: const _BillSkeleton(),
+        ),
         error: (error, _) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(tableOrderProvider(tableId)),
@@ -72,6 +75,45 @@ class _BillScreenState extends ConsumerState<BillScreen> {
           }
           return _BillBody(order: order);
         },
+      ),
+    );
+  }
+}
+
+/// The bill's shape while it is fetched: the priced lines, the totals block,
+/// then the tender editor.
+///
+/// A waiter opens this standing at a table with the guest waiting, which is the
+/// worst possible moment for a screen that says only that something is
+/// happening.
+class _BillSkeleton extends StatelessWidget {
+  const _BillSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SkeletonGroup(
+      child: ListView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        children: [
+          for (var i = 0; i < 4; i++)
+            const Padding(
+              padding: EdgeInsets.only(bottom: AppSpacing.md),
+              child: Row(
+                children: [
+                  Skeleton(width: 28, height: 14),
+                  SizedBox(width: AppSpacing.sm),
+                  Expanded(child: Skeleton.line(widthFactor: 0.6)),
+                  SizedBox(width: AppSpacing.sm),
+                  Skeleton(width: 72, height: 14),
+                ],
+              ),
+            ),
+          const SizedBox(height: AppSpacing.lg),
+          const Skeleton.box(height: 96),
+          const SizedBox(height: AppSpacing.lg),
+          const Skeleton.box(height: 72),
+        ],
       ),
     );
   }
@@ -532,6 +574,9 @@ class _SettleBar extends StatelessWidget {
         decoration: BoxDecoration(
           color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
           border: Border(top: BorderSide(color: theme.colorScheme.outlineVariant)),
+          // Lifted off the list it is pinned over, so the bill scrolling
+          // underneath reads as passing behind the bar rather than ending at it.
+          boxShadow: AppElevation.lift(theme.brightness),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -610,8 +655,11 @@ class _SettledView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.check_circle_rounded,
-                size: 72, color: AppStatusColors.available),
+            Icon(
+              Icons.check_circle_rounded,
+              size: 72,
+              color: context.statusFill(AppStatusColors.available),
+            ),
             const SizedBox(height: AppSpacing.lg),
             Text(text.billSettled, style: theme.textTheme.headlineSmall),
             const SizedBox(height: AppSpacing.sm),

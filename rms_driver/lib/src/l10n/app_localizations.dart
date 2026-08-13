@@ -145,12 +145,6 @@ abstract class AppText {
   /// **'Done today'**
   String get sectionDoneToday;
 
-  /// No description provided for @wholeOutletBoard.
-  ///
-  /// In en, this message translates to:
-  /// **'This is the whole outlet\'s board — the server does not offer a list of just your own runs.'**
-  String get wholeOutletBoard;
-
   /// No description provided for @noAddress.
   ///
   /// In en, this message translates to:
@@ -408,6 +402,48 @@ abstract class AppText {
   /// In en, this message translates to:
   /// **'A run has been assigned.'**
   String get runAssigned;
+
+  /// No description provided for @startShift.
+  ///
+  /// In en, this message translates to:
+  /// **'Start shift'**
+  String get startShift;
+
+  /// No description provided for @endShift.
+  ///
+  /// In en, this message translates to:
+  /// **'End shift'**
+  String get endShift;
+
+  /// No description provided for @offShift.
+  ///
+  /// In en, this message translates to:
+  /// **'Off shift — you will not be given deliveries'**
+  String get offShift;
+
+  /// No description provided for @onShiftSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'On shift · {live} in hand · {done} delivered today'**
+  String onShiftSummary(int live, int done);
+
+  /// No description provided for @riderNotLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'This login is not linked to a rider yet. Ask your manager to link it on the rider roster.'**
+  String get riderNotLinked;
+
+  /// No description provided for @riderProfileUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load your rider details.'**
+  String get riderProfileUnavailable;
+
+  /// No description provided for @yourRunsOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'These are your runs only. A job you cannot see has been given to another rider.'**
+  String get yourRunsOnly;
 }
 
 class _AppTextDelegate extends LocalizationsDelegate<AppText> {

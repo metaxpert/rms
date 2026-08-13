@@ -30,6 +30,9 @@ class AppTextUr extends AppText {
   String get searchTheMenu => 'مینو میں تلاش کریں';
 
   @override
+  String get clearSearch => 'صاف کریں';
+
+  @override
   String get everything => 'سب کچھ';
 
   @override

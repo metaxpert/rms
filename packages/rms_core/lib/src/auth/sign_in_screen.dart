@@ -5,6 +5,7 @@ import '../config/environment.dart';
 import '../providers.dart';
 import '../l10n/strings.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_components.dart';
 import 'auth_controller.dart';
 import 'server_settings_sheet.dart';
 
@@ -82,19 +83,32 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               constraints: const BoxConstraints(maxWidth: 420),
               child: Form(
                 key: _formKey,
-                child: Column(
+                // Lets the platform's password manager fill both fields and
+                // commit them together. Staff sign in on a shared till several
+                // times a shift; a manager rolling a password should not mean
+                // everyone types it by hand.
+                child: AutofillGroup(
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(
-                      widget.icon,
-                      size: 64,
-                      color: theme.colorScheme.primary,
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(AppSpacing.lg),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: theme.colorScheme.primaryContainer,
+                        ),
+                        child: Icon(
+                          widget.icon,
+                          size: 44,
+                          color: theme.colorScheme.onPrimaryContainer,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     Text(
                       widget.title,
-                      style: theme.textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.w600),
+                      style: theme.textTheme.headlineSmall,
                       textAlign: TextAlign.center,
                     ),
                     if (!env.isProduction) ...[
@@ -114,6 +128,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       enabled: !auth.isBusy,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
+                      textCapitalization: TextCapitalization.none,
+                      autofillHints: const [AutofillHints.username],
                       decoration: InputDecoration(
                         labelText: text.signInEmail,
                         prefixIcon: const Icon(Icons.person_outline),
@@ -128,6 +144,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       obscureText: _obscure,
                       enabled: !auth.isBusy,
                       textInputAction: TextInputAction.done,
+                      autofillHints: const [AutofillHints.password],
                       onFieldSubmitted: (_) => _submit(),
                       decoration: InputDecoration(
                         labelText: text.signInPassword,
@@ -149,7 +166,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                     ),
                     if (auth.error != null) ...[
                       const SizedBox(height: AppSpacing.lg),
-                      _SignInError(message: auth.error!.message),
+                      AppNotice(
+                        tone: NoticeTone.danger,
+                        title: strings(context).errorRejectedTitle,
+                        message: auth.error!.message,
+                        margin: EdgeInsets.zero,
+                      ),
                     ],
                     const SizedBox(height: AppSpacing.xl),
                     SizedBox(
@@ -175,6 +197,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       label: Text(text.serverSettings),
                     ),
                   ],
+                  ),
                 ),
               ),
             ),
@@ -185,33 +208,3 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   }
 }
 
-class _SignInError extends StatelessWidget {
-  const _SignInError({required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.error_outline, color: theme.colorScheme.onErrorContainer),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Text(
-              message,
-              style: theme.textTheme.bodyMedium
-                  ?.copyWith(color: theme.colorScheme.onErrorContainer),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

@@ -27,35 +27,36 @@ class DashboardView extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
         if (snapshot.readyToServe > 0)
-          _CallToAction(
+          AppNotice(
             icon: Icons.room_service_rounded,
-            colour: AppStatusColors.ready,
+            // The colour a manager has already learned means food at the pass.
+            accent: AppStatusColors.ready,
             title: text.ordersReadyToRun(snapshot.readyToServe),
             message: text.foodUpAtPass,
           ),
         if (board.overdueCount > 0)
-          _CallToAction(
+          AppNotice(
             icon: Icons.local_fire_department_rounded,
-            colour: AppStatusColors.cancelled,
+            tone: NoticeTone.danger,
             title: text.ticketsPastTarget(board.overdueCount),
             message: text.longestWaiting(_wait(text, board.longestWait)),
           ),
         _TileGrid(
           tiles: [
-            _Kpi(
+            MetricTile(
               label: text.kpiOpenBills,
               value: '${snapshot.openOrders.length}',
               detail: snapshot.openValue.display,
               icon: Icons.receipt_long_outlined,
             ),
-            _Kpi(
+            MetricTile(
               label: text.kpiReadyToServe,
               value: '${snapshot.readyToServe}',
               detail: snapshot.readyToServe > 0 ? text.goNow : text.nothingWaiting,
               icon: Icons.room_service_outlined,
               highlight: snapshot.readyToServe > 0,
             ),
-            _Kpi(
+            MetricTile(
               label: text.kpiKitchenTickets,
               value: '${board.ticketCount}',
               detail: board.ticketCount == 0
@@ -63,8 +64,11 @@ class DashboardView extends StatelessWidget {
                   : text.longestIs(_wait(text, board.longestWait)),
               icon: Icons.soup_kitchen_outlined,
               highlight: board.overdueCount > 0,
+              // Overdue tickets are a problem, not an opportunity; the tile
+              // should not borrow the "go now" cyan for it.
+              highlightColor: AppStatusColors.cancelled,
             ),
-            _Kpi(
+            MetricTile(
               label: text.kpiTablesInUse,
               value: '${snapshot.occupiedTables}/${snapshot.totalTables}',
               detail: snapshot.totalTables == 0
@@ -73,13 +77,13 @@ class DashboardView extends StatelessWidget {
                       _percent(snapshot.occupiedTables, snapshot.totalTables)),
               icon: Icons.table_restaurant_outlined,
             ),
-            _Kpi(
+            MetricTile(
               label: text.kpiSettled,
               value: '${snapshot.settledOrders.length}',
               detail: snapshot.settledValue.display,
               icon: Icons.payments_outlined,
             ),
-            _Kpi(
+            MetricTile(
               label: text.kpiDeliveriesOut,
               value: '${snapshot.activeDeliveries.length}',
               detail: snapshot.activeDeliveries.isEmpty
@@ -111,152 +115,50 @@ class DashboardView extends StatelessWidget {
       whole == 0 ? '0%' : '${(part * 100 / whole).round()}%';
 }
 
-/// Something a manager should get up for, stated before the numbers.
-class _CallToAction extends StatelessWidget {
-  const _CallToAction({
-    required this.icon,
-    required this.colour,
-    required this.title,
-    required this.message,
-  });
-
-  final IconData icon;
-  final Color colour;
-  final String title;
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.lg),
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: colour.withValues(alpha: 0.14),
-        border: Border.all(color: colour.withValues(alpha: 0.5)),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: colour, size: 28),
-          const SizedBox(width: AppSpacing.lg),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                Text(
-                  message,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
+/// The KPI grid, in as many columns as the device can hold.
+///
+/// Was a fixed two. Two is right on a phone — a manager glances at this between
+/// two other jobs, and a tile narrower than about half a phone stops being
+/// legible at arm's length — but it is wrong on the 10" tablet propped by the
+/// till, where it produced two tiles the size of playing cards and a column of
+/// dead space down each side.
+/// The KPI grid, in as many columns as the device can hold.
+///
+/// Was a fixed two. Two is right on a phone — a manager glances at this between
+/// two other jobs — but it was wrong on the 10" tablet propped by the till,
+/// where it produced two tiles the size of playing cards and a column of dead
+/// space down each side.
+///
+/// The lever is the tile's maximum width, not the column count. Capping columns
+/// looks like the same thing and is not: a four-column cap on a landscape
+/// tablet just makes each tile 280 pixels wide, which is a bigger playing card.
+/// Capping the extent keeps a tile the size a tile should be and spends the
+/// extra width on more of them.
 class _TileGrid extends StatelessWidget {
   const _TileGrid({required this.tiles});
 
-  final List<_Kpi> tiles;
+  final List<MetricTile> tiles;
 
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
+    return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      // Two across on a phone stays readable at arm's length; a manager is not
-      // studying this, they are glancing at it.
-      crossAxisCount: 2,
-      mainAxisSpacing: AppSpacing.md,
-      crossAxisSpacing: AppSpacing.md,
-      childAspectRatio: 1.35,
-      children: tiles,
+      gridDelegate: kpiGridDelegate,
+      itemCount: tiles.length,
+      itemBuilder: (context, index) => tiles[index],
     );
   }
 }
 
-class _Kpi extends StatelessWidget {
-  const _Kpi({
-    required this.label,
-    required this.value,
-    required this.detail,
-    required this.icon,
-    this.highlight = false,
-  });
-
-  final String label;
-  final String value;
-  final String detail;
-  final IconData icon;
-
-  /// Only when there is something to do. A permanently coloured tile stops
-  /// being noticed within a shift.
-  final bool highlight;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colour =
-        highlight ? AppStatusColors.ready : theme.colorScheme.onSurfaceVariant;
-
-    return Semantics(
-      container: true,
-      excludeSemantics: true,
-      label: '$label: $value, $detail',
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        decoration: BoxDecoration(
-          color: highlight
-              ? colour.withValues(alpha: 0.12)
-              : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: highlight
-              ? Border.all(color: colour.withValues(alpha: 0.5))
-              : null,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(icon, size: 18, color: colour),
-                const SizedBox(width: AppSpacing.xs),
-                Expanded(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.labelMedium?.copyWith(color: colour),
-                  ),
-                ),
-              ],
-            ),
-            Text(
-              value,
-              maxLines: 1,
-              style: theme.textTheme.headlineMedium
-                  ?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            Text(
-              detail,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+/// Shared with the loading skeleton, so the placeholder grid and the real one
+/// cannot disagree about how many columns are about to appear.
+const kpiGridDelegate = SliverGridDelegateWithMaxCrossAxisExtent(
+  // Wide enough for "12/40" and a label at the largest text size this app
+  // honours; narrow enough that a landscape tablet gets more tiles rather than
+  // fatter ones.
+  maxCrossAxisExtent: 240,
+  mainAxisSpacing: AppSpacing.md,
+  crossAxisSpacing: AppSpacing.md,
+  childAspectRatio: 1.35,
+);

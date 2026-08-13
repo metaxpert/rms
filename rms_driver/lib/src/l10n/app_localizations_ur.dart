@@ -34,10 +34,6 @@ class AppTextUr extends AppText {
   String get sectionDoneToday => 'آج مکمل';
 
   @override
-  String get wholeOutletBoard =>
-      'یہ پورے آؤٹ لیٹ کا بورڈ ہے — سرور صرف آپ کے اپنے رنز کی فہرست نہیں دیتا۔';
-
-  @override
   String get noAddress => 'کوئی پتہ درج نہیں';
 
   @override
@@ -186,4 +182,30 @@ class AppTextUr extends AppText {
 
   @override
   String get runAssigned => 'ایک رن مختص ہوا ہے۔';
+
+  @override
+  String get startShift => 'شفٹ شروع کریں';
+
+  @override
+  String get endShift => 'شفٹ ختم کریں';
+
+  @override
+  String get offShift => 'شفٹ بند ہے — آپ کو ڈیلیوری نہیں دی جائے گی';
+
+  @override
+  String onShiftSummary(int live, int done) {
+    return 'شفٹ جاری · $live زیرِ تکمیل · آج $done پہنچائی گئیں';
+  }
+
+  @override
+  String get riderNotLinked =>
+      'یہ لاگ اِن ابھی کسی رائیڈر سے منسلک نہیں۔ اپنے مینیجر سے رائیڈر فہرست میں منسلک کرنے کو کہیں۔';
+
+  @override
+  String get riderProfileUnavailable =>
+      'آپ کی رائیڈر تفصیلات لوڈ نہیں ہو سکیں۔';
+
+  @override
+  String get yourRunsOnly =>
+      'یہ صرف آپ کی ڈیلیوریاں ہیں۔ جو کام یہاں نظر نہیں آتا وہ کسی اور رائیڈر کو دیا گیا ہے۔';
 }

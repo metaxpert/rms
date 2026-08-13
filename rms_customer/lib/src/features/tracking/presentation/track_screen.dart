@@ -65,7 +65,10 @@ class _TrackScreenState extends ConsumerState<TrackScreen> {
         ),
       ),
       body: tracked.when(
-        loading: () => LoadingView(message: appText(context).findingOrder),
+        loading: () => LoadingView(
+          message: appText(context).findingOrder,
+          skeleton: const _TrackSkeleton(),
+        ),
         error: (error, _) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(trackedOrderProvider(widget.orderId)),
@@ -78,6 +81,40 @@ class _TrackScreenState extends ConsumerState<TrackScreen> {
             unsentAddress: widget.unsentAddress,
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The tracker's shape while the order is fetched: a headline, then the rail of
+/// steps. A guest who has just paid is watching this screen, and a spinner on
+/// it is the moment they wonder whether the order went through.
+class _TrackSkeleton extends StatelessWidget {
+  const _TrackSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SkeletonGroup(
+      child: ListView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        children: [
+          const Skeleton.line(widthFactor: 0.7, height: 26),
+          const SizedBox(height: AppSpacing.sm),
+          const Skeleton.line(widthFactor: 0.35),
+          const SizedBox(height: AppSpacing.xl),
+          for (var i = 0; i < 4; i++)
+            const Padding(
+              padding: EdgeInsets.only(bottom: AppSpacing.xl),
+              child: Row(
+                children: [
+                  Skeleton(width: 44, height: 44, radius: AppRadius.pill),
+                  SizedBox(width: AppSpacing.lg),
+                  Expanded(child: Skeleton.line(widthFactor: 0.55, height: 16)),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -113,7 +150,12 @@ class _TrackBody extends StatelessWidget {
         ),
         if (unsentAddress != null) _AddressWarning(address: unsentAddress!),
         const SizedBox(height: AppSpacing.xl),
-        for (final step in progress.steps) _Step(step: step),
+        for (var i = 0; i < progress.steps.length; i++)
+          _Step(
+            step: progress.steps[i],
+            // The last step has nothing below it to join to.
+            isLast: i == progress.steps.length - 1,
+          ),
         const SizedBox(height: AppSpacing.xl),
         if (order.lines.isNotEmpty) _OrderLines(order: order),
         const SizedBox(height: AppSpacing.lg),
@@ -177,60 +219,94 @@ class _AddressWarning extends StatelessWidget {
 }
 
 class _Step extends StatelessWidget {
-  const _Step({required this.step});
+  const _Step({required this.step, required this.isLast});
 
   final ProgressStep step;
+  final bool isLast;
+
+  static const _markerSize = 44.0;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
     final colour = step.active
         ? theme.colorScheme.primary
         : step.done
-            ? AppStatusColors.available
+            ? context.statusFill(AppStatusColors.available)
             : theme.colorScheme.outline;
 
     return Semantics(
       container: true,
       excludeSemantics: true,
-      label: appText(context).semanticsStep(
+      label: text.semanticsStep(
         step.label,
         step.active
-            ? appText(context).semanticsHappeningNow
+            ? text.semanticsHappeningNow
             : step.done
-                ? appText(context).semanticsDone
-                : appText(context).semanticsToCome,
+                ? text.semanticsDone
+                : text.semanticsToCome,
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      child: IntrinsicHeight(
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: colour.withValues(alpha: step.active ? 0.2 : 0.08),
-                border: Border.all(
-                  color: colour.withValues(alpha: step.active ? 1 : 0.4),
-                  width: step.active ? 2 : 1,
+            Column(
+              children: [
+                // Animated because this is the one screen a guest sits and
+                // watches: the marker filling in as the kitchen moves is the
+                // whole point of the page.
+                AnimatedContainer(
+                  duration: AppMotion.of(context, AppMotion.slow),
+                  curve: AppMotion.standard,
+                  width: _markerSize,
+                  height: _markerSize,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: colour.withValues(alpha: step.active ? 0.2 : 0.08),
+                    border: Border.all(
+                      color: colour.withValues(alpha: step.active ? 1 : 0.4),
+                      width: step.active ? 2 : 1,
+                    ),
+                  ),
+                  child: Icon(
+                    step.done ? Icons.check_rounded : step.icon,
+                    color: colour,
+                  ),
                 ),
-              ),
-              child: Icon(
-                step.done ? Icons.check_rounded : step.icon,
-                color: colour,
-              ),
+                // A rail joining the markers, so the steps read as one journey
+                // rather than as four unrelated rows. Coloured down to where
+                // the order has actually got to.
+                if (!isLast)
+                  Expanded(
+                    child: Container(
+                      width: 2,
+                      margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                      color: step.done
+                          ? context
+                              .statusFill(AppStatusColors.available)
+                              .withValues(alpha: 0.5)
+                          : theme.colorScheme.outlineVariant,
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(width: AppSpacing.lg),
             Expanded(
-              child: Text(
-                step.label,
-                style: step.active
-                    ? theme.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700)
-                    : theme.textTheme.bodyLarge?.copyWith(
-                        color: step.done ? null : theme.colorScheme.outline,
-                      ),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  top: AppSpacing.md,
+                  bottom: AppSpacing.xl,
+                ),
+                child: Text(
+                  step.label,
+                  style: step.active
+                      ? theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w700)
+                      : theme.textTheme.bodyLarge?.copyWith(
+                          color: step.done ? null : theme.colorScheme.outline,
+                        ),
+                ),
               ),
             ),
           ],

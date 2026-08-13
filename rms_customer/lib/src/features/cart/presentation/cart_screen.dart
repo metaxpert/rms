@@ -85,10 +85,23 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                     // bounded so a paste of somebody's whole life story does
                     // not become the order payload.
                     maxLength: 240,
+                    // An address is prose, not a name: sentence case, the
+                    // address keyboard, and the platform's saved address
+                    // offered rather than left to be retyped on a phone.
+                    textCapitalization: TextCapitalization.sentences,
+                    keyboardType: TextInputType.streetAddress,
+                    autofillHints: const [AutofillHints.fullStreetAddress],
+                    textInputAction: TextInputAction.done,
                     decoration: InputDecoration(
                       labelText: text.addressLabel,
                       hintText: text.addressHint,
-                      border: const OutlineInputBorder(),
+                      // The themed decoration, not a bare OutlineInputBorder:
+                      // this was the only field in the app that did not look
+                      // like the rest of the app.
+                      prefixIcon: const Padding(
+                        padding: EdgeInsets.only(bottom: AppSpacing.xl),
+                        child: Icon(Icons.location_on_outlined),
+                      ),
                     ),
                     onChanged: (_) => setState(() {}),
                   ),
@@ -120,12 +133,19 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                                 strokeWidth: 2, color: Colors.white),
                           )
                         : const Icon(Icons.send_rounded),
-                    label: Text(
-                      checkout.isPlacing
-                          ? text.sending
-                          : checkout.pending != null
-                              ? text.tryAgain
-                              : text.placeOrder,
+                    // Shrinks rather than ellipsising. "Place o…" on the button
+                    // that takes a guest's money is not an acceptable last
+                    // resort; a couple of points smaller is.
+                    label: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        checkout.isPlacing
+                            ? text.sending
+                            : checkout.pending != null
+                                ? text.tryAgain
+                                : text.placeOrder,
+                        maxLines: 1,
+                      ),
                     ),
                   ),
                 ),
@@ -157,55 +177,154 @@ class _CartLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final text = appText(context);
+
+    // Two rows rather than one. The single row put a name, two 56dp buttons, a
+    // quantity and a total side by side: on a 360-pixel phone that left about
+    // ninety pixels for the dish, so "Chicken Karahi (Half)" arrived as
+    // "Chicken…". The name now gets the full width and the controls get their
+    // own line, where they are also easier to hit.
+    final name = Text(line.name, style: theme.textTheme.titleSmall);
+    final total = Text(
+      line.taxable.display,
+      style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+    );
+
+    // Past about 1.4x, "Rs 2,202.84" alone is wider than a 360-pixel phone, so
+    // the dish name has nowhere to go and the two collide. Stacking them is the
+    // only honest answer: the figure must not be shrunk to fit — it is what the
+    // guest is being charged — and the name must not be reduced to two letters.
+    final stacked = MediaQuery.textScalerOf(context).scale(1) > 1.4;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Column(
+          if (stacked) ...[
+            name,
+            const SizedBox(height: AppSpacing.xs),
+            total,
+          ] else
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(line.name, style: theme.textTheme.titleSmall),
-                Text(
-                  line.unitPrice.display,
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                ),
+                Expanded(child: name),
+                const SizedBox(width: AppSpacing.md),
+                total,
               ],
             ),
+          const SizedBox(height: AppSpacing.xs),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  line.unitPrice.display,
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
+              _QtyStepper(
+                qty: line.qty,
+                onQty: onQty,
+                removeTooltip: text.remove,
+                fewerTooltip: text.oneFewer,
+                moreTooltip: text.oneMore,
+              ),
+            ],
           ),
-          IconButton.outlined(
-            onPressed: onQty == null ? null : () => onQty!(line.qty - 1),
-            icon: Icon(line.qty > 1
-                ? Icons.remove_rounded
-                : Icons.delete_outline_rounded),
-            tooltip: line.qty > 1
-                ? appText(context).oneFewer
-                : appText(context).remove,
+        ],
+      ),
+    );
+  }
+}
+
+/// Minus, quantity, plus — as one bounded control.
+///
+/// Three loose `IconButton`s here cost the row its whole width at the 2x text
+/// this app honours: their intrinsic size grows with the text scale, the price
+/// beside them was flexed down to nothing, and the line rendered fourteen
+/// hundred pixels tall. A stepper is a fixed piece of furniture, so it is built
+/// as one and given a size it cannot exceed.
+class _QtyStepper extends StatelessWidget {
+  const _QtyStepper({
+    required this.qty,
+    required this.onQty,
+    required this.removeTooltip,
+    required this.fewerTooltip,
+    required this.moreTooltip,
+  });
+
+  final int qty;
+  final ValueChanged<int>? onQty;
+  final String removeTooltip;
+  final String fewerTooltip;
+  final String moreTooltip;
+
+  /// Comfortably past Material's 48dp minimum: this is tapped repeatedly, on a
+  /// phone, often one-handed.
+  static const _button = 52.0;
+  static const _readout = 44.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    Widget step({
+      required IconData icon,
+      required String tooltip,
+      required VoidCallback? onPressed,
+    }) =>
+        Tooltip(
+          message: tooltip,
+          child: Semantics(
+            button: true,
+            label: tooltip,
+            child: InkWell(
+              onTap: onPressed,
+              customBorder: const CircleBorder(),
+              child: SizedBox(
+                width: _button,
+                height: _button,
+                child: Icon(
+                  icon,
+                  size: 22,
+                  color: onPressed == null
+                      ? theme.colorScheme.outline
+                      : theme.colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ),
+        );
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          step(
+            // The first tap down from one removes the line, so the icon says so
+            // rather than leaving a guest to discover it.
+            icon: qty > 1 ? Icons.remove_rounded : Icons.delete_outline_rounded,
+            tooltip: qty > 1 ? fewerTooltip : removeTooltip,
+            onPressed: onQty == null ? null : () => onQty!(qty - 1),
           ),
           SizedBox(
-            width: 36,
+            width: _readout,
             child: Text(
-              '${line.qty}',
+              '$qty',
               textAlign: TextAlign.center,
+              maxLines: 1,
               style: theme.textTheme.titleMedium,
             ),
           ),
-          IconButton.outlined(
-            onPressed: onQty == null || line.qty >= 99
-                ? null
-                : () => onQty!(line.qty + 1),
-            icon: const Icon(Icons.add_rounded),
-            tooltip: appText(context).oneMore,
-          ),
-          SizedBox(
-            width: 92,
-            child: Text(
-              line.taxable.display,
-              textAlign: TextAlign.end,
-              style: theme.textTheme.titleSmall,
-            ),
+          step(
+            icon: Icons.add_rounded,
+            tooltip: moreTooltip,
+            onPressed: onQty == null || qty >= 99 ? null : () => onQty!(qty + 1),
           ),
         ],
       ),
@@ -226,22 +345,30 @@ class _ChannelPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SegmentedButton<OrderChannel>(
-      segments: [
-        ButtonSegment(
-          value: OrderChannel.delivery,
-          icon: const Icon(Icons.delivery_dining_rounded),
-          label: Text(appText(context).delivery),
-        ),
-        ButtonSegment(
-          value: OrderChannel.takeaway,
-          icon: const Icon(Icons.shopping_bag_outlined),
-          label: Text(appText(context).collection),
-        ),
-      ],
-      selected: {channel},
-      onSelectionChanged:
-          enabled ? (selection) => onChanged(selection.first) : null,
+    // A segmented button sizes itself to its labels and will not shrink to fit.
+    // "Delivery" and "Collection" plus their icons overflow a small phone once
+    // the reader's text size passes about 1.6x, so it scales down rather than
+    // clipping — still larger than the default, and still whole.
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: AlignmentDirectional.centerStart,
+      child: SegmentedButton<OrderChannel>(
+        segments: [
+          ButtonSegment(
+            value: OrderChannel.delivery,
+            icon: const Icon(Icons.delivery_dining_rounded),
+            label: Text(appText(context).delivery),
+          ),
+          ButtonSegment(
+            value: OrderChannel.takeaway,
+            icon: const Icon(Icons.shopping_bag_outlined),
+            label: Text(appText(context).collection),
+          ),
+        ],
+        selected: {channel},
+        onSelectionChanged:
+            enabled ? (selection) => onChanged(selection.first) : null,
+      ),
     );
   }
 }
@@ -267,7 +394,15 @@ class _Totals extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [Text(label, style: style), Text(amount.display, style: style)],
+          children: [
+            // The label yields, the figure never does. At the 2x text this app
+            // honours, "Total" and "Rs 2,202.84" together are wider than a
+            // 360-pixel phone, and an unflexed Row clips whichever it reaches
+            // last — which is the amount.
+            Flexible(child: Text(label, style: style)),
+            const SizedBox(width: AppSpacing.md),
+            Text(amount.display, style: style),
+          ],
         ),
       );
     }
@@ -304,44 +439,21 @@ class _CheckoutProblem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final text = appText(context);
 
-    return Container(
+    return AppNotice(
+      tone: NoticeTone.danger,
+      title: text.checkoutFailedTitle,
+      message: [
+        checkout.error?.message ?? text.checkoutInterrupted,
+        // Saying "nothing was ordered" would be a guess the kitchen could
+        // contradict.
+        if (checkout.orderExists) text.checkoutPartial,
+      ].join('\n\n'),
       margin: const EdgeInsets.only(top: AppSpacing.lg),
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            text.checkoutFailedTitle,
-            style: theme.textTheme.titleSmall,
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            checkout.error?.message ?? text.checkoutInterrupted,
-            style: theme.textTheme.bodySmall,
-          ),
-          if (checkout.orderExists) ...[
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              // Saying "nothing was ordered" would be a guess the kitchen could
-              // contradict.
-              text.checkoutPartial,
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            ),
-          ],
-          const SizedBox(height: AppSpacing.sm),
-          TextButton(
-            onPressed: onDiscard,
-            child: Text(text.startOrderAgain),
-          ),
-        ],
+      action: TextButton(
+        onPressed: onDiscard,
+        child: Text(text.startOrderAgain),
       ),
     );
   }

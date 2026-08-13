@@ -8,7 +8,6 @@
   "nothingToDeliverMessage": "New runs appear here as the kitchen dispatches them. Pull down to check again.",
   "sectionOnTheGo": "On the go",
   "sectionDoneToday": "Done today",
-  "wholeOutletBoard": "This is the whole outlet's board — the server does not offer a list of just your own runs.",
   "noAddress": "No address on file",
   "etaMinutes": "ETA {minutes} min",
   "@etaMinutes": {
@@ -103,5 +102,22 @@
   "markFailed": "Mark failed",
   "driverSignIn": "Driver sign in",
   "whichKitchen": "Which kitchen?",
-  "runAssigned": "A run has been assigned."
+  "runAssigned": "A run has been assigned.",
+  "startShift": "Start shift",
+  "endShift": "End shift",
+  "offShift": "Off shift — you will not be given deliveries",
+  "onShiftSummary": "On shift · {live} in hand · {done} delivered today",
+  "@onShiftSummary": {
+    "placeholders": {
+      "live": {
+        "type": "int"
+      },
+      "done": {
+        "type": "int"
+      }
+    }
+  },
+  "riderNotLinked": "This login is not linked to a rider yet. Ask your manager to link it on the rider roster.",
+  "riderProfileUnavailable": "Could not load your rider details.",
+  "yourRunsOnly": "These are your runs only. A job you cannot see has been given to another rider."
 }

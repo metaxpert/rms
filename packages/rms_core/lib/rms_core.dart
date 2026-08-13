@@ -58,9 +58,13 @@ export 'src/providers.dart';
 // exactly the same three endpoints; only the presentation differs.
 export 'src/menu/menu_repository.dart';
 
-// Design system and shared state surfaces
+// Design system and shared state surfaces. One system across four apps: the
+// tokens and components are identical everywhere, and only AppFlavor's primary
+// hue tells the apps apart.
 export 'src/theme/app_theme.dart';
 export 'src/widgets/state_views.dart';
+export 'src/widgets/app_components.dart';
+export 'src/widgets/skeletons.dart';
 
 // Domain vocabulary, mirroring the backend exactly
 export 'src/domain/branch.dart';

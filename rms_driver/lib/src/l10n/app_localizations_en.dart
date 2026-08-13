@@ -34,10 +34,6 @@ class AppTextEn extends AppText {
   String get sectionDoneToday => 'Done today';
 
   @override
-  String get wholeOutletBoard =>
-      'This is the whole outlet\'s board — the server does not offer a list of just your own runs.';
-
-  @override
   String get noAddress => 'No address on file';
 
   @override
@@ -186,4 +182,29 @@ class AppTextEn extends AppText {
 
   @override
   String get runAssigned => 'A run has been assigned.';
+
+  @override
+  String get startShift => 'Start shift';
+
+  @override
+  String get endShift => 'End shift';
+
+  @override
+  String get offShift => 'Off shift — you will not be given deliveries';
+
+  @override
+  String onShiftSummary(int live, int done) {
+    return 'On shift · $live in hand · $done delivered today';
+  }
+
+  @override
+  String get riderNotLinked =>
+      'This login is not linked to a rider yet. Ask your manager to link it on the rider roster.';
+
+  @override
+  String get riderProfileUnavailable => 'Could not load your rider details.';
+
+  @override
+  String get yourRunsOnly =>
+      'These are your runs only. A job you cannot see has been given to another rider.';
 }

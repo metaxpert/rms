@@ -7,6 +7,7 @@ import 'package:rms_core/rms_core.dart';
 import '../../../app/router/app_router.dart';
 import '../../../l10n/app_text.dart';
 import '../data/delivery_repository.dart';
+import '../data/driver_repository.dart';
 
 /// The rider's board.
 ///
@@ -37,14 +38,33 @@ class RunListScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: board.when(
-        loading: () => LoadingView(message: text.runsLoading),
+      body: Column(
+        children: [
+          const _DutyBar(),
+          Expanded(child: _board(context, ref, board)),
+        ],
+      ),
+    );
+  }
+
+  Widget _board(BuildContext context, WidgetRef ref, AsyncValue<RunBoard> board) {
+    final text = appText(context);
+    return board.when(
+        loading: () => LoadingView(
+          message: text.runsLoading,
+          // A rider opens this at a kerb with one hand. Cards forming says the
+          // phone found the server; a spinner says nothing either way.
+          skeleton: const SkeletonList(rows: 4, rowHeight: 148),
+        ),
         error: (error, _) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(runBoardProvider),
         ),
         data: (board) => RefreshIndicator(
-          onRefresh: () async => ref.invalidate(runBoardProvider),
+          onRefresh: () async {
+            ref.invalidate(runBoardProvider);
+            ref.invalidate(driverProfileProvider);
+          },
           child: board.isEmpty
               ? ListView(
                   // Must scroll or pull-to-refresh cannot fire when empty.
@@ -62,20 +82,23 @@ class RunListScreen extends ConsumerWidget {
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   children: [
                     if (board.active.isNotEmpty) ...[
-                      _SectionHeader(text.sectionOnTheGo),
+                      SectionHeader(text.sectionOnTheGo),
                       for (final delivery in board.active)
                         _RunTile(delivery: delivery),
                     ],
                     if (board.finished.isNotEmpty) ...[
-                      _SectionHeader(text.sectionDoneToday),
+                      SectionHeader(text.sectionDoneToday),
                       for (final delivery in board.finished)
                         _RunTile(delivery: delivery, dimmed: true),
                     ],
                     const SizedBox(height: AppSpacing.lg),
                     Text(
-                      // Saying so beats a rider assuming a colleague's job is
-                      // theirs, or that theirs is missing.
-                      text.wholeOutletBoard,
+                      // Was "this is the whole outlet's board", which stopped
+                      // being true when the server began scoping runs to the
+                      // signed-in rider. A rider seeing only their own work
+                      // needs to know that is deliberate, or a quiet shift
+                      // reads as a broken app.
+                      text.yourRunsOnly,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant),
                       textAlign: TextAlign.center,
@@ -83,34 +106,126 @@ class RunListScreen extends ConsumerWidget {
                   ],
                 ),
         ),
-      ),
     );
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader(this.label);
-
-  final String label;
+/// The shift control, pinned above the board.
+///
+/// A rider who has not started their shift gets no work — dispatch cannot assign
+/// to someone off duty — so the state of that switch is the first thing the
+/// screen has to answer, before the (correctly) empty list below it prompts the
+/// wrong question.
+class _DutyBar extends ConsumerWidget {
+  const _DutyBar();
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        top: AppSpacing.md,
-        bottom: AppSpacing.sm,
-      ),
-      child: Text(
-        label.toUpperCase(),
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.6,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(driverProfileProvider);
+    final theme = Theme.of(context);
+    final text = appText(context);
+
+    return profile.when(
+      loading: () => const SizedBox(height: 4, child: LinearProgressIndicator()),
+      // A rider whose login is not linked to a roster record cannot be helped by
+      // retrying, so they are told who can help instead.
+      error: (error, _) => Container(
+        width: double.infinity,
+        color: context.statusFill(AppStatusColors.cancelled)
+            .withValues(alpha: 0.12),
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Row(
+          children: [
+            Icon(
+              Icons.badge_outlined,
+              size: 18,
+              color: context.statusText(AppStatusColors.cancelled),
             ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                error is ApiException && error.kind == ApiErrorKind.forbidden
+                    ? text.riderNotLinked
+                    : text.riderProfileUnavailable,
+                style: theme.textTheme.bodySmall,
+              ),
+            ),
+          ],
+        ),
       ),
+      data: (me) {
+        final busy = ref.watch(_dutyBusyProvider);
+        return AnimatedContainer(
+          // Clocking on is the one thing that changes what the rest of this
+          // screen means; the bar changing colour under the thumb is the
+          // confirmation, so it is worth animating rather than snapping.
+          duration: AppMotion.of(context),
+          curve: AppMotion.standard,
+          width: double.infinity,
+          color: me.isOnShift
+              ? context.statusFill(AppStatusColors.available)
+                  .withValues(alpha: 0.12)
+              : theme.colorScheme.surfaceContainerHighest,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(me.displayName, style: theme.textTheme.titleSmall),
+                    Text(
+                      me.isOnShift
+                          ? text.onShiftSummary(me.liveRuns, me.deliveredToday)
+                          : text.offShift,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (busy)
+                const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              else if (me.isOnShift)
+                TextButton(
+                  // Refused server-side while holding work, so it is disabled
+                  // here rather than offered and then rejected.
+                  onPressed: me.canEndShift ? () => _setDuty(ref, false) : null,
+                  child: Text(text.endShift),
+                )
+              else
+                FilledButton(
+                  onPressed: () => _setDuty(ref, true),
+                  child: Text(text.startShift),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
+
+  Future<void> _setDuty(WidgetRef ref, bool onShift) async {
+    ref.read(_dutyBusyProvider.notifier).state = true;
+    try {
+      await ref.read(driverRepositoryProvider).setDuty(onShift: onShift);
+      ref.invalidate(driverProfileProvider);
+      ref.invalidate(runBoardProvider);
+    } finally {
+      ref.read(_dutyBusyProvider.notifier).state = false;
+    }
+  }
 }
+
+final _dutyBusyProvider = StateProvider<bool>((ref) => false);
 
 class _RunTile extends StatelessWidget {
   const _RunTile({required this.delivery, this.dimmed = false});

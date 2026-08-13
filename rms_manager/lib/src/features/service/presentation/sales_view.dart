@@ -28,14 +28,14 @@ class SalesView extends StatelessWidget {
         _Summary(snapshot: snapshot),
         const SizedBox(height: AppSpacing.lg),
         if (snapshot.openOrders.isNotEmpty) ...[
-          _Header(
+          SectionHeader(
             text.stillOpen,
-            trailing: snapshot.openValue.display,
+            trailing: Text(snapshot.openValue.display),
           ),
           for (final order in snapshot.openOrders) _OrderRow(order: order),
           const SizedBox(height: AppSpacing.lg),
         ],
-        _Header(text.settled, trailing: '${settled.length}'),
+        SectionHeader(text.settled, trailing: Text('${settled.length}')),
         if (settled.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
@@ -124,37 +124,6 @@ class _Summary extends StatelessWidget {
   }
 }
 
-class _Header extends StatelessWidget {
-  const _Header(this.label, {this.trailing});
-
-  final String label;
-  final String? trailing;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label.toUpperCase(),
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.6,
-              ),
-            ),
-          ),
-          if (trailing != null)
-            Text(trailing!, style: theme.textTheme.labelLarge),
-        ],
-      ),
-    );
-  }
-}
-
 class _OrderRow extends StatelessWidget {
   const _OrderRow({required this.order});
 
@@ -168,7 +137,11 @@ class _OrderRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
       child: Row(
         children: [
-          Icon(order.status.icon, size: 18, color: order.status.color),
+          Icon(
+            order.status.icon,
+            size: 18,
+            color: context.statusFill(order.status.color),
+          ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(

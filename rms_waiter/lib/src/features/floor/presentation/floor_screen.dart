@@ -47,7 +47,10 @@ class _FloorScreenState extends ConsumerState<FloorScreen> {
         ],
       ),
       body: snapshot.when(
-        loading: () => LoadingView(message: text.floorLoading),
+        loading: () => LoadingView(
+          message: text.floorLoading,
+          skeleton: const _FloorSkeleton(),
+        ),
         error: (error, _) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(floorSnapshotProvider),
@@ -63,6 +66,70 @@ class _FloorScreenState extends ConsumerState<FloorScreen> {
           onAreaSelected: (id) => setState(() => _selectedAreaId = id),
           onRefresh: () async => ref.invalidate(floorSnapshotProvider),
         ),
+      ),
+    );
+  }
+}
+
+/// The floor, in outline, while the real one loads.
+///
+/// Shaped like what is coming — a summary strip, the area chips, then the grid
+/// — so the screen does not visibly re-assemble when the data lands. On a
+/// tablet that reconnects at the start of every shift this is the first thing a
+/// waiter sees, and a spinner there looks the same whether the request is in
+/// flight or the wifi died thirty seconds ago.
+class _FloorSkeleton extends StatelessWidget {
+  const _FloorSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return SkeletonGroup(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.lg,
+            ),
+            color: Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest
+                .withValues(alpha: 0.5),
+            child: const Row(
+              children: [
+                Skeleton(width: 96, height: 18),
+                SizedBox(width: AppSpacing.xl),
+                Skeleton(width: 112, height: 18),
+              ],
+            ),
+          ),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.md,
+            ),
+            child: Row(
+              children: [
+                Skeleton(width: 108, height: 32, radius: AppRadius.pill),
+                SizedBox(width: AppSpacing.sm),
+                Skeleton(width: 92, height: 32, radius: AppRadius.pill),
+                SizedBox(width: AppSpacing.sm),
+                Skeleton(width: 84, height: 32, radius: AppRadius.pill),
+              ],
+            ),
+          ),
+          const Expanded(
+            child: SkeletonGrid(
+              tiles: 12,
+              maxCrossAxisExtent: AppSizes.tableCardMin,
+              aspectRatio: 0.95,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -178,11 +245,17 @@ class _FloorBody extends StatelessWidget {
                       ),
                     ],
                   )
-                : _TableLayout(
-                    floor: floor,
-                    tables: tables,
-                    draftTableIds: draftTableIds,
-                    pendingSendTableIds: pendingSendTableIds,
+                // One fade for the whole plan rather than a stagger per card:
+                // a floor can hold sixty tables, and sixty controllers to make
+                // a grid arrive prettily is the kind of polish that shows up as
+                // jank on the tablet the restaurant actually owns.
+                : FadeIn(
+                    child: _TableLayout(
+                      floor: floor,
+                      tables: tables,
+                      draftTableIds: draftTableIds,
+                      pendingSendTableIds: pendingSendTableIds,
+                    ),
                   ),
           ),
         ),
@@ -291,9 +364,9 @@ class _Metric extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     // The fill palette is tuned for borders and icons; small text needs the
-    // darker variant to clear WCAG AA.
+    // variant corrected for this brightness to clear WCAG AA.
     final color = highlight
-        ? AppStatusColors.textOn(AppStatusColors.ready)
+        ? context.statusText(AppStatusColors.ready)
         : theme.colorScheme.onSurfaceVariant;
     return Row(
       mainAxisSize: MainAxisSize.min,

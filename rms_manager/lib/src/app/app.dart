@@ -15,8 +15,8 @@ class ManagerApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'RMS Manager',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
+      theme: AppTheme.light(flavor: AppFlavor.manager),
+      darkTheme: AppTheme.dark(flavor: AppFlavor.manager),
       routerConfig: ref.watch(routerProvider),
       // English today, Urdu proven end to end — including right-to-left
       // layout, which is the part that breaks silently if nobody exercises it.
