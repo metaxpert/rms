@@ -79,6 +79,10 @@ class _CartScreenState extends ConsumerState<CartScreen> {
                     enabled: !checkout.isPlacing,
                     minLines: 2,
                     maxLines: 3,
+                    // Long enough for a Pakistani address with a landmark,
+                    // bounded so a paste of somebody's whole life story does
+                    // not become the order payload.
+                    maxLength: 240,
                     decoration: const InputDecoration(
                       labelText: 'Where should we bring it?',
                       hintText: 'House, street, area — and a landmark helps',

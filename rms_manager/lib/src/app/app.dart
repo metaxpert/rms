@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:rms_core/rms_core.dart';
@@ -16,6 +17,17 @@ class ManagerApp extends ConsumerWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       routerConfig: ref.watch(routerProvider),
+      // English today, Urdu proven end to end — including right-to-left
+      // layout, which is the part that breaks silently if nobody exercises it.
+      // The remaining screens still read English literals; see the l10n note
+      // in rms_core.
+      localizationsDelegates: const [
+        RmsLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: RmsLocalizations.supportedLocales,
       builder: (context, child) {
         final media = MediaQuery.of(context);
         return MediaQuery(

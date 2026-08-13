@@ -188,6 +188,8 @@ class _Step extends StatelessWidget {
             : theme.colorScheme.outline;
 
     return Semantics(
+      container: true,
+      excludeSemantics: true,
       label: '${step.label}: '
           '${step.active ? 'happening now' : step.done ? 'done' : 'still to come'}',
       child: Padding(

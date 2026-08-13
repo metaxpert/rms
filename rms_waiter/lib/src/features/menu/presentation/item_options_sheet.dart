@@ -244,6 +244,10 @@ class _Options extends StatelessWidget {
             prefixIcon: Icon(Icons.edit_note_rounded),
           ),
           maxLines: 2,
+          // A KOT is 32 columns of thermal paper. Past a couple of lines a
+          // chef never reads it, and an unbounded field is a payload nobody
+          // has budgeted for.
+          maxLength: 140,
         ),
       ],
     );

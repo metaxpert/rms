@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../config/environment.dart';
 import '../providers.dart';
+import '../l10n/strings.dart';
 import '../theme/app_theme.dart';
 import 'auth_controller.dart';
 import 'server_settings_sheet.dart';
@@ -68,6 +69,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final theme = Theme.of(context);
     final auth = ref.watch(authControllerProvider);
     final env = Environment.current;
+    final text = strings(context);
 
     return Scaffold(
       body: SafeArea(
@@ -112,12 +114,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       enabled: !auth.isBusy,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        prefixIcon: Icon(Icons.person_outline),
+                      decoration: InputDecoration(
+                        labelText: text.signInEmail,
+                        prefixIcon: const Icon(Icons.person_outline),
                       ),
                       validator: (v) => (v == null || v.trim().isEmpty)
-                          ? 'Enter your email'
+                          ? text.signInEmailMissing
                           : null,
                     ),
                     const SizedBox(height: AppSpacing.lg),
@@ -128,7 +130,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => _submit(),
                       decoration: InputDecoration(
-                        labelText: 'Password',
+                        labelText: text.signInPassword,
                         prefixIcon: const Icon(Icons.lock_outline),
                         suffixIcon: IconButton(
                           onPressed: () => setState(() => _obscure = !_obscure),
@@ -136,11 +138,13 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                               ? Icons.visibility_outlined
                               : Icons.visibility_off_outlined),
                           // Screen readers need this; the icon alone says nothing.
-                          tooltip: _obscure ? 'Show password' : 'Hide password',
+                          tooltip: _obscure
+                              ? text.signInShowPassword
+                              : text.signInHidePassword,
                         ),
                       ),
                       validator: (v) => (v == null || v.isEmpty)
-                          ? 'Enter your password'
+                          ? text.signInPasswordMissing
                           : null,
                     ),
                     if (auth.error != null) ...[
@@ -159,7 +163,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                 child:
                                     CircularProgressIndicator(strokeWidth: 2),
                               )
-                            : const Text('Sign in'),
+                            : Text(text.signIn),
                       ),
                     ),
                     const SizedBox(height: AppSpacing.md),
@@ -168,7 +172,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           ? null
                           : () => ServerSettingsSheet.show(context),
                       icon: const Icon(Icons.dns_outlined),
-                      label: const Text('Server settings'),
+                      label: Text(text.serverSettings),
                     ),
                   ],
                 ),

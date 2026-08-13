@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # Shared foundation for all four RMS apps: API client with token refresh,
   # session, money, theme, domain models. See packages/rms_core.

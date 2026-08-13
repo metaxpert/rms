@@ -12,16 +12,44 @@ import 'receipt_sheet.dart';
 /// Everything shown here is the server's arithmetic, not the app's. The draft
 /// ticket predicts a total so a waiter can quote one; this screen reports the
 /// figure the guest is actually charged and the ledger is actually posted from.
-class BillScreen extends ConsumerWidget {
+class BillScreen extends ConsumerStatefulWidget {
   const BillScreen({super.key, required this.tableId, this.tableCode});
 
   final String tableId;
   final String? tableCode;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BillScreen> createState() => _BillScreenState();
+}
+
+class _BillScreenState extends ConsumerState<BillScreen> {
+  /// The bill this screen is about, remembered once seen.
+  ///
+  /// Settling closes the order, so the very next read of "the open order for
+  /// this table" is correctly empty. Without holding on to the id, the screen
+  /// would answer a successful settlement with "No open bill" — leaving a
+  /// waiter who has just taken money with no idea whether it worked.
+  String? _orderId;
+
+  @override
+  Widget build(BuildContext context) {
+    final tableId = widget.tableId;
     final orderAsync = ref.watch(tableOrderProvider(tableId));
-    final title = tableCode == null ? 'Bill' : 'Bill · Table $tableCode';
+    final title =
+        widget.tableCode == null ? 'Bill' : 'Bill · Table ${widget.tableCode}';
+
+    final fetched = orderAsync.valueOrNull;
+    if (fetched != null) _orderId = fetched.id;
+
+    final settled = _orderId == null
+        ? null
+        : ref.watch(settleControllerProvider(_orderId!)).order;
+    if (settled != null && settled.status == OrderStatus.settled) {
+      return Scaffold(
+        appBar: AppBar(title: Text(title)),
+        body: _SettledView(order: settled),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text(title)),
@@ -57,10 +85,9 @@ class _BillBody extends ConsumerWidget {
     final controller = ref.read(settleControllerProvider(order.id).notifier);
 
     // A bill settled in this session is the authority over the fetch behind it.
+    // The SETTLED case is handled a level up, in [BillScreen], because by then
+    // the fetch has no open order to hand down at all.
     final current = settle.order ?? order;
-    if (current.status == OrderStatus.settled) {
-      return _SettledView(order: current);
-    }
 
     if (!current.isOpen) {
       return EmptyView(

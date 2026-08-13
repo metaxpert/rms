@@ -1,0 +1,40 @@
+{
+  "@@locale": "ur",
+
+  "loading": "لوڈ ہو رہا ہے…",
+  "tryAgain": "دوبارہ کوشش کریں",
+
+  "errorNoConnectionTitle": "کوئی کنکشن نہیں",
+  "errorSignedOutTitle": "سائن آؤٹ ہو گئے",
+  "errorNotAllowedTitle": "اجازت نہیں",
+  "errorNotFoundTitle": "نہیں ملا",
+  "errorRejectedTitle": "یہ نہیں ہو سکا",
+  "errorServerTitle": "سرور کا مسئلہ",
+  "errorUnknownTitle": "کچھ غلط ہو گیا",
+
+  "errorReference": "حوالہ: {traceId}",
+
+  "signIn": "سائن ان",
+  "signInEmail": "ای میل",
+  "signInPassword": "پاس ورڈ",
+  "signInEmailMissing": "اپنا ای میل درج کریں",
+  "signInPasswordMissing": "اپنا پاس ورڈ درج کریں",
+  "signInShowPassword": "پاس ورڈ دکھائیں",
+  "signInHidePassword": "پاس ورڈ چھپائیں",
+
+  "serverSettings": "سرور کی ترتیبات",
+  "serverSettingsBlurb": "آپ کے ریسٹورنٹ سرور کا پتہ۔ اگر یقین نہ ہو تو اپنے مینیجر سے پوچھیں۔",
+  "serverAddress": "سرور کا پتہ",
+  "serverAddressMissing": "سرور کا پتہ درج کریں",
+  "serverAddressNeedsScheme": "http:// یا https:// شامل کریں",
+  "serverDefaultForBuild": "اس بلڈ کا ڈیفالٹ ({environment}): {url}",
+  "save": "محفوظ کریں",
+  "signOut": "سائن آؤٹ",
+
+  "outletsEmptyTitle": "کوئی آؤٹ لیٹ دستیاب نہیں",
+  "outletsEmptyMessage": "آپ کا اکاؤنٹ کسی آؤٹ لیٹ سے منسلک نہیں۔ اپنے مینیجر سے کہیں کہ آپ کو شامل کریں۔",
+  "outletsLoading": "آؤٹ لیٹس لوڈ ہو رہے ہیں…",
+  "outletClosed": "یہ آؤٹ لیٹ بند ہے",
+  "outletNotConfigured": "ابھی سروس کے لیے تیار نہیں — اپنے مینیجر سے پوچھیں",
+  "checkAgain": "دوبارہ دیکھیں"
+}

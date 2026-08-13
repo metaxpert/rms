@@ -135,17 +135,54 @@ class Money {
     }
   }
 
+  /// The largest amount this app will accept from a keyboard: ten billion
+  /// major units.
+  ///
+  /// Not a business rule — no restaurant takes that — but a boundary. Past
+  /// roughly 9.2×10^16 minor units an `int` wraps, and a wrapped total is a
+  /// wrong bill that looks like a right one. Refusing early turns a fat-fingered
+  /// "100000000000000000000" into a field error a waiter can see instead.
+  static const maxParsableMinor = 1000000000000;
+
+  static final _decimal = RegExp(r'^([+-]?)(\d*)(?:\.(\d*))?$');
+
   /// Parse a user-typed major-unit amount ("2320.50") into minor units.
+  ///
+  /// Parsed **decimally, never through a `double`** — this was the last place a
+  /// float touched money, and it was wrong: `1.005 * 100` is 100.49999999999999
+  /// in binary, so half-up rounding produced 1.00 where the documented
+  /// behaviour is 1.01. Reading the digits directly makes the arithmetic exact
+  /// and removes the only remaining route by which the ADR could be violated.
+  ///
   /// Returns null when the text is not a valid amount, so callers can show a
   /// field error rather than silently treating garbage as zero.
   static Money? tryParse(String text, [String currency = 'PKR']) {
-    final cleaned = text.replaceAll(',', '').trim();
+    final cleaned = text.replaceAll(',', '').replaceAll(' ', '').trim();
     if (cleaned.isEmpty) return null;
-    final value = double.tryParse(cleaned);
-    if (value == null || value.isNaN || value.isInfinite) return null;
-    // Round half-up on the absolute value for the same symmetry reason as applyBp.
-    final sign = value.isNegative ? -1 : 1;
-    return Money(sign * (value.abs() * 100 + 0.5).floor(), currency);
+
+    final match = _decimal.firstMatch(cleaned);
+    if (match == null) return null;
+
+    final whole = match.group(2) ?? '';
+    final fraction = match.group(3) ?? '';
+    // "." and "+" alone are not amounts.
+    if (whole.isEmpty && fraction.isEmpty) return null;
+
+    final units = whole.isEmpty ? 0 : int.tryParse(whole);
+    if (units == null) return null;
+    // A ceiling on the digits, not just the value: `int.parse` on a hundred
+    // digits throws, and a wrapped total is a wrong bill that looks right.
+    if (units > maxParsableMinor ~/ 100) return null;
+
+    final padded = fraction.padRight(3, '0');
+    final paisa = int.parse(padded.substring(0, 2));
+    // Half-up on the third decimal, on the ABSOLUTE value, so a refund rounds
+    // the mirror of the charge it reverses.
+    final roundUp = padded.codeUnitAt(2) >= 0x35; // '5'
+
+    final minor = units * 100 + paisa + (roundUp ? 1 : 0);
+    if (minor > maxParsableMinor) return null;
+    return Money(match.group(1) == '-' ? -minor : minor, currency);
   }
 
   @override

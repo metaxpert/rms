@@ -290,8 +290,11 @@ class _Metric extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final color =
-        highlight ? AppStatusColors.ready : theme.colorScheme.onSurfaceVariant;
+    // The fill palette is tuned for borders and icons; small text needs the
+    // darker variant to clear WCAG AA.
+    final color = highlight
+        ? AppStatusColors.textOn(AppStatusColors.ready)
+        : theme.colorScheme.onSurfaceVariant;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -363,6 +366,12 @@ class _TableLayout extends StatelessWidget {
   final Set<String> draftTableIds;
   final Set<String> pendingSendTableIds;
 
+  /// Below this a table is not reliably tappable by someone walking.
+  ///
+  /// The Material minimum is 48; a waiter is doing this one-handed, at speed,
+  /// carrying something in the other hand.
+  static const _minTouchTarget = 48.0;
+
   @override
   Widget build(BuildContext context) {
     final positioned = tables.where((t) => t.position != null).toList();
@@ -372,19 +381,57 @@ class _TableLayout extends StatelessWidget {
     final useSpatial =
         positioned.length == tables.length && positioned.isNotEmpty;
 
-    return useSpatial
-        ? _SpatialFloorPlan(
-            floor: floor,
-            tables: tables,
-            draftTableIds: draftTableIds,
-            pendingSendTableIds: pendingSendTableIds,
-          )
-        : _TableGrid(
+    if (!useSpatial) {
+      return _TableGrid(
+        floor: floor,
+        tables: tables,
+        draftTableIds: draftTableIds,
+        pendingSendTableIds: pendingSendTableIds,
+      );
+    }
+
+    // A designer's canvas can be far wider than a tablet. Scaled to fit, a
+    // table on a big plan can end up a few pixels across — spatially faithful
+    // and completely untappable. Where that happens the grid wins: a waiter who
+    // cannot hit the table has no floor plan at all.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final scale = _scaleFor(tables, constraints.maxWidth);
+        final smallest = tables
+            .map((t) => t.position!)
+            .map((p) => (p.width < p.height ? p.width : p.height) * scale)
+            .reduce((a, b) => a < b ? a : b);
+
+        if (smallest < _minTouchTarget) {
+          return _TableGrid(
             floor: floor,
             tables: tables,
             draftTableIds: draftTableIds,
             pendingSendTableIds: pendingSendTableIds,
           );
+        }
+        return _SpatialFloorPlan(
+          floor: floor,
+          tables: tables,
+          draftTableIds: draftTableIds,
+          pendingSendTableIds: pendingSendTableIds,
+        );
+      },
+    );
+  }
+
+  /// The uniform scale that fits the designer's canvas into [width].
+  ///
+  /// Shared with [_SpatialFloorPlan] so the decision to fall back and the
+  /// layout that follows it cannot disagree.
+  static double _scaleFor(List<RestaurantTable> tables, double width) {
+    var maxX = 0.0;
+    for (final table in tables) {
+      final p = table.position!;
+      if (p.x + p.width > maxX) maxX = p.x + p.width;
+    }
+    maxX += 24;
+    return (width / maxX).clamp(0.1, 3.0);
   }
 }
 
@@ -404,15 +451,12 @@ class _SpatialFloorPlan extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Bounding box of the designer's canvas for this area.
-    var maxX = 0.0;
     var maxY = 0.0;
     for (final table in tables) {
       final p = table.position!;
-      if (p.x + p.width > maxX) maxX = p.x + p.width;
       if (p.y + p.height > maxY) maxY = p.y + p.height;
     }
     // Breathing room so edge tables are not flush against the frame.
-    maxX += 24;
     maxY += 24;
 
     return LayoutBuilder(
@@ -420,7 +464,7 @@ class _SpatialFloorPlan extends StatelessWidget {
         // Uniform scale preserves the room's proportions — a waiter navigates
         // by spatial memory, so stretching the plan to fill the screen would
         // actively mislead.
-        final scale = (constraints.maxWidth / maxX).clamp(0.1, 3.0);
+        final scale = _TableLayout._scaleFor(tables, constraints.maxWidth);
         final height = maxY * scale;
 
         return SingleChildScrollView(

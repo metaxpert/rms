@@ -24,7 +24,18 @@ class _DeviceNotifications implements ServiceNotifier {
   @override
   Future<bool> prepare() async {
     if (_ready) return true;
+    // Nothing about an alert is worth taking the app down for. A platform
+    // channel that is missing, an OEM Android that refuses the call, a
+    // headless test — all of them end with "no notifications", never with a
+    // waiter staring at a red screen instead of their floor.
+    try {
+      return _ready = await _initialise();
+    } catch (_) {
+      return false;
+    }
+  }
 
+  Future<bool> _initialise() async {
     final initialised = await _plugin.initialize(
       settings: const InitializationSettings(
         // The launcher icon, so no separate asset has to be kept in step with
@@ -46,17 +57,13 @@ class _DeviceNotifications implements ServiceNotifier {
           AndroidFlutterLocalNotificationsPlugin>();
       await android?.createNotificationChannel(_channel);
       // Android 13+ only; older versions grant it at install and return true.
-      final granted = await android?.requestNotificationsPermission();
-      _ready = granted ?? false;
+      return await android?.requestNotificationsPermission() ?? false;
     } else if (Platform.isIOS) {
       final ios = _plugin.resolvePlatformSpecificImplementation<
           IOSFlutterLocalNotificationsPlugin>();
-      final granted = await ios?.requestPermissions(alert: true, sound: true);
-      _ready = granted ?? false;
-    } else {
-      _ready = false;
+      return await ios?.requestPermissions(alert: true, sound: true) ?? false;
     }
-    return _ready;
+    return false;
   }
 
   @override
@@ -83,24 +90,28 @@ class _DeviceNotifications implements ServiceNotifier {
     required String body,
   }) async {
     if (!_ready) return;
-    await _plugin.show(
-      id: id,
-      title: title,
-      body: body,
-      notificationDetails: NotificationDetails(
-        android: AndroidNotificationDetails(
-          _channel.id,
-          _channel.name,
-          channelDescription: _channel.description,
-          importance: Importance.high,
-          priority: Priority.high,
-          // A dining room is loud and a tablet is often in an apron; the buzz
-          // is what gets noticed, not the sound.
-          enableVibration: true,
+    try {
+      await _plugin.show(
+        id: id,
+        title: title,
+        body: body,
+        notificationDetails: NotificationDetails(
+          android: AndroidNotificationDetails(
+            _channel.id,
+            _channel.name,
+            channelDescription: _channel.description,
+            importance: Importance.high,
+            priority: Priority.high,
+            // A dining room is loud and a tablet is often in an apron; the buzz
+            // is what gets noticed, not the sound.
+            enableVibration: true,
+          ),
+          iOS: const DarwinNotificationDetails(),
         ),
-        iOS: const DarwinNotificationDetails(),
-      ),
-    );
+      );
+    } catch (_) {
+      // Same reasoning as prepare(): an alert is never worth an exception.
+    }
   }
 }
 

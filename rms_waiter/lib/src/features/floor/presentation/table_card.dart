@@ -50,8 +50,15 @@ class TableCard extends StatelessWidget {
 
     return Semantics(
       button: enabled,
-      // Screen readers get the whole story in one utterance rather than three
-      // disconnected labels.
+      // `container` gives the card ONE node. Without it the summary below is
+      // read and then every fragment again — "…unsent ticket, D1, 4, Seated,
+      // Ready, Rs 1,531.00" — which is exactly the disconnected reading this
+      // label exists to prevent.
+      //
+      // The text is excluded further down rather than here, so that the
+      // InkWell's own tap and focus semantics survive: a card that reads
+      // beautifully and cannot be activated is worse than the problem.
+      container: true,
       label: [
         'Table ${table.code}',
         status.label,
@@ -68,140 +75,142 @@ class TableCard extends StatelessWidget {
         child: InkWell(
           onTap: enabled ? onTap : null,
           borderRadius: BorderRadius.circular(AppRadius.md),
-          child: Container(
-            padding: EdgeInsets.all(compact ? AppSpacing.sm : AppSpacing.md),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              border: Border.all(
-                color: accent.withValues(alpha: enabled ? 0.9 : 0.35),
-                width: needsAttention ? 3 : 2,
+          child: ExcludeSemantics(
+            child: Container(
+              padding: EdgeInsets.all(compact ? AppSpacing.sm : AppSpacing.md),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                border: Border.all(
+                  color: accent.withValues(alpha: enabled ? 0.9 : 0.35),
+                  width: needsAttention ? 3 : 2,
+                ),
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        table.code,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: (compact
-                                ? theme.textTheme.titleMedium
-                                : theme.textTheme.headlineSmall)
-                            ?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: enabled ? null : theme.colorScheme.outline,
-                        ),
-                      ),
-                    ),
-                    if (hasPendingSend)
-                      Padding(
-                        padding: const EdgeInsets.only(right: AppSpacing.xs),
-                        child: Icon(
-                          Icons.sync_problem_rounded,
-                          size: compact ? 16 : 20,
-                          color: theme.colorScheme.error,
-                        ),
-                      )
-                    else if (hasDraft)
-                      Padding(
-                        padding: const EdgeInsets.only(right: AppSpacing.xs),
-                        child: Icon(
-                          Icons.edit_note_rounded,
-                          size: compact ? 16 : 20,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                    Icon(status.icon, size: compact ? 16 : 20, color: accent),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Row(
-                  children: [
-                    Icon(Icons.people_outline,
-                        size: 14, color: theme.colorScheme.onSurfaceVariant),
-                    const SizedBox(width: 2),
-                    Text(
-                      '${table.capacity}',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Flexible(
-                      child: Text(
-                        status.label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: accent,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (hasPendingSend && !compact) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    'Send unfinished',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.error,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ] else if (hasDraft && !compact) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    'Unsent ticket',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-                if (table.isMerged) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    'Merged',
-                    style: theme.textTheme.labelSmall
-                        ?.copyWith(color: theme.colorScheme.outline),
-                  ),
-                ],
-                if (order != null) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  Divider(height: 1, color: accent.withValues(alpha: 0.3)),
-                  const SizedBox(height: AppSpacing.sm),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   Row(
                     children: [
-                      Icon(order!.status.icon, size: 14, color: accent),
-                      const SizedBox(width: AppSpacing.xs),
                       Expanded(
                         child: Text(
-                          order!.status.label,
+                          table.code,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: accent,
+                          style: (compact
+                                  ? theme.textTheme.titleMedium
+                                  : theme.textTheme.headlineSmall)
+                              ?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: enabled ? null : theme.colorScheme.outline,
+                          ),
+                        ),
+                      ),
+                      if (hasPendingSend)
+                        Padding(
+                          padding: const EdgeInsets.only(right: AppSpacing.xs),
+                          child: Icon(
+                            Icons.sync_problem_rounded,
+                            size: compact ? 16 : 20,
+                            color: theme.colorScheme.error,
+                          ),
+                        )
+                      else if (hasDraft)
+                        Padding(
+                          padding: const EdgeInsets.only(right: AppSpacing.xs),
+                          child: Icon(
+                            Icons.edit_note_rounded,
+                            size: compact ? 16 : 20,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+                      Icon(status.icon, size: compact ? 16 : 20, color: accent),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xs),
+                  Row(
+                    children: [
+                      Icon(Icons.people_outline,
+                          size: 14, color: theme.colorScheme.onSurfaceVariant),
+                      const SizedBox(width: 2),
+                      Text(
+                        '${table.capacity}',
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Flexible(
+                        child: Text(
+                          status.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: AppStatusColors.textOn(accent),
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    order!.total.display,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.labelLarge
-                        ?.copyWith(fontWeight: FontWeight.w700),
-                  ),
+                  if (hasPendingSend && !compact) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'Send unfinished',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.error,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ] else if (hasDraft && !compact) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'Unsent ticket',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                  if (table.isMerged) ...[
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'Merged',
+                      style: theme.textTheme.labelSmall
+                          ?.copyWith(color: theme.colorScheme.outline),
+                    ),
+                  ],
+                  if (order != null) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    Divider(height: 1, color: accent.withValues(alpha: 0.3)),
+                    const SizedBox(height: AppSpacing.sm),
+                    Row(
+                      children: [
+                        Icon(order!.status.icon, size: 14, color: accent),
+                        const SizedBox(width: AppSpacing.xs),
+                        Expanded(
+                          child: Text(
+                            order!.status.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: AppStatusColors.textOn(accent),
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      order!.total.display,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.labelLarge
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),

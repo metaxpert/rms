@@ -1,0 +1,9 @@
+# Localisation lives in the shared package, not in each app: "No connection",
+# "Try again" and the sign-in journey are word-for-word identical in all four,
+# and translating them four times is how four translations drift.
+arb-dir: l10n
+template-arb-file: rms_en.arb
+output-localization-file: rms_localizations.dart
+output-class: RmsLocalizations
+output-dir: lib/src/l10n
+nullable-getter: false

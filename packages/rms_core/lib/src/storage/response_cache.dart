@@ -84,8 +84,24 @@ class ResponseCache {
     }
   }
 
+  /// Above this a payload is not cached at all.
+  ///
+  /// `shared_preferences` rewrites its whole backing file on a commit, so a
+  /// multi-megabyte menu would turn every successful fetch into a long
+  /// main-thread write on exactly the low-end devices this app targets. Better
+  /// to lose the offline copy for an outsized catalogue than to make the app
+  /// stutter for every restaurant.
+  static const maxPayloadBytes = 512 * 1024;
+
   Future<void> write(String key, Object? json) async {
-    await _prefs.setString(key, jsonEncode(json));
+    final encoded = jsonEncode(json);
+    if (encoded.length > maxPayloadBytes) {
+      // Drop any previous copy too: a stale small payload kept beside a fresh
+      // oversized one would be served as if it were current.
+      await clear(key);
+      return;
+    }
+    await _prefs.setString(key, encoded);
     await _prefs.setInt(
       '$key$_stampSuffix',
       DateTime.now().millisecondsSinceEpoch,

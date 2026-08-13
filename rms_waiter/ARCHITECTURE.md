@@ -316,7 +316,7 @@ Phased, each phase validated with `flutter analyze` + `flutter test`.
 | 5 | Order submission, KDS status, realtime client with reconnect | **Done, verified** |
 | 6 | Bill, settle, split, receipt printing (**transfers: no endpoint — see below**) | **Done, verified** |
 | 7 | Offline cache + sync queue, notifications, permissions | **Done, verified** |
-| 8 | Test suite (unit/widget/integration), accessibility, i18n scaffolding, hardening | Next |
+| 8 | Test suite (unit/widget/integration), accessibility, i18n scaffolding, hardening | **Done, verified** |
 
 ### Sending a round (Phase 5)
 
@@ -447,10 +447,69 @@ claim is allowed everything, and settling is left ungated because no permission
 was ever observed governing it. Where the app does gate, it names what is
 missing so a manager can fix it rather than guess why the tablet "does not work".
 
+### Phase 8 — what the tests found
+
+The point of this phase was to be *told* things, not to tick boxes. Four
+defects came out of it, none of which a reading would have caught:
+
+1. **Composite semantics were additive, not replacing.** Every card carrying a
+   summary label — the table, the KDS ticket, a KPI tile, a tracking step — was
+   read out twice by a screen reader: the summary, then every fragment again.
+   `Semantics(container: true)` with the *text* excluded (not the whole
+   subtree — that swallows the tap and focus actions too) fixes it.
+2. **A contrast failure at 3.74:1.** The status palette is tuned for fills and
+   borders, where 3:1 is enough; small text needs 4.5:1 under WCAG AA.
+   `AppStatusColors.textOn` darkens the three colours actually used as labels
+   rather than forking the palette in two.
+3. **`Money.tryParse` was the last float in the money path**, and it was wrong:
+   `1.005 * 100` is `100.49999999999999` in binary, so half-up produced 1.00
+   where 1.01 is documented. It now reads the digits decimally. This is exactly
+   the class of error the integer-money ADR exists to prevent, hiding in the
+   one function that had to accept a decimal string.
+4. **A settled bill reported "No open bill".** Settling closes the order, so the
+   next read of "the open order for this table" is correctly empty — and the
+   screen answered a successful payment with an empty state. Found only by the
+   end-to-end journey test, because every unit test held one seam still.
+
+A fifth, smaller: the item picker read `tenantHasModifiers` at tap time from a
+cold provider, so the first dish of every shift opened an options sheet even on
+a tenant with no options at all.
+
+### Accessibility
+
+Held against Flutter's own guidelines — `androidTapTargetGuideline`,
+`iOSTapTargetGuideline`, `labeledTapTargetGuideline`, `textContrastGuideline` —
+rather than a checklist, and run over the real floor screen at 1.0 and 1.3 text
+scale.
+
+One behaviour is worth calling out: **a floor plan too wide to render at a
+usable size falls back to the grid.** A designer's canvas can be far wider than
+a tablet; scaled to fit, a table on a large plan can end up eight pixels across
+— spatially faithful and completely untappable. Waiters navigate by spatial
+memory, so the plan is the preference, but a table nobody can hit is not a floor
+plan at all.
+
+### i18n — scaffolding, and what that word means here
+
+The pipeline is real and proven end to end: ARB files in `rms_core`, generated
+`RmsLocalizations`, delegates registered in all four apps, and **Urdu** as the
+second locale so right-to-left layout is exercised rather than assumed — the
+part that breaks silently if nobody looks.
+
+What is translated today: the sign-in journey, the server-settings sheet, the
+outlet picker and every error surface — the strings that were identical in all
+four apps and would otherwise be translated four times. **App-specific screens
+still read English literals**, and that is the remaining work; it is mechanical
+rather than structural.
+
+`strings(context)` falls back to English when no delegate is installed, which is
+what makes the rollout incremental instead of a flag day.
+
 ## 12. Status
 
-**Phases 1–7 complete and verified.** `flutter analyze` clean across `rms_core`
-and `rms_waiter`, 118 + 152 tests green, `flutter build web --release` succeeds.
+**All eight phases complete and verified.** `flutter analyze` clean across all
+five packages; 135 + 163 + 22 + 27 + 37 tests green; `flutter build web
+--release` succeeds for all four apps.
 
 What a waiter can do today: sign in, choose an outlet, read the floor from the
 designer's own table coordinates, open a table, browse and search the menu,

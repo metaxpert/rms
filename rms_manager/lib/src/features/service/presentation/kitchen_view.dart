@@ -112,6 +112,10 @@ class _TicketCard extends StatelessWidget {
     final colour = ticket.urgencyColor;
 
     return Semantics(
+      // Replaces the children's labels rather than preceding them; otherwise a
+      // ticket is read once as a summary and again line by line.
+      container: true,
+      excludeSemantics: true,
       label: [
         'Ticket ${ticket.orderNo}',
         if (ticket.tableCode != null) 'table ${ticket.tableCode}',

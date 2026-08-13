@@ -17,6 +17,12 @@ library;
 // Configuration
 export 'src/config/environment.dart';
 
+// Localisation. Shared because the sign-in journey and every error surface are
+// word-for-word identical in all four apps; translating them four times is how
+// four translations drift.
+export 'src/l10n/rms_localizations.dart';
+export 'src/l10n/strings.dart';
+
 // Money — integer minor units; never floats (see ARCHITECTURE.md §6).
 export 'src/money.dart';
 

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_theme.dart';
 import '../errors/api_exception.dart';
+import '../l10n/strings.dart';
+import '../theme/app_theme.dart';
 
 /// Shared loading / empty / error surfaces (brief §39 — no blank white screens).
 ///
@@ -108,14 +109,15 @@ class ErrorView extends StatelessWidget {
       ApiErrorKind.unknown => Icons.error_outline_rounded,
     };
 
+    final text = strings(context);
     final title = switch (kind) {
-      ApiErrorKind.network => 'No connection',
-      ApiErrorKind.unauthorized => 'Signed out',
-      ApiErrorKind.forbidden => 'Not allowed',
-      ApiErrorKind.notFound => 'Not found',
-      ApiErrorKind.rejected => 'Could not be done',
-      ApiErrorKind.server => 'Server problem',
-      ApiErrorKind.unknown => 'Something went wrong',
+      ApiErrorKind.network => text.errorNoConnectionTitle,
+      ApiErrorKind.unauthorized => text.errorSignedOutTitle,
+      ApiErrorKind.forbidden => text.errorNotAllowedTitle,
+      ApiErrorKind.notFound => text.errorNotFoundTitle,
+      ApiErrorKind.rejected => text.errorRejectedTitle,
+      ApiErrorKind.server => text.errorServerTitle,
+      ApiErrorKind.unknown => text.errorUnknownTitle,
     };
 
     // Retrying a validation error or a permission denial just fails again and
@@ -143,14 +145,14 @@ class ErrorView extends StatelessWidget {
               FilledButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh_rounded),
-                label: const Text('Try again'),
+                label: Text(text.tryAgain),
               ),
             ],
             if (api?.traceId != null) ...[
               const SizedBox(height: AppSpacing.lg),
               // Support cannot find the request in the API logs without this.
               SelectableText(
-                'Ref: ${api!.traceId}',
+                text.errorReference(api!.traceId!),
                 style: theme.textTheme.labelSmall
                     ?.copyWith(color: theme.colorScheme.outline),
               ),

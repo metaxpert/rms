@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'live_sync.dart';
@@ -16,6 +17,17 @@ class WaiterApp extends ConsumerWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       routerConfig: ref.watch(routerProvider),
+      // English today, Urdu proven end to end — including right-to-left
+      // layout, which is the part that breaks silently if nobody exercises it.
+      // The remaining screens still read English literals; see the l10n note
+      // in rms_core.
+      localizationsDelegates: const [
+        RmsLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: RmsLocalizations.supportedLocales,
       // Held outside the router so a kitchen alert can reach the waiter on
       // whichever screen they are on, including one pushed over the floor.
       scaffoldMessengerKey: ref.watch(scaffoldMessengerKeyProvider),

@@ -209,6 +209,8 @@ class _Kpi extends StatelessWidget {
         highlight ? AppStatusColors.ready : theme.colorScheme.onSurfaceVariant;
 
     return Semantics(
+      container: true,
+      excludeSemantics: true,
       label: '$label: $value, $detail',
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.lg),

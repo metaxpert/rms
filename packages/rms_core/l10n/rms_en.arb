@@ -1,0 +1,53 @@
+{
+  "@@locale": "en",
+
+  "loading": "Loading…",
+  "@loading": {"description": "Generic wait state."},
+
+  "tryAgain": "Try again",
+  "@tryAgain": {"description": "Retry button on an error surface."},
+
+  "errorNoConnectionTitle": "No connection",
+  "errorSignedOutTitle": "Signed out",
+  "errorNotAllowedTitle": "Not allowed",
+  "errorNotFoundTitle": "Not found",
+  "errorRejectedTitle": "Could not be done",
+  "errorServerTitle": "Server problem",
+  "errorUnknownTitle": "Something went wrong",
+
+  "errorReference": "Ref: {traceId}",
+  "@errorReference": {
+    "description": "Support correlation id shown under an error.",
+    "placeholders": {"traceId": {"type": "String"}}
+  },
+
+  "signIn": "Sign in",
+  "signInEmail": "Email",
+  "signInPassword": "Password",
+  "signInEmailMissing": "Enter your email",
+  "signInPasswordMissing": "Enter your password",
+  "signInShowPassword": "Show password",
+  "signInHidePassword": "Hide password",
+
+  "serverSettings": "Server settings",
+  "serverSettingsBlurb": "The address of your restaurant server. Ask your manager if you are not sure.",
+  "serverAddress": "Server address",
+  "serverAddressMissing": "Enter the server address",
+  "serverAddressNeedsScheme": "Include http:// or https://",
+  "serverDefaultForBuild": "Default for this build ({environment}): {url}",
+  "@serverDefaultForBuild": {
+    "placeholders": {
+      "environment": {"type": "String"},
+      "url": {"type": "String"}
+    }
+  },
+  "save": "Save",
+  "signOut": "Sign out",
+
+  "outletsEmptyTitle": "No outlets available",
+  "outletsEmptyMessage": "Your account is not assigned to any outlet. Ask your manager to add you to one.",
+  "outletsLoading": "Loading outlets…",
+  "outletClosed": "This outlet is closed",
+  "outletNotConfigured": "Not set up for service yet — ask your manager",
+  "checkAgain": "Check again"
+}

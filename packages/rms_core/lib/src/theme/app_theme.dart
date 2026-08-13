@@ -53,6 +53,23 @@ abstract final class AppStatusColors {
   static const settled = Color(0xFF424242);
   static const cancelled = Color(0xFFB71C1C);
   static const reserved = Color(0xFF795548);
+
+  /// The same status colour, darkened enough to be legible as small text.
+  ///
+  /// The palette above is tuned for fills, borders and icons, where a 3:1
+  /// contrast is enough. Small text needs 4.5:1 under WCAG AA, and several of
+  /// these miss it — `ready` on a light surface measures 3.74:1 at 12px, which
+  /// an accessibility test caught rather than a person. Using this for label
+  /// text keeps one semantic palette instead of two that drift.
+  ///
+  /// Only the colours actually used as small text are remapped; the rest pass
+  /// already and are returned unchanged.
+  static Color textOn(Color status) => switch (status.toARGB32()) {
+        0xFF00838F => const Color(0xFF00595F), // ready
+        0xFFE65100 => const Color(0xFFB33D00), // preparing
+        0xFF2E7D32 => const Color(0xFF256428), // available
+        _ => status,
+      };
 }
 
 abstract final class AppTheme {

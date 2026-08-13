@@ -52,6 +52,12 @@ class _MenuPickerSheetState extends ConsumerState<_MenuPickerSheet> {
     // Whether an item takes options is only knowable from its detail call, so
     // when the tenant has no modifier groups at all the tap adds immediately —
     // the common case, and the difference between one tap and three.
+    //
+    // Read, not watched, because a tap must not rebuild the grid. The sheet
+    // WATCHES it in `build` so the answer is already in hand by the time
+    // anything is tappable; reading a cold provider here would return "still
+    // loading" and open an options sheet for the first dish of every shift on
+    // a tenant that has no options at all.
     final hasModifiers =
         ref.read(tenantHasModifiersProvider).valueOrNull ?? true;
 
@@ -87,6 +93,8 @@ class _MenuPickerSheetState extends ConsumerState<_MenuPickerSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final catalogue = ref.watch(menuCatalogueProvider);
+    // Warmed here so `_pick` has a settled answer — see the note there.
+    ref.watch(tenantHasModifiersProvider);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.92,

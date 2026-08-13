@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # Lightweight HTTP — kept over dio so the four APKs stay small for the
   # low-end Tecno/Infinix devices common in Pakistani restaurants.
@@ -36,3 +38,4 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
