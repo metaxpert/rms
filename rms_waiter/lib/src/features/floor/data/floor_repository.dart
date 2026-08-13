@@ -10,10 +10,23 @@ class FloorSnapshot {
     required this.areas,
     required this.tables,
     required this.openOrdersByTableCode,
+    this.readAt,
+    this.isStale = false,
   });
 
   final List<FloorArea> areas;
   final List<RestaurantTable> tables;
+
+  /// When this came off the server.
+  final DateTime? readAt;
+
+  /// True when the wifi was down and this was restored from disk.
+  ///
+  /// The tables and areas will be right — a dining room does not move — but the
+  /// ORDER state will not be, and that is the half a waiter acts on. The floor
+  /// says so rather than letting a stale "Ready" badge send someone to the pass
+  /// for food that was run ten minutes ago.
+  final bool isStale;
 
   /// Open dine-in orders keyed by table CODE.
   ///
@@ -35,18 +48,31 @@ class FloorSnapshot {
 }
 
 class FloorRepository {
-  FloorRepository(this._client);
+  FloorRepository(this._client, this._session, this._cache);
 
   final ApiClient _client;
+  final Session _session;
+  final ResponseCache _cache;
 
   /// One round trip each, issued concurrently — three sequential calls on a
   /// weak restaurant connection is a visibly slow floor screen.
+  ///
+  /// Falls back to the last good read when the network is what failed, so a
+  /// waiter in a blackspot still gets their dining room instead of an error
+  /// page. All three are cached as one payload: pairing today's tables with
+  /// yesterday's areas would put tables in rooms that no longer exist.
   Future<FloorSnapshot> snapshot() async {
-    final results = await Future.wait([
-      _client.get(_client.branchScoped('/restaurant/areas')),
-      _client.get(_client.branchScoped('/restaurant/tables')),
-      _client.get(_client.branchScoped('/restaurant/orders')),
-    ]);
+    final fetched = await readThroughCache<List<dynamic>>(
+      cache: _cache,
+      key: ResponseCache.keyFor('floor', _session.branchId),
+      parse: (json) => json is List ? json : const [null, null, null],
+      fetch: () => Future.wait([
+        _client.get(_client.branchScoped('/restaurant/areas')),
+        _client.get(_client.branchScoped('/restaurant/tables')),
+        _client.get(_client.branchScoped('/restaurant/orders')),
+      ]),
+    );
+    final results = fetched.value;
 
     final areas = _list(results[0])
         .map(FloorArea.fromJson)
@@ -76,6 +102,8 @@ class FloorRepository {
       areas: areas,
       tables: tables,
       openOrdersByTableCode: openOrders,
+      readAt: fetched.cachedAt,
+      isStale: !fetched.isFresh,
     );
   }
 
@@ -89,7 +117,11 @@ class FloorRepository {
 }
 
 final floorRepositoryProvider = Provider<FloorRepository>(
-  (ref) => FloorRepository(ref.watch(apiClientProvider)),
+  (ref) => FloorRepository(
+    ref.watch(apiClientProvider),
+    ref.watch(sessionProvider),
+    ref.watch(responseCacheProvider),
+  ),
 );
 
 /// The floor, for the currently selected outlet.

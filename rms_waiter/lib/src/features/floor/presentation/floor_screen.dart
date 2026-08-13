@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import 'package:rms_core/rms_core.dart';
 import '../../../app/router/app_router.dart';
@@ -153,6 +154,7 @@ class _FloorBody extends StatelessWidget {
 
     return Column(
       children: [
+        if (floor.isStale) _StaleBanner(readAt: floor.readAt),
         _SummaryBar(floor: floor),
         if (floor.areas.length > 1)
           _AreaSelector(
@@ -184,6 +186,51 @@ class _FloorBody extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The floor could not be read, so this is the last one we had.
+///
+/// Stated loudly and permanently rather than as a toast: the tables and areas
+/// are still right — a dining room does not move — but the ORDER state is the
+/// half a waiter acts on, and a stale "Ready" badge sends someone to the pass
+/// for food that was run ten minutes ago.
+class _StaleBanner extends StatelessWidget {
+  const _StaleBanner({required this.readAt});
+
+  final DateTime? readAt;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
+      ),
+      color: theme.colorScheme.errorContainer,
+      child: Row(
+        children: [
+          Icon(Icons.wifi_off_rounded,
+              size: 18, color: theme.colorScheme.onErrorContainer),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              readAt == null
+                  ? 'Offline — showing the last floor we could load. Order '
+                      'status may have changed.'
+                  : 'Offline — this floor is from '
+                      '${DateFormat.Hm().format(readAt!)}. Order status may '
+                      'have changed since.',
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(color: theme.colorScheme.onErrorContainer),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

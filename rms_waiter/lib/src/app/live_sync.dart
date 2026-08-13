@@ -5,7 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:rms_core/rms_core.dart';
 import '../features/floor/data/floor_repository.dart';
+import '../features/notifications/service_notifier.dart';
 import '../features/orders/data/order_repository.dart';
+import '../features/ticket/application/outbox_controller.dart';
 
 /// Keeps what is on screen in step with what the server believes, by three
 /// independent routes.
@@ -77,6 +79,7 @@ class _LiveSyncState extends ConsumerState<LiveSync>
         // waiting out its own backoff while a waiter stares at a stale table.
         if (ref.read(authControllerProvider).status == AuthStatus.ready) {
           ref.read(realtimeClientProvider).connect();
+          ref.read(outboxControllerProvider.notifier).drain();
         }
         _startPolling();
       case AppLifecycleState.paused:
@@ -95,6 +98,9 @@ class _LiveSyncState extends ConsumerState<LiveSync>
     if (status == AuthStatus.ready) {
       client.connect();
       _startPolling();
+      // Asked for once a waiter is actually on the floor, rather than at the
+      // sign-in screen where the request has no context to justify it.
+      ref.read(serviceNotifierProvider).prepare();
     } else {
       // Holding a tenant-scoped socket open past sign-out would deliver the
       // next user's events to the previous user's screens.
@@ -118,7 +124,11 @@ class _LiveSyncState extends ConsumerState<LiveSync>
     // every outlet's traffic here.
     if (event.isForeignTo(ref.read(sessionProvider).branchId)) return;
 
-    if (event.kind.isFoodReady) _announceFoodReady(event);
+    if (event.kind.isFoodReady) {
+      _announceFoodReady(event);
+      // Also buzzes the tablet, for the waiter who is not looking at the app.
+      ref.read(serviceNotifierProvider).foodReady(tableCode: event.tableCode);
+    }
     if (event.kind.touchesOrders) _scheduleReconcile();
   }
 
@@ -172,6 +182,49 @@ class _LiveSyncState extends ConsumerState<LiveSync>
       );
   }
 
+  /// The socket completing a handshake is the app's connectivity signal.
+  ///
+  /// Better than a connectivity plugin: a tablet can be associated to an access
+  /// point that cannot reach the internet, and retrying orders into that would
+  /// burn every attempt. A handshake proves the API is reachable *and* the
+  /// token is good.
+  void _onRealtimeStatus(RealtimeStatus status) {
+    if (status != RealtimeStatus.live) return;
+    _reconcile();
+    ref.read(outboxControllerProvider.notifier).drain();
+  }
+
+  /// Tell the waiter about work that finished while they were doing something
+  /// else. A send that completed itself is exactly the kind of thing that must
+  /// not be silent — they have to know whether to chase the kitchen.
+  void _announceOutbox(OutboxState outbox) {
+    if (outbox.lastResults.isEmpty) return;
+    final sent = outbox.lastResults.where((r) => r.succeeded).toList();
+    ref.read(outboxControllerProvider.notifier).acknowledge();
+    if (sent.isEmpty) return;
+
+    for (final result in sent) {
+      ref.read(serviceNotifierProvider).orderSent(
+            tableCode: result.tableId,
+            orderNo: result.orderNo,
+          );
+    }
+
+    final messenger = ref.read(scaffoldMessengerKeyProvider).currentState;
+    messenger
+      ?..removeCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(
+            sent.length == 1
+                ? 'An order that was waiting has reached the kitchen.'
+                : '${sent.length} orders that were waiting have reached the '
+                    'kitchen.',
+          ),
+        ),
+      );
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen(authControllerProvider, (previous, next) {
@@ -183,6 +236,17 @@ class _LiveSyncState extends ConsumerState<LiveSync>
     ref.listen(realtimeEventsProvider, (previous, next) {
       final event = next.valueOrNull;
       if (event != null) _onEvent(event);
+    });
+
+    ref.listen(realtimeStatusProvider, (previous, next) {
+      final status = next.valueOrNull;
+      if (status != null && status != previous?.valueOrNull) {
+        _onRealtimeStatus(status);
+      }
+    });
+
+    ref.listen(outboxControllerProvider, (previous, next) {
+      _announceOutbox(next);
     });
 
     return widget.child;

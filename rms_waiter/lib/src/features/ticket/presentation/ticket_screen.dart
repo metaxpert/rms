@@ -107,6 +107,11 @@ class _TicketBody extends ConsumerWidget {
     // or quietly drop the new dishes when the resume re-sent the old payload.
     final locked = send.isSending || send.pending != null;
 
+    // Not a security boundary — the server re-checks (ARCHITECTURE.md §7). It
+    // is here so a waiter without ordering rights is not handed a button that
+    // comes back 403 at a table, which is a dead end mid-service.
+    final mayOrder = ref.watch(permissionsProvider).canTakeOrders;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Table ${table.code}'),
@@ -143,7 +148,7 @@ class _TicketBody extends ConsumerWidget {
                 order: order,
                 orderAsync: orderAsync,
                 draft: draft,
-                onQtyChanged: locked ? null : controller.setQty,
+                onQtyChanged: locked || !mayOrder ? null : controller.setQty,
                 onOpenMenu: () => _openMenu(context, controller),
               ),
             ),
@@ -168,6 +173,7 @@ class _TicketBody extends ConsumerWidget {
             send: send,
             order: order,
             locked: locked,
+            mayOrder: mayOrder,
             onAddItems: () => _openMenu(context, controller),
             onSend: () => sender.send(draft),
           ),
@@ -998,6 +1004,7 @@ class _ActionBar extends StatelessWidget {
     required this.send,
     required this.order,
     required this.locked,
+    required this.mayOrder,
     required this.onAddItems,
     required this.onSend,
   });
@@ -1010,6 +1017,9 @@ class _ActionBar extends StatelessWidget {
   /// the decision at that point, so this bar stays out of the way.
   final bool locked;
 
+  /// The token carries `restaurant:order:write`.
+  final bool mayOrder;
+
   final VoidCallback onAddItems;
   final VoidCallback onSend;
 
@@ -1018,7 +1028,7 @@ class _ActionBar extends StatelessWidget {
     // A closed bill takes nothing more; the server would refuse, so the button
     // says why instead of producing a 422 the waiter has to interpret.
     final closed = order != null && !order!.canAddItems;
-    final canSend = draft.isNotEmpty && !locked && !closed;
+    final canSend = draft.isNotEmpty && !locked && !closed && mayOrder;
 
     return SafeArea(
       top: false,
@@ -1027,7 +1037,19 @@ class _ActionBar extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (closed)
+            if (!mayOrder)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                child: Text(
+                  // Names what is missing, so a manager can fix it rather than
+                  // guess why the tablet "does not work".
+                  'Your sign-in cannot take orders. Ask a manager for the '
+                  'order permission.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
+              )
+            else if (closed)
               Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                 child: Text(
@@ -1043,7 +1065,8 @@ class _ActionBar extends StatelessWidget {
                   child: SizedBox(
                     height: AppSizes.primaryActionHeight,
                     child: OutlinedButton.icon(
-                      onPressed: locked || closed ? null : onAddItems,
+                      onPressed:
+                          locked || closed || !mayOrder ? null : onAddItems,
                       icon: const Icon(Icons.add_rounded),
                       label: const Text('Add items'),
                     ),

@@ -3,14 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../errors/api_exception.dart';
 import '../net/api_client.dart';
 import '../providers.dart';
+import '../storage/response_cache.dart';
 import 'session.dart';
 
 /// Talks to `/auth/*`. The only place login/logout wire formats are known.
 class AuthRepository {
-  AuthRepository(this._client, this._session);
+  AuthRepository(this._client, this._session, this._cache);
 
   final ApiClient _client;
   final Session _session;
+  final ResponseCache _cache;
 
   /// Sign in and persist the token pair.
   ///
@@ -58,6 +60,10 @@ class AuthRepository {
       // Ignored on purpose — see above.
     } finally {
       await _session.clear();
+      // The next person to pick up a shared till must not be shown the
+      // previous one's menu, floor or bills. A cache that outlived a sign-out
+      // would be a privacy failure rather than a convenience.
+      await _cache.clearAll();
     }
   }
 }
@@ -66,5 +72,6 @@ final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository(
     ref.watch(apiClientProvider),
     ref.watch(sessionProvider),
+    ref.watch(responseCacheProvider),
   );
 });

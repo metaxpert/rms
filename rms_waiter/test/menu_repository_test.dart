@@ -69,8 +69,11 @@ void main() {
     SharedPreferences.setMockInitialValues({'branch_id': branch});
     final session = await Session.load(secretStore: InMemorySecretStore());
     return (
-      repository:
-          MenuRepository(ApiClient(session, httpClient: client), session),
+      repository: MenuRepository(
+        ApiClient(session, httpClient: client),
+        session,
+        ResponseCache(await SharedPreferences.getInstance()),
+      ),
       requests: requests,
       session: session,
     );

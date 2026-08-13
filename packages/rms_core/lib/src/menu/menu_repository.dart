@@ -6,6 +6,7 @@ import '../domain/menu.dart';
 import '../domain/restaurant_config.dart';
 import '../net/api_client.dart';
 import '../providers.dart';
+import '../storage/response_cache.dart';
 
 /// Everything the item picker needs for one outlet.
 @immutable
@@ -70,13 +71,26 @@ class MenuCatalogue {
 /// leave a waiter ordering from the other branch's prices, and relying on a
 /// caller to remember to invalidate is how that bug happens.
 class MenuRepository {
-  MenuRepository(this._client, this._session);
+  MenuRepository(this._client, this._session, this._cache);
 
   final ApiClient _client;
   final Session _session;
+  final ResponseCache _cache;
 
   String? _cachedBranchId;
   MenuCatalogue? _catalogue;
+
+  /// When the catalogue in hand was read from the server. Null while nothing
+  /// has been loaded.
+  DateTime? get catalogueReadAt => _catalogueReadAt;
+  DateTime? _catalogueReadAt;
+
+  /// True when the catalogue in hand came off the disk cache rather than the
+  /// server — the menu is readable, but a price changed this morning may not be
+  /// in it.
+  bool get isCatalogueStale => _catalogueStale;
+  bool _catalogueStale = false;
+
   final Map<String, MenuItemDetail> _details = {};
   Future<Map<String, ModifierGroup>>? _modifierGroups;
 
@@ -87,11 +101,23 @@ class MenuRepository {
 
     // Three round trips issued together: sequential calls would make the first
     // item tap of a shift noticeably slow on restaurant wifi.
-    final results = await Future.wait([
-      _client.get('/restaurant/categories'),
-      _client.get(_client.branchScoped('/restaurant/items')),
-      _client.get(_client.branchScoped('/restaurant/config')),
-    ]);
+    //
+    // Cached as ONE payload rather than three, so a restore can never pair
+    // this morning's prices with last week's categories.
+    final fetched = await readThroughCache<List<dynamic>>(
+      cache: _cache,
+      key: ResponseCache.keyFor('menu', _session.branchId),
+      parse: (json) => json is List ? json : const [null, null, null],
+      fetch: () => Future.wait([
+        _client.get('/restaurant/categories'),
+        _client.get(_client.branchScoped('/restaurant/items')),
+        _client.get(_client.branchScoped('/restaurant/config')),
+      ]),
+    );
+
+    final results = fetched.value;
+    _catalogueReadAt = fetched.cachedAt;
+    _catalogueStale = !fetched.isFresh;
 
     final categories = _list(results[0])
         .map(MenuCategory.fromJson)
@@ -172,6 +198,8 @@ class MenuRepository {
     if (branchId == _cachedBranchId) return;
     _cachedBranchId = branchId;
     _catalogue = null;
+    _catalogueReadAt = null;
+    _catalogueStale = false;
     _details.clear();
     _modifierGroups = null;
   }
@@ -189,6 +217,7 @@ final menuRepositoryProvider = Provider<MenuRepository>(
   (ref) => MenuRepository(
     ref.watch(apiClientProvider),
     ref.watch(sessionProvider),
+    ref.watch(responseCacheProvider),
   ),
 );
 

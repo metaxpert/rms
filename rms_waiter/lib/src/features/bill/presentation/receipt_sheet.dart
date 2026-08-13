@@ -86,6 +86,9 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
     final theme = Theme.of(context);
     final order = widget.order;
     final settled = order.status == OrderStatus.settled;
+    // `restaurant:print` is one of the eight named permissions. Gated so a
+    // waiter is not handed a button that comes back 403 while a guest waits.
+    final mayPrint = ref.watch(permissionsProvider).canPrint;
 
     return SafeArea(
       child: Padding(
@@ -119,7 +122,7 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
             const SizedBox(height: AppSpacing.md),
             Row(
               children: [
-                if (settled)
+                if (settled && mayPrint)
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: _queueing ? null : () => _queue(reprint: true),
@@ -127,14 +130,20 @@ class _ReceiptSheetState extends ConsumerState<ReceiptSheet> {
                       label: const Text('Reprint'),
                     ),
                   ),
-                if (settled) const SizedBox(width: AppSpacing.md),
+                if (settled && mayPrint) const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: FilledButton.icon(
-                    onPressed: _queueing || _text == null
+                    onPressed: _queueing || _text == null || !mayPrint
                         ? null
                         : () => _queue(reprint: false),
                     icon: const Icon(Icons.print_outlined),
-                    label: Text(settled ? 'Print' : 'Print pro-forma'),
+                    label: Text(
+                      !mayPrint
+                          ? 'Printing not allowed'
+                          : settled
+                              ? 'Print'
+                              : 'Print pro-forma',
+                    ),
                   ),
                 ),
               ],

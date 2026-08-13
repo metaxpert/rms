@@ -315,8 +315,8 @@ Phased, each phase validated with `flutter analyze` + `flutter test`.
 | 4 | Menu, search, modifiers, cart, draft persistence | **Done, verified** |
 | 5 | Order submission, KDS status, realtime client with reconnect | **Done, verified** |
 | 6 | Bill, settle, split, receipt printing (**transfers: no endpoint — see below**) | **Done, verified** |
-| 7 | Offline cache + sync queue, notifications, permissions | Next |
-| 8 | Test suite (unit/widget/integration), accessibility, i18n scaffolding, hardening | |
+| 7 | Offline cache + sync queue, notifications, permissions | **Done, verified** |
+| 8 | Test suite (unit/widget/integration), accessibility, i18n scaffolding, hardening | Next |
 
 ### Sending a round (Phase 5)
 
@@ -387,10 +387,70 @@ a button that appears to move a bill and does not, the app omits it. This needs
 a server-side answer before it can be built — see risk 4 in §9, which is the
 same gap seen from the concurrency side.
 
+### Offline, the queue and notifications (Phase 7)
+
+Built strictly to the table in §8 — nothing here claims transactional offline
+capability, because the backend cannot support it.
+
+**The read cache** (`ResponseCache`) keeps the last good response for the menu
+and the floor, keyed per outlet. Two rules do the work:
+
+- **Only a network failure falls back.** A 403 or a 422 is the server telling us
+  something true; answering it from a cache would hide a permission change
+  behind yesterday's menu. A cache is for "we could not ask", never for "we did
+  not like the answer".
+- **Stale is said out loud.** The floor's tables and areas survive a wifi drop
+  fine — a dining room does not move — but the ORDER state is the half a waiter
+  acts on, and a stale `Ready` badge sends someone to the pass for food that was
+  run ten minutes ago. So a cached floor carries a permanent banner naming the
+  time it was read, not a toast that scrolls away.
+
+The cache is cleared on sign-out. The next person to pick up a shared till must
+not be shown the previous one's floor.
+
+**The sync queue** (`OutboxController`) is the one queue §8 permits: the
+per-table submissions that already hold a persisted idempotency key, which is
+exactly what makes replaying them safe. Three decisions are load-bearing:
+
+- **The socket going live is the connectivity signal**, not a connectivity
+  plugin. A tablet can be associated to an access point that cannot reach the
+  internet, and retrying orders into that burns every attempt. A completed
+  Socket.IO handshake proves the API is reachable *and* the token is good — a
+  far stronger signal, already on the wire for free.
+- **One at a time, stopping at the first failure.** A dining room's worth of
+  tables retrying in parallel the instant wifi returns is the stampede the
+  client's jittered backoff exists to prevent; and a failure means the
+  connection is not really back, so pushing the rest wastes their attempts.
+- **Settlements are never drained.** A bill is closed with a person standing
+  there. Finishing one unattended, minutes later, would take money with nobody
+  watching — which is why the settle key is *derived* rather than stored, so a
+  human can retry it safely instead.
+
+Work the queue completes is announced. A send that finished itself must not be
+silent: the waiter has to know whether to chase the kitchen.
+
+**Notifications are local, and that limit is real.** They fire while the app's
+process is alive — a tablet in an apron with the screen off, socket still
+connected. Waking a *killed* app needs a push service and a device-token
+endpoint to register with, and no such endpoint exists in the backend. The
+plugin has no web implementation and pulls in `dart:io`, so it sits behind a
+conditional import; on web the interface is a silent no-op and the in-app banner
+still fires.
+
+**Permissions gate affordances, never access.** The server re-checks every call
+(§7), so this exists only to avoid dead ends: a waiter without
+`restaurant:order:write` is not handed a Send button that comes back 403 at a
+table. The inverse mistake is treated as equally serious — gating on a permission
+name we were *guessing* would deny someone their own job — so only the eight
+names actually found in the module are used, a token carrying **no** permission
+claim is allowed everything, and settling is left ungated because no permission
+was ever observed governing it. Where the app does gate, it names what is
+missing so a manager can fix it rather than guess why the tablet "does not work".
+
 ## 12. Status
 
-**Phases 1–6 complete and verified.** `flutter analyze` clean across `rms_core`
-and `rms_waiter`, 99 + 135 tests green, `flutter build web --release` succeeds.
+**Phases 1–7 complete and verified.** `flutter analyze` clean across `rms_core`
+and `rms_waiter`, 118 + 152 tests green, `flutter build web --release` succeeds.
 
 What a waiter can do today: sign in, choose an outlet, read the floor from the
 designer's own table coordinates, open a table, browse and search the menu,
@@ -403,6 +463,11 @@ ticket raises an alert wherever the waiter is.
 …and **close the bill**: compose the tender, split it evenly, take mixed cash
 and card, work out change, settle, and show or queue the printed slip.
 
+…and keep working when the wifi does not: the menu and the floor fall back to
+the last good read (clearly marked stale), an interrupted send finishes itself
+once the server is reachable again, and the kitchen can buzz the tablet when
+food is up.
+
 What is **not** built:
 
 - **Transfers and merges** — no endpoint (see above).
@@ -410,7 +475,11 @@ What is **not** built:
   discount is a manager's authority, and the settle payload's support for tips
   and order-level discounts was never verified; guessing at a field that moves
   money is exactly the wrong place to guess.
-- **Offline queueing, notifications and permission gating** — Phase 7.
+- **Push notifications.** What ships is local, and only fires while the app's
+  process is alive; waking a killed app needs a device-token endpoint that does
+  not exist.
+- **Offline writes of any kind beyond the single queued submission per table.**
+  The backend has no sync protocol, so there is nothing honest to build.
 
 Known rough edges, stated rather than hidden:
 
@@ -420,6 +489,9 @@ Known rough edges, stated rather than hidden:
 - Settling does not free the table. No verified route sets a table's status, so
   the app refetches the floor and says the table is free "once it has been
   cleared down" rather than claiming to have done it.
+- Settling is not permission-gated, because no permission was ever observed
+  governing it. Gating on a guessed name would deny someone their own job; the
+  server's refusal is surfaced properly instead.
 
 This document is updated as phases land rather than describing intent as if it
 were finished.

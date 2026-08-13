@@ -27,6 +27,8 @@ export 'src/errors/api_exception.dart';
 export 'src/net/api_client.dart';
 export 'src/auth/session.dart';
 export 'src/storage/secret_store.dart';
+export 'src/storage/response_cache.dart';
+export 'src/auth/permissions.dart';
 
 // The sign-in journey, shared by all four apps. Identical everywhere except
 // the wording — writing it out per app is how four copies of the same missing

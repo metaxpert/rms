@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Android 13+ requires this to be granted at runtime before the app can
+         tell a waiter that food is up. Older versions grant it at install. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <application
         android:label="rms_waiter"
         android:name="${applicationName}"

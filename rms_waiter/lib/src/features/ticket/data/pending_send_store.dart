@@ -203,15 +203,13 @@ class PendingSendStore {
   Future<void> clear(String branchId, String tableId) =>
       _prefs.remove(keyFor(branchId, tableId));
 
-  /// Tables in this outlet holding an unfinished submission, for the floor plan.
-  /// These are more urgent than an unsent draft: an order may already exist
-  /// server-side with nothing behind it.
-  Set<String> tablesWithPendingSends({
-    required String branchId,
-    required DateTime now,
-  }) {
+  /// Every unfinished submission in this outlet.
+  ///
+  /// Ordered oldest first, so a queue drained after a wifi drop fires the
+  /// kitchen in the order the tables were actually served.
+  List<PendingSend> all({required String branchId, required DateTime now}) {
     final prefix = '$_prefix$branchId:';
-    final ids = <String>{};
+    final found = <PendingSend>[];
     for (final key in _prefs.getKeys()) {
       if (!key.startsWith(prefix)) continue;
       final raw = _prefs.getString(key);
@@ -220,13 +218,22 @@ class PendingSendStore {
         final json = jsonDecode(raw);
         final pending =
             json is Map<String, dynamic> ? PendingSend.fromJson(json) : null;
-        if (pending != null && !pending.isStaleAt(now)) ids.add(pending.tableId);
+        if (pending != null && !pending.isStaleAt(now)) found.add(pending);
       } on FormatException {
         continue;
       }
     }
-    return ids;
+    return found..sort((a, b) => a.startedAt.compareTo(b.startedAt));
   }
+
+  /// Tables in this outlet holding an unfinished submission, for the floor plan.
+  /// These are more urgent than an unsent draft: an order may already exist
+  /// server-side with nothing behind it.
+  Set<String> tablesWithPendingSends({
+    required String branchId,
+    required DateTime now,
+  }) =>
+      all(branchId: branchId, now: now).map((p) => p.tableId).toSet();
 
   /// A key with enough entropy that two tablets sending at the same second
   /// cannot collide. Collision would make one waiter's send replay the other's
