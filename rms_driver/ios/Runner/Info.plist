@@ -6,6 +6,21 @@
 	<string>Your position is shared with the restaurant while you are on a delivery, so the customer can see where their order is.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Your position is shared with the restaurant while you are on a delivery, so the customer can see where their order is.</string>
+	<!-- iOS 10 and earlier read this key instead. Cheap to keep, and its absence
+	     is a silent permission denial rather than a build error. -->
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>Your position is shared with the restaurant while you are on a delivery, so the customer can see where their order is.</string>
+	<!-- Without `location` here, iOS suspends the app seconds after the rider
+	     pockets the phone and the position stops updating until they look at it
+	     again. On the customer's map that is indistinguishable from a rider who
+	     has stopped. This is the iOS half of the Android foreground service. -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+		<!-- So a fix queued in a dead spot is flushed by the system rather than
+		     waiting for the rider to reopen the app. -->
+		<string>fetch</string>
+	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>

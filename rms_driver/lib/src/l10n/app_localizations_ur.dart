@@ -99,6 +99,10 @@ class AppTextUr extends AppText {
       'اس ایپ کے لیے مقام کی اجازت بند ہے۔ یہ صرف فون کی Settings → Apps سے دوبارہ آن ہو سکتی ہے۔';
 
   @override
+  String get locationForegroundOnly =>
+      'ٹریکنگ صرف اس اسکرین کے کھلے رہنے تک کام کرے گی۔ فون جیب میں ہوتے ہوئے بھی گاہک کا نقشہ چلتا رہے، اس کے لیے Settings میں مقام کی اجازت \"ہر وقت\" دیں۔';
+
+  @override
   String get progress => 'پیش رفت';
 
   @override

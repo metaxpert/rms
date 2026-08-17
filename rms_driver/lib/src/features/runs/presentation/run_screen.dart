@@ -293,6 +293,10 @@ class _LocationProblem extends StatelessWidget {
       LocationAvailability.serviceOff => text.locationServiceOff,
       LocationAvailability.denied => text.locationDenied,
       LocationAvailability.blocked => text.locationBlocked,
+      // Tracking is working, just not with the phone in a pocket — which is most
+      // of a run. Worth saying rather than leaving a customer to notice a marker
+      // that stopped moving.
+      LocationAvailability.foregroundOnly => text.locationForegroundOnly,
       LocationAvailability.ready => '',
     };
 

@@ -18,6 +18,7 @@ class FakeDeliveries implements DeliveryRepository {
 
   /// Positions reported, in order.
   final pings = <(double, double)>[];
+  final pingTimes = <DateTime>[];
 
   final failures = <String>[];
 
@@ -85,24 +86,51 @@ class FakeDeliveries implements DeliveryRepository {
     required double lat,
     required double lng,
     double? speedKph,
+    double? headingDeg,
+    double? accuracyM,
+    DateTime? recordedAt,
   }) async {
     calls.add('track');
     if (failTrack != null) throw failTrack!;
     pings.add((lat, lng));
+    // Kept so a test can assert the phone's own timestamp travelled, which is
+    // what makes a replayed fix history rather than a claim about the present.
+    if (recordedAt != null) pingTimes.add(recordedAt);
   }
 }
 
 /// A GPS that reports what the test tells it to.
 class FakeLocation implements LocationSource {
-  FakeLocation({this.availability = LocationAvailability.ready});
+  FakeLocation({
+    this.availability = LocationAvailability.ready,
+    this.background = LocationAvailability.ready,
+  });
 
   LocationAvailability availability;
+
+  /// Answered by [ensureBackground]. Defaults to granted; a test that cares about
+  /// the pocket case sets it to `foregroundOnly`.
+  LocationAvailability background;
+
   final _controller = StreamController<GeoFix>.broadcast();
 
   int ensureCalls = 0;
+  int backgroundCalls = 0;
 
-  void emit(double lat, double lng) =>
-      _controller.add(GeoFix(lat: lat, lng: lng, speedKph: 18));
+  /// Every cadence the controller has subscribed at, in order — so a test can
+  /// assert that picking up a bag raised the phone's effort.
+  final cadences = <TrackingCadence>[];
+
+  /// Emit a fix. [at] defaults to now; a test exercising staleness or ordering
+  /// passes its own.
+  void emit(double lat, double lng, {DateTime? at, double? accuracyM}) =>
+      _controller.add(GeoFix(
+        lat: lat,
+        lng: lng,
+        at: at ?? DateTime.now(),
+        speedKph: 18,
+        accuracyM: accuracyM,
+      ));
 
   Future<void> close() => _controller.close();
 
@@ -113,5 +141,14 @@ class FakeLocation implements LocationSource {
   }
 
   @override
-  Stream<GeoFix> positions() => _controller.stream;
+  Future<LocationAvailability> ensureBackground() async {
+    backgroundCalls++;
+    return background;
+  }
+
+  @override
+  Stream<GeoFix> positions({TrackingCadence cadence = TrackingCadence.active}) {
+    cadences.add(cadence);
+    return _controller.stream;
+  }
 }

@@ -98,6 +98,10 @@ class AppTextEn extends AppText {
       'Location permission is blocked for this app. It can only be turned back on in the phone\'s Settings → Apps.';
 
   @override
+  String get locationForegroundOnly =>
+      'Tracking only works while this screen is open. To keep the customer\'s map moving with the phone in your pocket, allow location \"all the time\" in Settings.';
+
+  @override
   String get progress => 'Progress';
 
   @override

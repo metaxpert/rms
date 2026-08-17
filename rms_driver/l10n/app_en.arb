@@ -56,6 +56,7 @@
   "locationServiceOff": "Location is switched off on this phone. Turn it on in the pull-down settings, then try again.",
   "locationDenied": "The app was not given permission this time. Tap the switch again to be asked once more.",
   "locationBlocked": "Location permission is blocked for this app. It can only be turned back on in the phone's Settings → Apps.",
+  "locationForegroundOnly": "Tracking only works while this screen is open. To keep the customer's map moving with the phone in your pocket, allow location \"all the time\" in Settings.",
   "progress": "Progress",
   "progressAssigned": "Assigned",
   "progressPickedUp": "Picked up",

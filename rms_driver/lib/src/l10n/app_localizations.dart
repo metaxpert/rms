@@ -247,6 +247,12 @@ abstract class AppText {
   /// **'Location permission is blocked for this app. It can only be turned back on in the phone\'s Settings → Apps.'**
   String get locationBlocked;
 
+  /// No description provided for @locationForegroundOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking only works while this screen is open. To keep the customer\'s map moving with the phone in your pocket, allow location \"all the time\" in Settings.'**
+  String get locationForegroundOnly;
+
   /// No description provided for @progress.
   ///
   /// In en, this message translates to:

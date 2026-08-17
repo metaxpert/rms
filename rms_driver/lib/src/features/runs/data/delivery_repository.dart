@@ -75,11 +75,26 @@ class DeliveryRepository {
   /// Sent **unkeyed**: every ping is a distinct fact, not an operation to be
   /// replayed, and keying them would write one idempotency row per ping for a
   /// half-hour ride.
+  ///
+  /// [recordedAt] is when the *phone* took the fix, which is not when this request
+  /// arrives. The difference is the whole point of the offline queue: a rider who
+  /// crossed a dead spot flushes six fixes at once, and the server orders the
+  /// trail by this timestamp rather than by arrival, so replayed fixes are filed
+  /// as history instead of being mistaken for the present. Omitting it makes the
+  /// server stamp arrival time, which is right for a live ping and wrong for a
+  /// replayed one.
+  ///
+  /// [accuracyM] is what lets the server drop a cell-tower guess rather than draw
+  /// it as a position, and [headingDeg] is what points the customer's marker the
+  /// way the bike is facing — neither can be recovered later from the trail.
   Future<void> track({
     required String id,
     required double lat,
     required double lng,
     double? speedKph,
+    double? headingDeg,
+    double? accuracyM,
+    DateTime? recordedAt,
   }) =>
       _client.post(
         '/restaurant/driver/runs/$id/track',
@@ -87,6 +102,10 @@ class DeliveryRepository {
           'geoLat': lat,
           'geoLng': lng,
           if (speedKph != null) 'speedKph': speedKph,
+          if (headingDeg != null) 'headingDeg': headingDeg,
+          if (accuracyM != null) 'accuracyM': accuracyM,
+          if (recordedAt != null)
+            'recordedAt': recordedAt.toUtc().toIso8601String(),
         },
         ApiClient.unkeyed,
       );
@@ -138,7 +157,8 @@ class RunBoard {
 }
 
 final runBoardProvider = FutureProvider.autoDispose<RunBoard>(
-  (ref) async => RunBoard.from(await ref.watch(deliveryRepositoryProvider).runs()),
+  (ref) async =>
+      RunBoard.from(await ref.watch(deliveryRepositoryProvider).runs()),
 );
 
 /// One job, refetched whenever it is opened — a dispatcher may have reassigned

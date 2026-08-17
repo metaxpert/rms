@@ -148,11 +148,21 @@ void main() {
     });
   });
 
+  /// Let a multi-step async chain finish.
+  ///
+  /// `Duration.zero` drains one microtask hop, which is enough for a single send
+  /// but not for a queue flush: appending, reading back through the store and then
+  /// posting each fix is several hops deep.
+  Future<void> settle() async {
+    for (var i = 0; i < 8; i++) {
+      await Future<void>.delayed(Duration.zero);
+    }
+  }
+
   group('sharing a position', () {
     test('will not start without permission, and says which problem', () async {
       final deliveries = FakeDeliveries();
-      final location =
-          FakeLocation(availability: LocationAvailability.blocked);
+      final location = FakeLocation(availability: LocationAvailability.blocked);
       addTearDown(location.close);
       final container = await containerWith(deliveries, location: location);
 
@@ -197,24 +207,111 @@ void main() {
       expect(deliveries.pings.length, 1);
     });
 
-    test('a dropped ping is not queued, and does not block the next', () async {
+    test('a dropped ping is queued and sent when the signal returns', () async {
+      // This test asserted the opposite until live tracking was built, and the
+      // reasoning it carried was half right: replaying a stale fix as if it were
+      // current WOULD put the bike somewhere it has left. What it missed is that
+      // dropping the fix loses the shape of the journey, which is not recoverable
+      // — a rider crossing a six-minute dead spot left a trail that jumped from
+      // the restaurant to the customer's street in a straight line through
+      // buildings.
+      //
+      // The resolution is not to choose between them: every fix now carries the
+      // timestamp the phone took it at, and the server orders the trail by that
+      // column. A replayed fix is therefore filed as history rather than mistaken
+      // for the present, so it can be both kept and honest.
       final deliveries = FakeDeliveries()
         ..failTrack = ApiException(ApiErrorKind.network, 'No signal.');
       final location = FakeLocation();
       addTearDown(location.close);
       final container = await containerWith(deliveries, location: location);
+      final controller = controllerIn(container);
 
-      await controllerIn(container).startSharing();
-      location.emit(33.7167, 73.0417);
+      // The dropped fix is taken 90 seconds ago and the recovery fix now — which
+      // is the real shape of a dead spot, and keeps both inside the validator's
+      // clock-skew bound. (Dating the second one into the future instead is
+      // refused as bad skew, correctly.)
+      final now = DateTime.now();
+      final t0 = now.subtract(const Duration(seconds: 90));
+      await controller.startSharing();
+      location.emit(33.7167, 73.0417, at: t0);
       await Future<void>.delayed(Duration.zero);
+
+      // Nothing landed, and the rider can see that it is being held rather than
+      // thrown away.
+      expect(deliveries.pings, isEmpty);
+      expect(stateIn(container).queuedFixes, 1);
 
       deliveries.failTrack = null;
-      location.emit(33.7180, 73.0430);
+      // Far enough past the first fix to clear the cadence throttle, which is
+      // measured between fix timestamps rather than on the wall clock.
+      location.emit(33.7180, 73.0430, at: now);
+      // A queue flush is a longer async chain than a single send — append, read
+      // back, then one request per fix — so one microtask drain is not enough to
+      // settle it.
+      await settle();
+
+      // Both fixes, oldest first: a trail is only a trail in the order it
+      // happened.
+      expect(deliveries.pings, [(33.7167, 73.0417), (33.7180, 73.0430)]);
+      expect(stateIn(container).queuedFixes, 0);
+    });
+
+    test('a fix the server would refuse is never sent', () async {
+      // The server validates too and remains the authority. This copy of the
+      // rules is what stops the request being made at all, which is mobile data
+      // the rider is paying for and battery on a phone that must last a shift.
+      final deliveries = FakeDeliveries();
+      final location = FakeLocation();
+      addTearDown(location.close);
+      final container = await containerWith(deliveries, location: location);
+
+      await controllerIn(container).startSharing();
+      // A 2km-radius cell-tower guess is not a position.
+      location.emit(33.7167, 73.0417, accuracyM: 2000);
       await Future<void>.delayed(Duration.zero);
 
-      // Replaying the stale fix would put the bike somewhere it has left; the
-      // throttle must not have been armed by the failure either.
-      expect(deliveries.pings.single, (33.7180, 73.0430));
+      expect(deliveries.pings, isEmpty);
+      expect(stateIn(container).queuedFixes, 0);
+    });
+
+    test('the phone works harder once the bag is on the bike', () async {
+      // Continuous high-accuracy GPS is close to the most expensive thing an app
+      // can do to a battery, so the cadence follows the job: a bag still on the
+      // pass does not need the fidelity a bike in traffic does.
+      final deliveries = FakeDeliveries();
+      final location = FakeLocation();
+      addTearDown(location.close);
+      final container = await containerWith(deliveries, location: location);
+      final controller = controllerIn(container);
+
+      await controller.startSharing();
+      expect(location.cadences.last, TrackingCadence.idle);
+
+      await controller.advance(FakeDeliveries.delivery(status: 'ASSIGNED'));
+      expect(location.cadences.last, TrackingCadence.active);
+    });
+
+    test('the background grant is asked for after the foreground one',
+        () async {
+      // Android 11+ refuses to show both prompts at once and iOS only escalates
+      // to "Always" after "When in Use" — so asking in the wrong order is a
+      // silent no on both platforms.
+      final deliveries = FakeDeliveries();
+      final location =
+          FakeLocation(background: LocationAvailability.foregroundOnly);
+      addTearDown(location.close);
+      final container = await containerWith(deliveries, location: location);
+
+      await controllerIn(container).startSharing();
+
+      expect(location.ensureCalls, 1);
+      expect(location.backgroundCalls, 1);
+      // Tracking still works with the app open, so this is reported rather than
+      // treated as a failure — but it is reported, because a customer watching a
+      // marker that freezes when the rider pockets the phone deserves better.
+      expect(stateIn(container).sharing, isTrue);
+      expect(stateIn(container).foregroundOnly, isTrue);
     });
 
     test('finishing the run stops the sharing', () async {

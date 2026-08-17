@@ -25,7 +25,8 @@ enum DutyStatus {
     return DutyStatus.unknown;
   }
 
-  bool get isOnShift => this == DutyStatus.available || this == DutyStatus.onRun;
+  bool get isOnShift =>
+      this == DutyStatus.available || this == DutyStatus.onRun;
 }
 
 /// The signed-in rider, as the roster sees them.
@@ -98,7 +99,9 @@ class DriverRepository {
       // twice on a bad connection must not be a second write.
       'driver:duty:${onShift ? 'on' : 'off'}',
     );
-    if (response is! Map<String, dynamic> || response['id'] is! String) return null;
+    if (response is! Map<String, dynamic> || response['id'] is! String) {
+      return null;
+    }
     return DriverProfile.fromJson(response);
   }
 }

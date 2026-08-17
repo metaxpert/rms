@@ -6,6 +6,39 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Tracking a rider who has put the phone in their pocket.
+         Everything below is what separates "the map updates while the app is on
+         screen" from "the map updates while the rider rides", which is the only
+         version of this feature a waiting customer benefits from. A run lasts
+         twenty minutes and nobody holds a phone up for twenty minutes.
+
+         ACCESS_BACKGROUND_LOCATION is requested SEPARATELY and only after the
+         foreground grant (Android 11+ refuses to show both at once), and only
+         when a run is actually being carried — see LocationSource.
+         maxSdkVersion is deliberately absent: this is needed on every version
+         that defines it. -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <!-- A location foreground service is the only sanctioned way to keep GPS
+         alive with the screen off. Without it Android throttles a backgrounded
+         app's fixes to a few per hour and then stops them, which reads on the
+         customer's map as a rider who parked. The persistent notification is
+         not a nuisance to be hidden — it is the honest disclosure that the
+         phone is reporting a position, and the platform requires it. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+
+    <!-- Android 13+ gates the notification the service posts, and the delivery
+         alerts, behind a runtime grant. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Doze will otherwise suspend the queue-flush timer between fixes. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- So a queued fix is retried the moment the signal returns rather than at
+         the next time the rider opens the app. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:label="rms_driver"
         android:name="${applicationName}"
@@ -32,6 +65,16 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- geolocator's own foreground service, declared so Android 14+ accepts
+             it. `foregroundServiceType` is mandatory from API 34: a service that
+             starts without it is killed on the spot, which would look exactly
+             like the tracking silently not working. -->
+        <service
+            android:name="com.baseflow.geolocator.GeolocatorLocationService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
