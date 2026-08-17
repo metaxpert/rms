@@ -1,6 +1,7 @@
 {
   "@@locale": "en",
   "floorTitle": "Floor",
+  "back": "Back",
   "switchOutlet": "Switch outlet",
   "signOut": "Sign out",
   "floorLoading": "Loading floor…",

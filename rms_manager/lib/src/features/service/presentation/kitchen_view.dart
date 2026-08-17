@@ -94,7 +94,7 @@ class _TicketCard extends StatelessWidget {
     final theme = Theme.of(context);
     final text = appText(context);
     final shared = strings(context);
-    final colour = context.statusFill(ticket.urgencyColor);
+    // The fill is resolved by AppCard now, from the same urgency colour.
     // The elapsed time is the one figure a manager reads across the room, and
     // it is small; it needs the corrected variant rather than the fill.
     final ink = context.statusText(ticket.urgencyColor);
@@ -110,16 +110,19 @@ class _TicketCard extends StatelessWidget {
         ticket.elapsedLabelIn(shared),
         if (ticket.isOverdue) text.pastTargetCount(1),
       ].join(', '),
-      child: Container(
+      // Hand-rolled its own tint, radius and border before — the fourth copy of
+      // that decoration in this product. `AppCard` resolves the urgency colour
+      // for the brightness, adds the rail, and carries the same shadow as every
+      // other card, so a kitchen ticket and a run tile finally look related.
+      child: AppCard(
         margin: const EdgeInsets.only(bottom: AppSpacing.md),
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        decoration: BoxDecoration(
-          color: colour.withValues(alpha: ticket.isOverdue ? 0.14 : 0.06),
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(
-            color: colour.withValues(alpha: 0.5),
-            width: ticket.isOverdue ? 2 : 1,
-          ),
+        accent: ticket.urgencyColor,
+        raised: ticket.isOverdue,
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg + AppSpacing.xs,
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

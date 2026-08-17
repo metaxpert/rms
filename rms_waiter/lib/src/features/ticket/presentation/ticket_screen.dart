@@ -114,27 +114,40 @@ class _TicketBody extends ConsumerWidget {
     final mayOrder = ref.watch(permissionsProvider).canTakeOrders;
     final text = appText(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(text.tableTitle(table.code)),
+    return HeroScaffold(
+      header: AppHeroHeader(
+        title: text.tableTitle(table.code),
+        subtitle: [
+          text.seats(table.capacity),
+          if (order?.placedAt != null)
+            text.placedAt(DateFormat.Hm().format(order!.placedAt!)),
+        ].join(' · '),
+        leading: HeroIconButton(
+          icon: Icons.arrow_back_rounded,
+          tooltip: text.floorTitle,
+          onPressed: () => context.pop(),
+        ),
         actions: [
           if (order != null && order.isOpen)
-            IconButton(
+            HeroIconButton(
+              icon: Icons.point_of_sale_rounded,
+              tooltip: text.bill,
               onPressed: () => context.push(
                 Routes.bill(table.id),
                 extra: table.code,
               ),
-              icon: const Icon(Icons.point_of_sale_rounded),
-              tooltip: text.bill,
             ),
           if (draft.isNotEmpty && !locked)
-            IconButton(
-              onPressed: () => _confirmClear(context, controller),
-              icon: const Icon(Icons.delete_outline_rounded),
+            HeroIconButton(
+              icon: Icons.delete_outline_rounded,
               tooltip: text.clearThisRound,
+              onPressed: () => _confirmClear(context, controller),
             ),
         ],
       ),
+      // No overlap here. The first thing under the header is a status pill, not a
+      // card, and pulling a pill up into the gradient puts it across the panel's
+      // rounded corner where it reads as a mistake.
       body: Column(
         children: [
           _TableContext(
@@ -188,7 +201,8 @@ class _TicketBody extends ConsumerWidget {
   ///
   /// The order itself is kept — the "Sent" section reads from it while the
   /// refetch is still in flight, so the lines do not blink out and back.
-  void _announceSends(BuildContext context, WidgetRef ref, TicketRef ticketRef) {
+  void _announceSends(
+      BuildContext context, WidgetRef ref, TicketRef ticketRef) {
     ref.listen(sendControllerProvider(ticketRef), (previous, next) {
       if (previous?.phase == next.phase || next.phase != SendPhase.sent) return;
       final orderNo = next.order?.orderNo;
@@ -308,8 +322,7 @@ class _TicketContent extends StatelessWidget {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.only(bottom: AppSpacing.lg),
       children: [
-        if (orderAsync.hasError)
-          _OrderLoadWarning(error: orderAsync.error!),
+        if (orderAsync.hasError) _OrderLoadWarning(error: orderAsync.error!),
         if (sent != null) _SentSection(order: sent),
         if (draft.isNotEmpty)
           _RoundSection(
@@ -351,7 +364,8 @@ class _OrderLoadWarning extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.cloud_off_rounded, size: 18, color: theme.colorScheme.error),
+          Icon(Icons.cloud_off_rounded,
+              size: 18, color: theme.colorScheme.error),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(
@@ -389,48 +403,54 @@ class _SentSection extends StatelessWidget {
             icon: order.status.icon,
           ),
         ),
-        if (order.lines.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: Text(
-              text.billHasNoItems,
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            ),
-          )
-        else
-          for (final line in order.lines)
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: AppSpacing.xs,
-              ),
-              child: _SentLineTile(line: line),
-            ),
+        // The bill the server holds, on one surface. The header stays out on the
+        // canvas above it: what a waiter must never do on this screen is confuse
+        // these lines with the unsent round below, and two cards with their own
+        // labels above them is a stronger boundary than the hairline divider
+        // that used to be the only thing separating them.
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.sm,
-            AppSpacing.lg,
-            AppSpacing.sm,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                text.billSoFar,
-                style: theme.textTheme.bodyMedium
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-              ),
-              Text(
-                order.totals.total.display,
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
-              ),
-            ],
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: AppCard(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (order.lines.isEmpty)
+                  Text(
+                    text.billHasNoItems,
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  )
+                else
+                  for (final line in order.lines)
+                    Padding(
+                      padding:
+                          const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                      child: _SentLineTile(line: line),
+                    ),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      text.billSoFar,
+                      style: theme.textTheme.bodyMedium
+                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                    Text(
+                      order.totals.total.display,
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-        const Divider(height: 1),
       ],
     );
   }
@@ -446,7 +466,8 @@ class _SentLineTile extends StatelessWidget {
     final theme = Theme.of(context);
     final details = [
       ...line.modifierNames,
-      if (line.kitchenNotes?.trim().isNotEmpty ?? false) line.kitchenNotes!.trim(),
+      if (line.kitchenNotes?.trim().isNotEmpty ?? false)
+        line.kitchenNotes!.trim(),
     ];
 
     return Row(
@@ -510,21 +531,32 @@ class _RoundSection extends StatelessWidget {
             color: theme.colorScheme.primary,
           ),
         ),
-        for (var index = 0; index < draft.lines.length; index++)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          child: AppCard(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.sm,
+            ),
             child: Column(
               children: [
-                _LineTile(
-                  line: draft.lines[index],
-                  onQtyChanged: onQtyChanged == null
-                      ? null
-                      : (qty) => onQtyChanged!(index, qty),
-                ),
-                if (index < draft.lines.length - 1) const Divider(height: 1),
+                for (var index = 0; index < draft.lines.length; index++)
+                  Column(
+                    children: [
+                      _LineTile(
+                        line: draft.lines[index],
+                        onQtyChanged: onQtyChanged == null
+                            ? null
+                            : (qty) => onQtyChanged!(index, qty),
+                      ),
+                      if (index < draft.lines.length - 1)
+                        const Divider(height: 1),
+                    ],
+                  ),
               ],
             ),
           ),
+        ),
       ],
     );
   }
@@ -559,81 +591,93 @@ class _TableContext extends StatelessWidget {
     final restored = restoredAt;
     final ready = order?.status.needsAttention ?? false;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
+    final badge = StatusBadge(
+      label: table.status.labelIn(strings(context)),
+      color: table.status.color,
+      icon: table.status.icon,
+    );
+
+    // With the seats and the placed-at time now in the hero header, the common
+    // case here is a single status pill — and a full card drawn around one pill
+    // is a large empty rectangle with a small thing in the corner of it. So the
+    // surface is earned rather than assumed: a bare badge when the status is all
+    // there is to say, a card when there is also food at the pass or an unsent
+    // round from somebody else's shift.
+    if (!ready && restored == null) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.md,
+          AppSpacing.lg,
+          0,
+        ),
+        child: Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: badge,
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.lg,
+        0,
       ),
-      color: ready
-          ? context.statusFill(AppStatusColors.ready).withValues(alpha: 0.16)
-          : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              StatusBadge(
-                label: table.status.labelIn(strings(context)),
-                color: table.status.color,
-                icon: table.status.icon,
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Text(
-                text.seats(table.capacity),
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-              ),
-              if (order?.placedAt != null) ...[
-                const SizedBox(width: AppSpacing.md),
-                Text(
-                  text.placedAt(DateFormat.Hm().format(order!.placedAt!)),
-                  style: theme.textTheme.bodySmall
-                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                ),
-              ],
-            ],
-          ),
-          if (ready) ...[
-            const SizedBox(height: AppSpacing.sm),
-            Row(
-              children: [
-                Icon(
-                  Icons.room_service_rounded,
-                  size: 18,
-                  color: context.statusText(AppStatusColors.ready),
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                Text(
-                  text.foodReadyToRun,
-                  style: theme.textTheme.bodyMedium?.copyWith(
+      child: AppCard(
+        accent: ready ? AppStatusColors.ready : null,
+        padding: EdgeInsets.fromLTRB(
+          ready ? AppSpacing.lg + AppSpacing.xs : AppSpacing.lg,
+          AppSpacing.md,
+          AppSpacing.lg,
+          AppSpacing.md,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Align(alignment: AlignmentDirectional.centerStart, child: badge),
+            if (ready) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Row(
+                children: [
+                  Icon(
+                    Icons.room_service_rounded,
+                    size: 18,
                     color: context.statusText(AppStatusColors.ready),
-                    fontWeight: FontWeight.w700,
                   ),
-                ),
-              ],
-            ),
-          ],
-          if (restored != null) ...[
-            const SizedBox(height: AppSpacing.sm),
-            Row(
-              children: [
-                Icon(Icons.history_rounded,
-                    size: 16, color: theme.colorScheme.onSurfaceVariant),
-                const SizedBox(width: AppSpacing.xs),
-                Expanded(
-                  child: Text(
-                    // Someone else may have started this round on another
-                    // tablet's shift; it has NOT reached the kitchen.
-                    text.unsentRoundFrom(DateFormat.Hm().format(restored)),
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  const SizedBox(width: AppSpacing.xs),
+                  Text(
+                    text.foodReadyToRun,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: context.statusText(AppStatusColors.ready),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
+            if (restored != null) ...[
+              const SizedBox(height: AppSpacing.sm),
+              Row(
+                children: [
+                  Icon(Icons.history_rounded,
+                      size: 16, color: theme.colorScheme.onSurfaceVariant),
+                  const SizedBox(width: AppSpacing.xs),
+                  Expanded(
+                    child: Text(
+                      // Someone else may have started this round on another
+                      // tablet's shift; it has NOT reached the kitchen.
+                      text.unsentRoundFrom(DateFormat.Hm().format(restored)),
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -836,8 +880,10 @@ class _QtyControl extends StatelessWidget {
           onPressed: change == null ? null : () => change(qty - 1),
           // At 1, this removes the line — the icon says so rather than the
           // count silently vanishing at zero.
-          icon: Icon(qty > 1 ? Icons.remove_rounded : Icons.delete_outline_rounded),
-          tooltip: qty > 1 ? appText(context).oneFewer : appText(context).remove,
+          icon: Icon(
+              qty > 1 ? Icons.remove_rounded : Icons.delete_outline_rounded),
+          tooltip:
+              qty > 1 ? appText(context).oneFewer : appText(context).remove,
         ),
         SizedBox(
           width: 36,
@@ -894,13 +940,15 @@ class _TotalsPanel extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
-        border: Border(top: BorderSide(color: theme.colorScheme.outlineVariant)),
+        border:
+            Border(top: BorderSide(color: theme.colorScheme.outlineVariant)),
         boxShadow: AppElevation.lift(theme.brightness),
       ),
       child: Column(
         children: [
           _TotalRow(label: text.subtotal, amount: totals.subtotal),
-          if (!totals.tax.isZero) _TotalRow(label: text.tax, amount: totals.tax),
+          if (!totals.tax.isZero)
+            _TotalRow(label: text.tax, amount: totals.tax),
           if (!totals.serviceCharge.isZero)
             _TotalRow(label: text.serviceCharge, amount: totals.serviceCharge),
           // Rounding applies to a whole bill, not to one round of it. Showing it

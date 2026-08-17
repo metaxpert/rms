@@ -27,24 +27,33 @@ class _FloorScreenState extends ConsumerState<FloorScreen> {
     final snapshot = ref.watch(floorSnapshotProvider);
     final text = appText(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(text.floorTitle),
+    return HeroScaffold(
+      header: AppHeroHeader(
+        title: text.floorTitle,
+        subtitle: _outletName(ref),
+        trailing: const _ConnectionIndicator(),
         actions: [
-          const _ConnectionIndicator(),
-          IconButton(
+          HeroIconButton(
+            icon: Icons.swap_horiz_rounded,
+            tooltip: text.switchOutlet,
             onPressed: () =>
                 ref.read(authControllerProvider.notifier).clearBranch(),
-            icon: const Icon(Icons.swap_horiz_rounded),
-            tooltip: text.switchOutlet,
           ),
-          IconButton(
+          HeroIconButton(
+            icon: Icons.logout_rounded,
+            tooltip: text.signOut,
             onPressed: () =>
                 ref.read(authControllerProvider.notifier).signOut(),
-            icon: const Icon(Icons.logout_rounded),
-            tooltip: text.signOut,
           ),
         ],
+        // The two figures that used to live in a grey strip under the app bar:
+        // what is still owed on the floor, and what is sitting at the pass going
+        // cold. They are the reason a waiter looks at this screen, so they are on
+        // the panel rather than in a band below it — and on the gradient they get
+        // read at a glance instead of blending into the tables.
+        bottom: snapshot.valueOrNull == null
+            ? null
+            : _ServiceStrip(floor: snapshot.value!),
       ),
       body: snapshot.when(
         loading: () => LoadingView(
@@ -156,22 +165,34 @@ class _ConnectionIndicator extends ConsumerWidget {
     }
 
     final connecting = status == RealtimeStatus.connecting;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-      child: Tooltip(
-        message: connecting ? text.liveConnectingHint : text.liveOfflineHint,
+    final theme = Theme.of(context);
+    // On the hero gradient now, where `onSurfaceVariant` was a grey smear.
+    final ink = AppGradients.ink(theme.colorScheme);
+
+    return Tooltip(
+      message: connecting ? text.liveConnectingHint : text.liveOfflineHint,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.xs,
+        ),
+        decoration: BoxDecoration(
+          color: ink.withValues(alpha: 0.16),
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          border: Border.all(color: ink.withValues(alpha: 0.4)),
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               connecting ? Icons.sync_rounded : Icons.cloud_off_rounded,
-              size: 18,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              size: 14,
+              color: ink,
             ),
             const SizedBox(width: AppSpacing.xs),
             Text(
               connecting ? text.liveConnecting : text.liveOffline,
-              style: Theme.of(context).textTheme.labelSmall,
+              style: theme.textTheme.labelSmall?.copyWith(color: ink),
             ),
           ],
         ),
@@ -223,7 +244,9 @@ class _FloorBody extends StatelessWidget {
     return Column(
       children: [
         if (floor.isStale) _StaleBanner(readAt: floor.readAt),
-        _SummaryBar(floor: floor),
+        // `_SummaryBar` used to sit here. Its two metrics are in the hero header
+        // now, where they are the first thing read rather than a grey band
+        // between the app bar and the tables.
         if (floor.areas.length > 1)
           _AreaSelector(
             floor: floor,
@@ -277,38 +300,53 @@ class _StaleBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final text = appText(context);
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
-      color: theme.colorScheme.errorContainer,
-      child: Row(
-        children: [
-          Icon(Icons.wifi_off_rounded,
-              size: 18, color: theme.colorScheme.onErrorContainer),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(
-              readAt == null
-                  ? text.floorStaleUnknown
-                  : text.floorStaleAt(DateFormat.Hm().format(readAt!)),
-              style: theme.textTheme.bodySmall
-                  ?.copyWith(color: theme.colorScheme.onErrorContainer),
-            ),
-          ),
-        ],
+    // Was a full-bleed `errorContainer` band — the loudest surface in the app
+    // for a condition where the tables on screen are still correct and only
+    // their order state is behind. [AppNotice] states it just as permanently
+    // without repainting the top of the floor.
+    return AppNotice(
+      tone: NoticeTone.warning,
+      icon: Icons.wifi_off_rounded,
+      title: readAt == null
+          ? text.floorStaleUnknown
+          : text.floorStaleAt(DateFormat.Hm().format(readAt!)),
+      margin: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.lg,
+        0,
       ),
     );
   }
 }
 
-class _SummaryBar extends StatelessWidget {
-  const _SummaryBar({required this.floor});
+/// The outlet whose floor this is.
+String? _outletName(WidgetRef ref) {
+  final branchId = ref.watch(sessionProvider).branchId;
+  if (branchId == null) return null;
+  return ref
+      .watch(branchesProvider)
+      .valueOrNull
+      ?.where((b) => b.id == branchId)
+      .map((b) => b.name)
+      .firstOrNull;
+}
+
+/// The service in two figures, drawn on the hero gradient.
+///
+/// Replaces `_SummaryBar`, which was the same two numbers in a grey band under
+/// the app bar. The numbers did not change; what changed is that they are no
+/// longer competing with sixty table cards for the same neutral surface.
+///
+/// Ink is the header's, not the status palette's. The "ready" cyan was tuned to
+/// clear AA against a light card and does not against a saturated teal panel —
+/// so the count that needs attention says so with a filled pane behind it and
+/// the word beside it, which works in both brightnesses and for a waiter who
+/// cannot see colour.
+class _ServiceStrip extends StatelessWidget {
+  const _ServiceStrip({required this.floor});
 
   final FloorSnapshot floor;
 
@@ -316,74 +354,81 @@ class _SummaryBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final text = appText(context);
+    final ink = AppGradients.ink(theme.colorScheme);
     final ready = floor.readyCount;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
-      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-      child: Row(
-        children: [
-          _Metric(
-            label: text.openBills,
-            value: '${floor.openOrderCount}',
-            icon: Icons.receipt_long_outlined,
+    Widget cell({
+      required String label,
+      required String value,
+      required IconData icon,
+      required bool emphasise,
+    }) =>
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            decoration: BoxDecoration(
+              color: ink.withValues(alpha: emphasise ? 0.20 : 0.10),
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              border: Border.all(
+                color: ink.withValues(alpha: emphasise ? 0.45 : 0.18),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(icon, size: 18, color: ink),
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  value,
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700, color: ink),
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                Expanded(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: ink.withValues(alpha: 0.9),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(width: AppSpacing.xl),
-          _Metric(
-            label: text.readyToServe,
-            value: '$ready',
-            icon: Icons.room_service_outlined,
-            // Only emphasised when there is something to do — a permanently
-            // coloured badge stops being noticed.
-            highlight: ready > 0,
-          ),
-        ],
+        );
+
+    // Capped, and aligned to the leading edge. Two cells sharing the full width
+    // of a 1194-pixel tablet gave "3 Open bills" six hundred pixels to say four
+    // words in, which reads as a layout that has lost its content rather than as
+    // a summary. On a phone the cap is wider than the screen and does nothing.
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 520),
+        child: Row(
+          children: [
+            cell(
+              label: text.openBills,
+              value: '${floor.openOrderCount}',
+              icon: Icons.receipt_long_outlined,
+              emphasise: false,
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            cell(
+              label: text.readyToServe,
+              value: '$ready',
+              icon: Icons.room_service_outlined,
+              // Only when there is something to do — a permanently emphasised
+              // figure stops being noticed within a shift.
+              emphasise: ready > 0,
+            ),
+          ],
+        ),
       ),
-    );
-  }
-}
-
-class _Metric extends StatelessWidget {
-  const _Metric({
-    required this.label,
-    required this.value,
-    required this.icon,
-    this.highlight = false,
-  });
-
-  final String label;
-  final String value;
-  final IconData icon;
-  final bool highlight;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    // The fill palette is tuned for borders and icons; small text needs the
-    // variant corrected for this brightness to clear WCAG AA.
-    final color = highlight
-        ? context.statusText(AppStatusColors.ready)
-        : theme.colorScheme.onSurfaceVariant;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 18, color: color),
-        const SizedBox(width: AppSpacing.sm),
-        Text(
-          value,
-          style: theme.textTheme.titleMedium
-              ?.copyWith(fontWeight: FontWeight.w700, color: color),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        Text(
-          label,
-          style: theme.textTheme.bodySmall?.copyWith(color: color),
-        ),
-      ],
     );
   }
 }

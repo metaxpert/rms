@@ -158,6 +158,18 @@ abstract class RmsLocalizations {
   /// **'Sign in'**
   String get signIn;
 
+  /// No description provided for @signInHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to continue'**
+  String get signInHeading;
+
+  /// No description provided for @signInBlurb.
+  ///
+  /// In en, this message translates to:
+  /// **'Your restaurant, on every device.'**
+  String get signInBlurb;
+
   /// No description provided for @signInEmail.
   ///
   /// In en, this message translates to:
@@ -487,6 +499,12 @@ abstract class RmsLocalizations {
   /// In en, this message translates to:
   /// **'Choose your outlet'**
   String get chooseOutlet;
+
+  /// No description provided for @chooseOutletBlurb.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything you see is scoped to this outlet.'**
+  String get chooseOutletBlurb;
 }
 
 class _RmsLocalizationsDelegate

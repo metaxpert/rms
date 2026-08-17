@@ -29,9 +29,32 @@ class RunScreen extends ConsumerWidget {
     // What the controller last saw beats a fetch that may be in flight behind it.
     final delivery = run.delivery ?? async.valueOrNull;
 
-    return Scaffold(
-      appBar: AppBar(
-          title: Text(delivery?.deliveryNo ?? appText(context).run)),
+    final text = appText(context);
+
+    return HeroScaffold(
+      header: AppHeroHeader(
+        // The order number, which is what a customer at a door and a manager on
+        // the phone both quote. It was the app bar's title as `deliveryNo`, an
+        // internal number nobody outside this screen uses.
+        title: delivery == null
+            ? text.run
+            : (delivery.orderNo.isEmpty
+                ? delivery.deliveryNo
+                : delivery.orderNo),
+        subtitle: delivery == null
+            ? null
+            : [
+                delivery.provider,
+                if (delivery.etaMinutes != null)
+                  text.etaMinutes(delivery.etaMinutes!),
+              ].join(' · '),
+        leading: HeroIconButton(
+          icon: Icons.arrow_back_rounded,
+          tooltip: text.runsTitle,
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      overlap: AppSpacing.md,
       body: delivery == null
           ? async.when(
               loading: () => const LoadingView(),
@@ -60,13 +83,16 @@ class _RunBody extends ConsumerWidget {
       children: [
         Expanded(
           child: RefreshIndicator(
-            onRefresh: () async => ref.invalidate(deliveryProvider(delivery.id)),
+            onRefresh: () async =>
+                ref.invalidate(deliveryProvider(delivery.id)),
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(AppSpacing.lg),
               children: [
-                _Header(delivery: delivery),
-                const SizedBox(height: AppSpacing.lg),
+                // The order number, provider and ETA that used to head this list
+                // are in the hero header now. What is left is the state of the
+                // run, and that belongs on the card about the drop-off rather
+                // than floating above it.
                 _DropOffCard(delivery: delivery),
                 const SizedBox(height: AppSpacing.lg),
                 if (delivery.isOwnFleet && !delivery.status.isTerminal)
@@ -91,50 +117,6 @@ class _RunBody extends ConsumerWidget {
   }
 }
 
-class _Header extends StatelessWidget {
-  const _Header({required this.delivery});
-
-  final Delivery delivery;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final text = appText(context);
-
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                delivery.orderNo.isEmpty ? delivery.deliveryNo : delivery.orderNo,
-                style: theme.textTheme.headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                [
-                  delivery.provider,
-                  if (delivery.etaMinutes != null)
-                    text.etaMinutes(delivery.etaMinutes!),
-                ].join(' · '),
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-              ),
-            ],
-          ),
-        ),
-        StatusBadge(
-          label: delivery.status.labelIn(strings(context)),
-          color: delivery.status.color,
-          icon: delivery.status.icon,
-        ),
-      ],
-    );
-  }
-}
-
 class _DropOffCard extends StatelessWidget {
   const _DropOffCard({required this.delivery});
 
@@ -147,60 +129,73 @@ class _DropOffCard extends StatelessWidget {
     final address = delivery.address;
     final location = delivery.location;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.location_on_rounded,
-                    color: theme.colorScheme.primary),
-                const SizedBox(width: AppSpacing.sm),
-                Text(text.dropOff, style: theme.textTheme.titleMedium),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            SelectableText(
-              address ?? text.noAddressCall,
-              style: theme.textTheme.bodyLarge,
-            ),
-            if (location != null) ...[
-              const SizedBox(height: AppSpacing.md),
-              Row(
-                children: [
-                  Icon(Icons.my_location_rounded,
-                      size: 16, color: theme.colorScheme.onSurfaceVariant),
-                  const SizedBox(width: AppSpacing.xs),
-                  Expanded(
-                    child: Text(
-                      '${location.lat.toStringAsFixed(5)}, '
-                      '${location.lng.toStringAsFixed(5)}',
-                      style: theme.textTheme.bodySmall,
-                    ),
-                  ),
-                  TextButton.icon(
-                    // No map SDK is bundled: copying the coordinates hands them
-                    // to whichever navigation app the rider already uses, which
-                    // is the one they trust in their own city.
-                    onPressed: () {
-                      Clipboard.setData(ClipboardData(
-                          text: '${location.lat},${location.lng}'));
-                      ScaffoldMessenger.of(context)
-                        ..clearSnackBars()
-                        ..showSnackBar(SnackBar(
-                          content: Text(text.coordinatesCopied),
-                        ));
-                    },
-                    icon: const Icon(Icons.copy_rounded, size: 18),
-                    label: Text(text.copy),
-                  ),
-                ],
+    return AppCard(
+      // The run's state, carried by the card that says where it is going. The
+      // rail is the fastest read on the screen and the badge beside the heading
+      // is the one that survives a rider who cannot see colour.
+      accent: delivery.status.color,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg + AppSpacing.xs,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.location_on_rounded, color: theme.colorScheme.primary),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(text.dropOff, style: theme.textTheme.titleMedium),
+              ),
+              StatusBadge(
+                label: delivery.status.labelIn(strings(context)),
+                color: delivery.status.color,
+                icon: delivery.status.icon,
               ),
             ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          SelectableText(
+            address ?? text.noAddressCall,
+            style: theme.textTheme.bodyLarge,
+          ),
+          if (location != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              children: [
+                Icon(Icons.my_location_rounded,
+                    size: 16, color: theme.colorScheme.onSurfaceVariant),
+                const SizedBox(width: AppSpacing.xs),
+                Expanded(
+                  child: Text(
+                    '${location.lat.toStringAsFixed(5)}, '
+                    '${location.lng.toStringAsFixed(5)}',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
+                TextButton.icon(
+                  // No map SDK is bundled: copying the coordinates hands them
+                  // to whichever navigation app the rider already uses, which
+                  // is the one they trust in their own city.
+                  onPressed: () {
+                    Clipboard.setData(
+                        ClipboardData(text: '${location.lat},${location.lng}'));
+                    ScaffoldMessenger.of(context)
+                      ..clearSnackBars()
+                      ..showSnackBar(SnackBar(
+                        content: Text(text.coordinatesCopied),
+                      ));
+                  },
+                  icon: const Icon(Icons.copy_rounded, size: 18),
+                  label: Text(text.copy),
+                ),
+              ],
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -544,8 +539,7 @@ class _ActionBar extends ConsumerWidget {
             child: Text(text.cancel),
           ),
           FilledButton(
-            onPressed: () =>
-                Navigator.of(context).pop(controller.text.trim()),
+            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
             child: Text(text.delivered),
           ),
         ],

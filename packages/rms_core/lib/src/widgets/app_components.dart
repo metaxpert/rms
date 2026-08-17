@@ -103,72 +103,104 @@ class MetricTile extends StatelessWidget {
         ? context.statusText(accent)
         : theme.colorScheme.onSurfaceVariant;
 
+    final isLight = theme.brightness == Brightness.light;
+    final radius = BorderRadius.circular(AppRadius.xl);
+
     return Semantics(
       container: true,
       excludeSemantics: true,
       button: onTap != null,
       label: [label, value, if (detail != null) detail].join(': '),
-      child: Material(
-        color: highlight
-            ? fill.withValues(alpha: 0.12)
-            : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          child: Ink(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              border: highlight
-                  ? Border.all(color: fill.withValues(alpha: 0.5))
-                  : null,
-            ),
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(icon, size: 18, color: ink),
-                    const SizedBox(width: AppSpacing.xs),
-                    Expanded(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          // A highlighted tile is washed in its own status; a resting one is a
+          // plain card. Both are surfaces now rather than the flat grey wells
+          // they were — a KPI grid where every tile is the same dead tone is a
+          // grid a manager reads once and then stops seeing.
+          gradient:
+              highlight ? AppGradients.status(accent, theme.brightness) : null,
+          color: highlight
+              ? null
+              : (isLight
+                  ? theme.colorScheme.surface
+                  : theme.colorScheme.surfaceContainerHigh),
+          border: Border.all(
+            color: highlight
+                ? fill.withValues(alpha: 0.5)
+                : theme.colorScheme.outlineVariant
+                    .withValues(alpha: isLight ? 0.7 : 0.5),
+            width: highlight ? 1.5 : 1,
+          ),
+          boxShadow: AppElevation.resting(theme.brightness),
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: radius,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      // The glyph sits in a tinted disc rather than loose against
+                      // the label. It gives the tile a fixed anchor point, which
+                      // is what lets a grid of them scan as a grid.
+                      Container(
+                        padding: const EdgeInsets.all(AppSpacing.xs),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: highlight
+                              ? fill.withValues(alpha: 0.18)
+                              : theme.colorScheme.surfaceContainerHighest
+                                  .withValues(alpha: 0.8),
+                        ),
+                        child: Icon(icon, size: 16, color: ink),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              theme.textTheme.labelMedium?.copyWith(color: ink),
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Scaled down rather than clipped or ellipsised. A KPI tile has
+                  // one job and it is showing the number: "45,678.90" truncated
+                  // to "45,67…" is worse than the same figure a few points
+                  // smaller, and at a 1.3x text scale on a small phone the full
+                  // size does not fit. Flexible lets it give up height first,
+                  // FittedBox spends that height on the glyphs.
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
                       child: Text(
-                        label,
+                        value,
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.labelMedium?.copyWith(color: ink),
+                        style: theme.textTheme.headlineMedium,
                       ),
                     ),
-                  ],
-                ),
-                // Scaled down rather than clipped or ellipsised. A KPI tile has
-                // one job and it is showing the number: "45,678.90" truncated
-                // to "45,67…" is worse than the same figure a few points
-                // smaller, and at a 1.3x text scale on a small phone the full
-                // size does not fit. Flexible lets it give up height first,
-                // FittedBox spends that height on the glyphs.
-                Flexible(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Text(
-                      value,
-                      maxLines: 1,
-                      style: theme.textTheme.headlineMedium,
-                    ),
                   ),
-                ),
-                if (detail != null)
-                  Flexible(
-                    child: Text(
-                      detail!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall,
+                  if (detail != null)
+                    Flexible(
+                      child: Text(
+                        detail!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall,
+                      ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

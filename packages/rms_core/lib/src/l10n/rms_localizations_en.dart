@@ -41,6 +41,12 @@ class RmsLocalizationsEn extends RmsLocalizations {
   String get signIn => 'Sign in';
 
   @override
+  String get signInHeading => 'Sign in to continue';
+
+  @override
+  String get signInBlurb => 'Your restaurant, on every device.';
+
+  @override
   String get signInEmail => 'Email';
 
   @override
@@ -213,4 +219,8 @@ class RmsLocalizationsEn extends RmsLocalizations {
 
   @override
   String get chooseOutlet => 'Choose your outlet';
+
+  @override
+  String get chooseOutletBlurb =>
+      'Everything you see is scoped to this outlet.';
 }

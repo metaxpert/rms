@@ -55,13 +55,20 @@ class _TrackScreenState extends ConsumerState<TrackScreen> {
   Widget build(BuildContext context) {
     final tracked = ref.watch(trackedOrderProvider(widget.orderId));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(appText(context).yourOrder),
-        leading: IconButton(
-          onPressed: () => context.go(Routes.home),
-          icon: const Icon(Icons.restaurant_menu_rounded),
+    final order = tracked.valueOrNull?.order;
+
+    return HeroScaffold(
+      header: AppHeroHeader(
+        title: appText(context).yourOrder,
+        // The order number, once there is one. The progress headline is a full
+        // sentence — "Your food is being cooked." — so it stays in the body
+        // where it can take two lines; a hero title is one line and would
+        // ellipsise it mid-sentence.
+        subtitle: order == null || order.orderNo.isEmpty ? null : order.orderNo,
+        leading: HeroIconButton(
+          icon: Icons.restaurant_menu_rounded,
           tooltip: appText(context).backToMenu,
+          onPressed: () => context.go(Routes.home),
         ),
       ),
       body: tracked.when(
@@ -137,26 +144,42 @@ class _TrackBody extends StatelessWidget {
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
-        Text(
-          progress.headline,
-          style: theme.textTheme.headlineSmall
-              ?.copyWith(fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          order.orderNo.isEmpty ? text.orderPlaced : order.orderNo,
-          style: theme.textTheme.bodyMedium
-              ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        // The headline and the rail on one card. They are one thing — a claim
+        // about where dinner is, and the evidence for it — and as loose text
+        // followed by loose rows they read as two unrelated blocks with the
+        // order number stranded between them.
+        AppCard(
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                progress.headline,
+                style: theme.textTheme.headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+              if (order.orderNo.isEmpty) ...[
+                const SizedBox(height: AppSpacing.xs),
+                // Only when the header could not show it. With a number, the
+                // header has it and repeating it here is noise.
+                Text(
+                  text.orderPlaced,
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                ),
+              ],
+              const SizedBox(height: AppSpacing.xl),
+              for (var i = 0; i < progress.steps.length; i++)
+                _Step(
+                  step: progress.steps[i],
+                  // The last step has nothing below it to join to.
+                  isLast: i == progress.steps.length - 1,
+                ),
+            ],
+          ),
         ),
         if (unsentAddress != null) _AddressWarning(address: unsentAddress!),
-        const SizedBox(height: AppSpacing.xl),
-        for (var i = 0; i < progress.steps.length; i++)
-          _Step(
-            step: progress.steps[i],
-            // The last step has nothing below it to join to.
-            isLast: i == progress.steps.length - 1,
-          ),
-        const SizedBox(height: AppSpacing.xl),
+        const SizedBox(height: AppSpacing.lg),
         if (order.lines.isNotEmpty) _OrderLines(order: order),
         const SizedBox(height: AppSpacing.lg),
         Text(
@@ -182,38 +205,19 @@ class _AddressWarning extends StatelessWidget {
     final theme = Theme.of(context);
     final text = appText(context);
 
-    return Container(
+    // Was a hand-rolled container in `errorContainer` — the fifth inline banner
+    // in this product to invent its own padding and radius, and the reason
+    // [AppNotice] exists. Same words, same severity, drawn the way every other
+    // warning in all four apps is drawn.
+    return AppNotice(
+      tone: NoticeTone.danger,
+      icon: Icons.phone_in_talk_rounded,
+      title: text.addressWillCallTitle,
+      message: text.addressCouldNotAttach,
       margin: const EdgeInsets.only(top: AppSpacing.lg),
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.phone_in_talk_rounded,
-                  color: theme.colorScheme.error, size: 20),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Text(
-                  text.addressWillCallTitle,
-                  style: theme.textTheme.titleSmall,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            text.addressCouldNotAttach,
-            style: theme.textTheme.bodySmall,
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          SelectableText(address, style: theme.textTheme.bodyMedium),
-        ],
-      ),
+      // Selectable, because a guest on the phone to the restaurant reads this
+      // back or pastes it into a message.
+      action: SelectableText(address, style: theme.textTheme.bodyMedium),
     );
   }
 }
@@ -281,7 +285,8 @@ class _Step extends StatelessWidget {
                   Expanded(
                     child: Container(
                       width: 2,
-                      margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                      margin:
+                          const EdgeInsets.symmetric(vertical: AppSpacing.xs),
                       color: step.done
                           ? context
                               .statusFill(AppStatusColors.available)
@@ -325,41 +330,44 @@ class _OrderLines extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(appText(context).whatYouOrdered, style: theme.textTheme.titleSmall),
-        const SizedBox(height: AppSpacing.sm),
-        for (final line in order.lines)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 28,
-                  child: Text('${line.qty}×',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant)),
-                ),
-                Expanded(child: Text(line.name)),
-                Text(line.lineTotal.display),
-              ],
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(appText(context).whatYouOrdered,
+              style: theme.textTheme.titleSmall),
+          const SizedBox(height: AppSpacing.sm),
+          for (final line in order.lines)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 28,
+                    child: Text('${line.qty}×',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant)),
+                  ),
+                  Expanded(child: Text(line.name)),
+                  Text(line.lineTotal.display),
+                ],
+              ),
             ),
+          const Divider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(appText(context).total, style: theme.textTheme.titleMedium),
+              Text(
+                // The restaurant's figure, not the basket's estimate.
+                order.totals.total.display,
+                style: theme.textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ],
           ),
-        const Divider(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(appText(context).total, style: theme.textTheme.titleMedium),
-            Text(
-              // The restaurant's figure, not the basket's estimate.
-              order.totals.total.display,
-              style: theme.textTheme.titleMedium
-                  ?.copyWith(fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

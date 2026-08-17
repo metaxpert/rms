@@ -64,7 +64,9 @@ export 'src/menu/menu_repository.dart';
 export 'src/theme/app_theme.dart';
 export 'src/widgets/state_views.dart';
 export 'src/widgets/app_components.dart';
+export 'src/widgets/app_surfaces.dart';
 export 'src/widgets/skeletons.dart';
+export 'src/widgets/splash_screen.dart';
 
 // Domain vocabulary, mirroring the backend exactly
 export 'src/domain/branch.dart';

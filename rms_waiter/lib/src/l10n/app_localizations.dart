@@ -103,6 +103,12 @@ abstract class AppText {
   /// **'Floor'**
   String get floorTitle;
 
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
   /// No description provided for @switchOutlet.
   ///
   /// In en, this message translates to:

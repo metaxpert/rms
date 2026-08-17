@@ -41,6 +41,12 @@ class RmsLocalizationsUr extends RmsLocalizations {
   String get signIn => 'سائن ان';
 
   @override
+  String get signInHeading => 'جاری رکھنے کے لیے سائن ان کریں';
+
+  @override
+  String get signInBlurb => 'آپ کا ریستوران، ہر ڈیوائس پر۔';
+
+  @override
   String get signInEmail => 'ای میل';
 
   @override
@@ -213,4 +219,7 @@ class RmsLocalizationsUr extends RmsLocalizations {
 
   @override
   String get chooseOutlet => 'اپنا آؤٹ لیٹ منتخب کریں';
+
+  @override
+  String get chooseOutletBlurb => 'آپ جو کچھ دیکھیں گے وہ اسی آؤٹ لیٹ کا ہوگا۔';
 }

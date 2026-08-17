@@ -211,6 +211,24 @@ abstract class AppText {
   /// **'The longest has been waiting {wait}.'**
   String longestWaiting(String wait);
 
+  /// No description provided for @sectionRightNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Right now'**
+  String get sectionRightNow;
+
+  /// No description provided for @summaryOnTables.
+  ///
+  /// In en, this message translates to:
+  /// **'Still on tables'**
+  String get summaryOnTables;
+
+  /// No description provided for @summaryTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken today'**
+  String get summaryTaken;
+
   /// No description provided for @kpiOpenBills.
   ///
   /// In en, this message translates to:

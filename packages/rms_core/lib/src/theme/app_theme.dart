@@ -20,6 +20,18 @@ abstract final class AppRadius {
   static const sm = 8.0;
   static const md = 12.0;
   static const lg = 16.0;
+
+  /// Cards, sheets and fields. The default resting radius of the product.
+  ///
+  /// Larger than the 12 this used to sit at: at 12 a card on a tinted canvas
+  /// reads as a box drawn on the page, and at 20 it reads as an object resting
+  /// on it. The corner is doing the same work as the shadow, which is why they
+  /// were raised together.
+  static const xl = 20.0;
+
+  /// Hero panels — the header a screen opens with, the splash mark.
+  static const xxl = 28.0;
+
   static const pill = 999.0;
 }
 
@@ -31,6 +43,16 @@ abstract final class AppSizes {
   /// Primary actions ("Send to kitchen", "Settle") — deliberately large and
   /// hard to hit by accident, sitting away from destructive controls.
   static const primaryActionHeight = 64.0;
+
+  /// Chrome: the icon buttons in a header, the outlet switcher.
+  ///
+  /// The platform's floor, which is what `IconButton` gives by default and what
+  /// the hero header's buttons replaced. Not [minTouchTarget] — 56 is for the
+  /// controls staff aim at mid-service while holding a tray, and three 56dp
+  /// discs in the corner of a 390-pixel header leave the title nowhere to go.
+  /// It is not smaller than 48 either: the first version drew 44 and the waiter
+  /// app's accessibility suite failed it immediately.
+  static const chromeTouchTarget = 48.0;
 
   /// Floor-plan table cards; fits a 4-across grid on a 10" tablet.
   static const tableCardMin = 150.0;
@@ -64,18 +86,108 @@ abstract final class AppBreakpoints {
   // SliverGridDelegateWithMaxCrossAxisExtent and cap the tile instead.
 }
 
-/// Depth. Used sparingly: Material 3 prefers tonal surfaces to drop shadows,
-/// and a restaurant floor viewed at an angle in dim light reads a border more
-/// reliably than a shadow.
+/// Depth.
 ///
-/// Shadows here are one soft, low-opacity layer rather than the stacked
-/// blur/spread of a marketing site — enough to lift a sheet off the page, not
-/// enough to become the design.
+/// The rule used to be "a border, never a shadow": Material 3 prefers tonal
+/// surfaces, and a floor tablet viewed at an angle in dim light reads an edge
+/// more reliably than a soft gradient. That reasoning holds for the *edge* and
+/// was over-applied to the *depth*. A card whose only boundary is a hairline,
+/// sitting on a canvas lighter than itself, has no way of reading as an object
+/// — it reads as a rectangle drawn on the page, which is what made every one of
+/// these screens look like a wireframe of itself.
+///
+/// So both now: the hairline stays, and a shadow goes under it. The canvas is
+/// tinted a step darker than the card, so the card is the lightest thing on
+/// screen and the shadow only has to confirm what the tone already said. That
+/// ordering is what survives the dim-light-at-an-angle case, because it does
+/// not depend on the shadow being visible at all.
+///
+/// Two layers, never more: a tight contact shadow that grounds the edge, and a
+/// wide diffuse one that gives it height. The stacked five-layer blur of a
+/// marketing site costs a raster pass per card on a grid of forty tables.
 abstract final class AppElevation {
   static const none = 0.0;
   static const card = 0.0;
   static const raised = 2.0;
   static const sheet = 3.0;
+
+  /// The resting shadow under a card.
+  ///
+  /// Tuned per brightness because they are solving different problems. On light,
+  /// a black shadow at low alpha is the whole effect. On dark there is no
+  /// darker to go — a shadow under a dark card on a darker canvas is invisible —
+  /// so the layer is tightened and deepened to read as a seam rather than a
+  /// glow, and the border carries the rest.
+  static List<BoxShadow> resting(Brightness brightness) =>
+      brightness == Brightness.light
+          ? const [
+              BoxShadow(
+                color: Color(0x0D101828),
+                blurRadius: 2,
+                offset: Offset(0, 1),
+              ),
+              BoxShadow(
+                color: Color(0x14101828),
+                blurRadius: 12,
+                offset: Offset(0, 4),
+              ),
+            ]
+          : const [
+              BoxShadow(
+                color: Color(0x40000000),
+                blurRadius: 2,
+                offset: Offset(0, 1),
+              ),
+              BoxShadow(
+                color: Color(0x33000000),
+                blurRadius: 10,
+                offset: Offset(0, 4),
+              ),
+            ];
+
+  /// For something the user has picked up — a pressed table card, a dragged
+  /// sheet, the hero panel of a screen. One step further off the page.
+  static List<BoxShadow> raisedShadow(Brightness brightness) =>
+      brightness == Brightness.light
+          ? const [
+              BoxShadow(
+                color: Color(0x14101828),
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+              BoxShadow(
+                color: Color(0x1F101828),
+                blurRadius: 24,
+                offset: Offset(0, 10),
+              ),
+            ]
+          : const [
+              BoxShadow(
+                color: Color(0x59000000),
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+              BoxShadow(
+                color: Color(0x40000000),
+                blurRadius: 20,
+                offset: Offset(0, 10),
+              ),
+            ];
+
+  /// Under a coloured surface — a gradient header, a primary action.
+  ///
+  /// Takes its hue from the surface it falls from. A neutral black shadow under
+  /// a saturated panel reads as grime; the same shadow in the panel's own hue
+  /// reads as light falling past it.
+  static List<BoxShadow> tinted(Color source, Brightness brightness) => [
+        BoxShadow(
+          color: source.withValues(
+            alpha: brightness == Brightness.light ? 0.28 : 0.44,
+          ),
+          blurRadius: 18,
+          offset: const Offset(0, 8),
+        ),
+      ];
 
   /// A resting shadow for surfaces that must read as *above* the page — action
   /// bars pinned over a scrolling list, mostly. Tuned per brightness: the same
@@ -97,6 +209,142 @@ abstract final class AppElevation {
                 offset: Offset(0, -2),
               ),
             ];
+}
+
+/// Brand surfaces.
+///
+/// The four apps are told apart by one hue (see [AppFlavor]). A flat fill of
+/// that hue across a header is the cheapest possible use of it — it says which
+/// app this is and nothing else. A gradient across two tones of the *same*
+/// generated scheme says the same thing and also gives the panel a light
+/// direction, which is most of what separates a screen that looks designed from
+/// one that looks themed.
+///
+/// Every colour here comes out of the [ColorScheme] the seed already generated.
+/// Nothing is hand-picked per app, so adding a fifth flavour needs no new
+/// gradients, and the contrast of ink on these surfaces is a property of the
+/// scheme rather than of a designer's eye.
+abstract final class AppGradients {
+  /// The header a screen opens with, and the splash.
+  ///
+  /// Brightness-aware, and it has to be — this is the trap in building a brand
+  /// panel on a Material 3 scheme. In a *light* scheme `primary` is a deep tone
+  /// and `onPrimary` is white, which is the panel everyone pictures. In a dark
+  /// scheme the roles invert: `primary` is a pale tint meant for text and icons,
+  /// so painting the same gradient there produces a bright lavender slab across
+  /// the top of an otherwise dark screen, with dark ink on it. It is legible,
+  /// and it is unmistakably wrong — the loudest thing in a dark UI ends up being
+  /// its chrome.
+  ///
+  /// So dark mode builds the panel from `primaryContainer`, which is the deep
+  /// end of the same tonal palette, and takes its ink from
+  /// `onPrimaryContainer`. Same hue, same gradient direction, correct polarity.
+  /// Use [ink] for anything drawn on top of this rather than reaching for
+  /// `onPrimary` directly.
+  static LinearGradient hero(ColorScheme scheme) => scheme.brightness ==
+          Brightness.light
+      ? LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            // Lifted at the top-left rather than starting flat at the
+            // primary, so the panel has somewhere to travel to. The dark end
+            // is a lerp of 18% — at the 28% it started on, three of the four
+            // flavours bottomed out in a near-black that read as a smudge
+            // rather than as shading.
+            Color.lerp(scheme.primary, scheme.primaryContainer, 0.18)!,
+            scheme.primary,
+            Color.lerp(scheme.primary, const Color(0xFF000000), 0.18)!,
+          ],
+          stops: const [0.0, 0.5, 1.0],
+        )
+      : LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            // Deepened from `primaryContainer` outright. That tone measures
+            // 0.175 luminance against a 0.007 canvas, which is the correct
+            // polarity and still a lamp: on a phone at night the header was the
+            // brightest thing on screen and the figures under it were not.
+            // Two steps down keeps the hue doing its job and takes white ink
+            // from 4.7:1 to about 6:1.
+            Color.lerp(scheme.primaryContainer, const Color(0xFF000000), 0.15)!,
+            Color.lerp(scheme.primaryContainer, const Color(0xFF000000), 0.28)!,
+            Color.lerp(scheme.primaryContainer, const Color(0xFF000000), 0.48)!,
+          ],
+          stops: const [0.0, 0.5, 1.0],
+        );
+
+  /// The ink for anything sitting on [hero] or [action].
+  ///
+  /// The one thing every caller of those two gradients needs and cannot get
+  /// from the scheme without knowing the polarity rule above.
+  static Color ink(ColorScheme scheme) => scheme.brightness == Brightness.light
+      ? scheme.onPrimary
+      : scheme.onPrimaryContainer;
+
+  /// A primary action worth looking at. Shorter run, same direction, same
+  /// polarity rule as [hero].
+  ///
+  /// The two brightnesses lighten and darken in *opposite* directions, and that
+  /// is not symmetry for its own sake. On light, `primary` is deep and lifting
+  /// the top-left toward white is what makes the button look lit. On dark the
+  /// base is `primaryContainer`, which is already the light end of what the ink
+  /// can sit on — lifting that stop 12% toward white measured 3.77:1 against
+  /// `onPrimaryContainer` on the waiter's teal, under AA, and the contrast test
+  /// caught it. Dark therefore only ever darkens.
+  static LinearGradient action(ColorScheme scheme) {
+    if (scheme.brightness == Brightness.light) {
+      final base = scheme.primary;
+      return LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color.lerp(base, const Color(0xFFFFFFFF), 0.12)!,
+          base,
+          Color.lerp(base, const Color(0xFF000000), 0.18)!,
+        ],
+        stops: const [0.0, 0.5, 1.0],
+      );
+    }
+
+    final base = scheme.primaryContainer;
+    return LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        Color.lerp(base, const Color(0xFF000000), 0.10)!,
+        Color.lerp(base, const Color(0xFF000000), 0.22)!,
+        Color.lerp(base, const Color(0xFF000000), 0.38)!,
+      ],
+      stops: const [0.0, 0.5, 1.0],
+    );
+  }
+
+  /// A near-invisible wash for a large neutral panel, so a full-bleed surface
+  /// is not one dead flat tone. The stops are two steps of the same neutral
+  /// ramp; at these alphas it is felt rather than seen.
+  static LinearGradient surface(ColorScheme scheme) => LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [scheme.surfaceContainerLow, scheme.surface],
+      );
+
+  /// Paints a status in its own hue as a soft fill — the tinted well behind a
+  /// metric, the accent rail down a card. [brightness] resolves the status the
+  /// same way [AppStatusColors.of] does, so this can never disagree with a
+  /// badge drawn from the same colour.
+  static LinearGradient status(Color status, Brightness brightness) {
+    final base = AppStatusColors.of(status, brightness);
+    return LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        base.withValues(alpha: brightness == Brightness.light ? 0.16 : 0.24),
+        base.withValues(alpha: brightness == Brightness.light ? 0.06 : 0.10),
+      ],
+    );
+  }
 }
 
 /// Motion. Fast, short, and always skippable.
@@ -208,7 +456,8 @@ abstract final class AppStatusColors {
   /// one it is too dark, and the already-lifted dark-mode tone is what reads.
   /// Applying the light-mode darkening in dark mode — which is what a single
   /// context-free table did — makes the worst case worse.
-  static Color textOn(Color status, [Brightness brightness = Brightness.light]) {
+  static Color textOn(Color status,
+      [Brightness brightness = Brightness.light]) {
     if (brightness == Brightness.dark) return of(status, brightness);
     return _asTextOnLight[status.toARGB32()] ?? status;
   }
@@ -397,28 +646,64 @@ abstract final class AppTheme {
       textTheme: text,
       visualDensity: VisualDensity.standard,
       splashFactory: InkSparkle.splashFactory,
-      scaffoldBackgroundColor: scheme.surface,
+      // The canvas is a step *darker* than a card, in both brightnesses.
+      //
+      // It used to be the other way round in light mode — `surface` behind
+      // cards of `surfaceContainerLow` — which is a card darker than the page
+      // it sits on. Nothing in the physical world does that, so the eye refused
+      // to read those rectangles as objects and the whole product looked like a
+      // wireframe of itself. Inverting it is the single change that does the
+      // most work here: the card becomes the lightest thing on screen, and its
+      // shadow only has to confirm what the tone has already said.
+      scaffoldBackgroundColor:
+          isLight ? scheme.surfaceContainerLow : scheme.surface,
       appBarTheme: AppBarTheme(
         centerTitle: false,
         elevation: 0,
-        scrolledUnderElevation: 2,
-        backgroundColor: scheme.surface,
+        // Tints toward the primary as content passes under it rather than
+        // dropping a shadow, so a scrolled list reads as continuing behind the
+        // bar instead of ending in a line.
+        scrolledUnderElevation: 3,
+        surfaceTintColor: scheme.primary,
+        backgroundColor: isLight ? scheme.surfaceContainerLow : scheme.surface,
         foregroundColor: scheme.onSurface,
         titleTextStyle: text.titleLarge,
+        titleSpacing: AppSpacing.lg,
+        iconTheme: IconThemeData(color: scheme.onSurfaceVariant, size: 24),
+        actionsIconTheme:
+            IconThemeData(color: scheme.onSurfaceVariant, size: 24),
       ),
       cardTheme: CardThemeData(
-        elevation: AppElevation.card,
+        // Was flat with a hairline. The hairline stays — it is what survives a
+        // tablet viewed at an angle in dim light — and a shadow goes under it.
+        // See the note on [AppElevation].
+        elevation: isLight ? 1.5 : 0,
+        shadowColor: const Color(0xFF101828),
+        // M3 would otherwise wash every card toward the primary as elevation
+        // rises, which turns a neutral card faintly teal and reads as a stain.
+        surfaceTintColor: Colors.transparent,
         margin: EdgeInsets.zero,
-        // A tonal surface rather than plain white, so a card reads as a card
-        // without needing a shadow to say so.
-        color: isLight ? scheme.surfaceContainerLow : scheme.surfaceContainer,
+        color: isLight ? scheme.surface : scheme.surfaceContainerHigh,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          side: BorderSide(color: scheme.outlineVariant),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          side: BorderSide(
+            // Lighter than it was: with a shadow doing the lifting, a full-
+            // strength border on top of it reads as two boundaries.
+            color: scheme.outlineVariant.withValues(alpha: isLight ? 0.7 : 0.5),
+          ),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
+          // A primary action carries a shadow in its own hue. Restaurant staff
+          // are looking for the commit button, not reading the screen; the lift
+          // is how it is found without making it the loudest colour present.
+          //
+          // Resolved per state rather than fixed, because `styleFrom` applies one
+          // number to every state: a disabled "Send · 0" kept the shadow and read
+          // as a raised control that simply refused to work.
+          elevation: isLight ? 2 : 0,
+          shadowColor: scheme.primary.withValues(alpha: 0.5),
           minimumSize: const Size(0, AppSizes.minTouchTarget),
           // Was xl. A full-width primary action on a 360-pixel phone at the 2x
           // text this product honours has 280 pixels for its label once xl has
@@ -428,7 +713,13 @@ abstract final class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           textStyle: text.labelLarge?.copyWith(fontSize: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(AppRadius.xl),
+          ),
+        ).copyWith(
+          elevation: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? 0
+                : (isLight ? 2 : 0),
           ),
         ),
       ),
@@ -437,9 +728,12 @@ abstract final class AppTheme {
           minimumSize: const Size(0, AppSizes.minTouchTarget),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           textStyle: text.labelLarge?.copyWith(fontSize: 16),
-          side: BorderSide(color: scheme.outline),
+          // 1.5 rather than a hairline. A secondary action sitting next to a
+          // filled one with a shadow needs enough edge to read as the same
+          // class of control rather than as a disabled version of it.
+          side: BorderSide(color: scheme.outline, width: 1.5),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderRadius: BorderRadius.circular(AppRadius.xl),
           ),
         ),
       ),
@@ -448,14 +742,17 @@ abstract final class AppTheme {
           minimumSize: const Size(0, AppSizes.minTouchTarget),
           textStyle: text.labelLarge,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
+            borderRadius: BorderRadius.circular(AppRadius.md),
           ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
+        // Reads as a well cut into the card rather than a box drawn on it. On
+        // light that means a tint a step *below* the card it sits on, which is
+        // the same figure/ground logic the canvas uses, one level down.
         fillColor: isLight
-            ? scheme.surfaceContainerHighest.withValues(alpha: 0.4)
+            ? scheme.surfaceContainerLow
             : scheme.surfaceContainerHigh.withValues(alpha: 0.6),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,
@@ -465,24 +762,30 @@ abstract final class AppTheme {
         hintStyle: text.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
         helperStyle: text.bodySmall,
         errorStyle: text.bodySmall?.copyWith(color: scheme.error),
+        prefixIconColor: scheme.onSurfaceVariant,
+        suffixIconColor: scheme.onSurfaceVariant,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
           borderSide: BorderSide(color: scheme.outline),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide(color: scheme.outlineVariant),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          // Nearly gone at rest. The fill is already stating where the field
+          // is; a full hairline on top of it is the second boundary again.
+          borderSide: BorderSide(
+            color: scheme.outlineVariant.withValues(alpha: 0.6),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
           borderSide: BorderSide(color: scheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
           borderSide: BorderSide(color: scheme.error, width: 2),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
           borderSide: BorderSide(color: scheme.error, width: 2),
         ),
       ),
@@ -514,42 +817,71 @@ abstract final class AppTheme {
         side: BorderSide(color: scheme.outlineVariant),
         showCheckmark: false,
         selectedColor: scheme.secondaryContainer,
+        // Selection is the only state a chip has, so it gets a real one: the
+        // selected chip lifts off the row rather than only changing tint.
+        elevation: 0,
+        pressElevation: 2,
+        shadowColor: const Color(0xFF101828),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         insetPadding: const EdgeInsets.all(AppSpacing.lg),
-        contentTextStyle: text.bodyMedium?.copyWith(color: scheme.onInverseSurface),
+        contentTextStyle:
+            text.bodyMedium?.copyWith(color: scheme.onInverseSurface),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
         ),
       ),
       dialogTheme: DialogThemeData(
-        elevation: AppElevation.sheet,
+        elevation: 6,
+        shadowColor: const Color(0xFF101828),
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: isLight ? scheme.surface : scheme.surfaceContainerHigh,
         titleTextStyle: text.titleLarge,
         contentTextStyle: text.bodyMedium,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.lg),
+          borderRadius: BorderRadius.circular(AppRadius.xxl),
         ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
         showDragHandle: true,
         elevation: AppElevation.sheet,
-        backgroundColor: isLight ? scheme.surface : scheme.surfaceContainerLow,
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: isLight ? scheme.surface : scheme.surfaceContainerHigh,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            top: Radius.circular(AppRadius.lg),
+            top: Radius.circular(AppRadius.xxl),
           ),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
         elevation: AppElevation.raised,
-        height: 72,
-        backgroundColor: scheme.surfaceContainer,
-        indicatorColor: scheme.secondaryContainer,
+        // 76 rather than 72. The indicator pill grew, and a label under a
+        // 56-wide pill needs the room or it sits on the pill's edge.
+        height: 76,
+        backgroundColor: isLight ? scheme.surface : scheme.surfaceContainerHigh,
+        surfaceTintColor: Colors.transparent,
+        shadowColor: const Color(0xFF101828),
+        // The brand hue, not the neutral secondary. This is the one piece of
+        // chrome present on every screen of the app, so it is where the flavour
+        // earns its keep — and `onSecondaryContainer` was a muddy near-grey on
+        // three of the four schemes.
+        indicatorColor: scheme.primaryContainer,
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+        ),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? text.labelMedium?.copyWith(color: scheme.onSurface)
+              ? text.labelMedium?.copyWith(
+                  color: scheme.onSurface,
+                  fontWeight: FontWeight.w700,
+                )
               : text.labelMedium?.copyWith(color: scheme.onSurfaceVariant),
+        ),
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? IconThemeData(size: 26, color: scheme.onPrimaryContainer)
+              : IconThemeData(size: 24, color: scheme.onSurfaceVariant),
         ),
       ),
       listTileTheme: ListTileThemeData(
@@ -557,7 +889,7 @@ abstract final class AppTheme {
         titleTextStyle: text.bodyLarge,
         subtitleTextStyle: text.bodySmall,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
+          borderRadius: BorderRadius.circular(AppRadius.md),
         ),
       ),
       dividerTheme: DividerThemeData(

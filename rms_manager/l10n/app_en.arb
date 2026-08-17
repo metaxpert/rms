@@ -47,6 +47,9 @@
       }
     }
   },
+  "sectionRightNow": "Right now",
+  "summaryOnTables": "Still on tables",
+  "summaryTaken": "Taken today",
   "kpiOpenBills": "Open bills",
   "kpiReadyToServe": "Ready to serve",
   "kpiKitchenTickets": "Kitchen tickets",

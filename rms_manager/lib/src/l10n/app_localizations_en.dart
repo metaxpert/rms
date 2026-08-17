@@ -87,6 +87,15 @@ class AppTextEn extends AppText {
   }
 
   @override
+  String get sectionRightNow => 'Right now';
+
+  @override
+  String get summaryOnTables => 'Still on tables';
+
+  @override
+  String get summaryTaken => 'Taken today';
+
+  @override
   String get kpiOpenBills => 'Open bills';
 
   @override

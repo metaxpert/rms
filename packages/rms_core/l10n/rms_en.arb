@@ -21,6 +21,8 @@
     }
   },
   "signIn": "Sign in",
+  "signInHeading": "Sign in to continue",
+  "signInBlurb": "Your restaurant, on every device.",
   "signInEmail": "Email",
   "signInPassword": "Password",
   "signInEmailMissing": "Enter your email",
@@ -86,6 +88,7 @@
   "waitMinutes": "{minutes} min",
   "waitHoursMinutes": "{hours}h {minutes}m",
   "chooseOutlet": "Choose your outlet",
+  "chooseOutletBlurb": "Everything you see is scoped to this outlet.",
   "@waitMinutes": {
     "placeholders": {
       "minutes": {

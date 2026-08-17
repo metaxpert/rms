@@ -24,39 +24,42 @@ class ManagerShell extends ConsumerStatefulWidget {
 class _ManagerShellState extends ConsumerState<ManagerShell> {
   int _tab = 0;
 
-
-
   @override
   Widget build(BuildContext context) {
     final snapshot = ref.watch(serviceSnapshotProvider);
     final text = appText(context);
     final titles = [text.tabService, text.tabKitchen, text.tabSales];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(titles[_tab]),
-            const _OutletLabel(),
-          ],
-        ),
+    return HeroScaffold(
+      // Was an `AppBar` holding the tab name and the outlet in 12px under it.
+      // That is a title bar: it spent the top strip of the screen on words the
+      // manager already knew and gave the numbers below it nothing to sit
+      // against. The gradient panel does the same job, says which of the four
+      // apps this is, and gives the first row of tiles an edge to overlap.
+      header: AppHeroHeader(
+        title: titles[_tab],
+        subtitle: _outletName(ref, context),
+        trailing: const _LiveDot(),
         actions: [
-          const _LiveDot(),
           const _OutletMenu(),
-          IconButton(
-            onPressed: () => ref.invalidate(serviceSnapshotProvider),
-            icon: const Icon(Icons.refresh_rounded),
+          HeroIconButton(
+            icon: Icons.refresh_rounded,
             tooltip: text.refresh,
+            onPressed: () => ref.invalidate(serviceSnapshotProvider),
           ),
-          IconButton(
-            onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
-            icon: const Icon(Icons.logout_rounded),
+          HeroIconButton(
+            icon: Icons.logout_rounded,
             tooltip: text.signOut,
+            onPressed: () =>
+                ref.read(authControllerProvider.notifier).signOut(),
           ),
         ],
       ),
+      // The body is pulled up into the header so the two read as one surface.
+      // Only on the dashboard: the other two tabs are lists that start at the
+      // top, and a list sliding under a panel it does not scroll behind is the
+      // wrong kind of overlap.
+      overlap: _tab == 0 ? AppSpacing.md : 0,
       body: snapshot.when(
         loading: () => LoadingView(
           message: text.readingService,
@@ -142,28 +145,21 @@ class _ShellSkeleton extends StatelessWidget {
 
 /// Which outlet the numbers are for. Always shown, because the same dashboard
 /// means very different things for one branch and for a whole chain.
-class _OutletLabel extends ConsumerWidget {
-  const _OutletLabel();
+///
+/// A function rather than the widget it used to be: the header takes its
+/// subtitle as a string so it can style it against the gradient, and a widget
+/// would have had to be told what colour to paint itself in.
+String _outletName(WidgetRef ref, BuildContext context) {
+  final branchId = ref.watch(sessionProvider).branchId;
+  final branches = ref.watch(branchesProvider).valueOrNull;
+  final text = appText(context);
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final branchId = ref.watch(sessionProvider).branchId;
-    final branches = ref.watch(branchesProvider).valueOrNull;
-
-    final text = appText(context);
-    final name = branchId == null
-        ? text.allOutlets
-        : branches
-                ?.where((b) => b.id == branchId)
-                .map((b) => b.name)
-                .firstOrNull ??
-            text.oneOutlet;
-
-    return Text(
-      name,
-      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
-    );
-  }
+  if (branchId == null) return text.allOutlets;
+  return branches
+          ?.where((b) => b.id == branchId)
+          .map((b) => b.name)
+          .firstOrNull ??
+      text.oneOutlet;
 }
 
 class _OutletMenu extends ConsumerWidget {
@@ -175,8 +171,26 @@ class _OutletMenu extends ConsumerWidget {
     final current = ref.watch(sessionProvider).branchId;
     final auth = ref.read(authControllerProvider.notifier);
 
+    final ink = AppGradients.ink(Theme.of(context).colorScheme);
+
     return PopupMenuButton<String?>(
-      icon: const Icon(Icons.store_mall_directory_outlined),
+      // Against the gradient the app bar's `onSurfaceVariant` is a grey smear,
+      // and the same translucent well the other header buttons use is what
+      // makes this read as a control rather than as a glyph printed on it.
+      icon: Container(
+        width: AppSizes.chromeTouchTarget,
+        height: AppSizes.chromeTouchTarget,
+        decoration: BoxDecoration(
+          color: ink.withValues(alpha: 0.14),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.store_mall_directory_outlined,
+          size: 22,
+          color: ink,
+        ),
+      ),
+      padding: EdgeInsets.zero,
       tooltip: appText(context).chooseOutlet,
       onSelected: (id) async {
         // Unlike the waiter and driver apps, an outlet here is a filter and not
@@ -220,28 +234,41 @@ class _LiveDot extends ConsumerWidget {
     final live = status == RealtimeStatus.live;
     final text = appText(context);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-      child: Tooltip(
-        message: live
-            ? (takenAt == null
-                ? text.liveTooltipJustNow
-                : text.liveTooltip(DateFormat.Hms().format(takenAt)))
-            : text.offlineTooltip,
+    final theme = Theme.of(context);
+    final ink = AppGradients.ink(theme.colorScheme);
+
+    // On the gradient, so the status green that read well on a white app bar is
+    // now a low-contrast smudge. The pill carries the meaning instead: a filled
+    // dot and the word when live, a struck-through cloud and the word when not.
+    // Colour is not doing the work either way, which is the rule.
+    return Tooltip(
+      message: live
+          ? (takenAt == null
+              ? text.liveTooltipJustNow
+              : text.liveTooltip(DateFormat.Hms().format(takenAt)))
+          : text.offlineTooltip,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.xs,
+        ),
+        decoration: BoxDecoration(
+          color: ink.withValues(alpha: live ? 0.16 : 0.10),
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          border: Border.all(color: ink.withValues(alpha: live ? 0.4 : 0.24)),
+        ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               live ? Icons.circle : Icons.cloud_off_rounded,
-              size: live ? 10 : 16,
-              color: live
-                  ? context.statusFill(AppStatusColors.available)
-                  : Theme.of(context).colorScheme.onSurfaceVariant,
+              size: live ? 9 : 14,
+              color: ink,
             ),
             const SizedBox(width: AppSpacing.xs),
             Text(
               live ? text.live : text.offline,
-              style: Theme.of(context).textTheme.labelSmall,
+              style: theme.textTheme.labelSmall?.copyWith(color: ink),
             ),
           ],
         ),

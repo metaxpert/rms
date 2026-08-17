@@ -21,93 +21,121 @@ class RunListScreen extends ConsumerWidget {
     final board = ref.watch(runBoardProvider);
     final text = appText(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(text.runsTitle),
+    return HeroScaffold(
+      header: AppHeroHeader(
+        title: text.runsTitle,
+        // The outlet the rider is collecting from — not `yourRunsOnly`, which is
+        // a two-line explanation that ellipsised to "These are your runs only. A
+        // job you cann…" in a header, and which is still stated in full at the
+        // foot of the board where there is room for it.
+        subtitle: _outletName(ref),
         actions: [
-          IconButton(
+          HeroIconButton(
+            icon: Icons.swap_horiz_rounded,
+            tooltip: text.switchOutlet,
             onPressed: () =>
                 ref.read(authControllerProvider.notifier).clearBranch(),
-            icon: const Icon(Icons.swap_horiz_rounded),
-            tooltip: text.switchOutlet,
           ),
-          IconButton(
-            onPressed: () => ref.read(authControllerProvider.notifier).signOut(),
-            icon: const Icon(Icons.logout_rounded),
+          HeroIconButton(
+            icon: Icons.logout_rounded,
             tooltip: text.signOut,
+            onPressed: () =>
+                ref.read(authControllerProvider.notifier).signOut(),
           ),
         ],
       ),
+      // The duty card is pulled up over the header's edge. It is the most
+      // important control in this app — a rider who has not clocked on gets no
+      // work at all — and as a tinted strip welded under an app bar it read as a
+      // notification about the screen rather than as the switch that turns it on.
+      overlap: AppSpacing.lg,
       body: Column(
         children: [
-          const _DutyBar(),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: _DutyBar(),
+          ),
           Expanded(child: _board(context, ref, board)),
         ],
       ),
     );
   }
 
-  Widget _board(BuildContext context, WidgetRef ref, AsyncValue<RunBoard> board) {
+  Widget _board(
+      BuildContext context, WidgetRef ref, AsyncValue<RunBoard> board) {
     final text = appText(context);
     return board.when(
-        loading: () => LoadingView(
-          message: text.runsLoading,
-          // A rider opens this at a kerb with one hand. Cards forming says the
-          // phone found the server; a spinner says nothing either way.
-          skeleton: const SkeletonList(rows: 4, rowHeight: 148),
-        ),
-        error: (error, _) => ErrorView(
-          error: error,
-          onRetry: () => ref.invalidate(runBoardProvider),
-        ),
-        data: (board) => RefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(runBoardProvider);
-            ref.invalidate(driverProfileProvider);
-          },
-          child: board.isEmpty
-              ? ListView(
-                  // Must scroll or pull-to-refresh cannot fire when empty.
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  children: [
-                    const SizedBox(height: 100),
-                    EmptyView(
-                      icon: Icons.two_wheeler_outlined,
-                      title: text.nothingToDeliverTitle,
-                      message: text.nothingToDeliverMessage,
-                    ),
+      loading: () => LoadingView(
+        message: text.runsLoading,
+        // A rider opens this at a kerb with one hand. Cards forming says the
+        // phone found the server; a spinner says nothing either way.
+        skeleton: const SkeletonList(rows: 4, rowHeight: 148),
+      ),
+      error: (error, _) => ErrorView(
+        error: error,
+        onRetry: () => ref.invalidate(runBoardProvider),
+      ),
+      data: (board) => RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(runBoardProvider);
+          ref.invalidate(driverProfileProvider);
+        },
+        child: board.isEmpty
+            ? ListView(
+                // Must scroll or pull-to-refresh cannot fire when empty.
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  const SizedBox(height: 100),
+                  EmptyView(
+                    icon: Icons.two_wheeler_outlined,
+                    title: text.nothingToDeliverTitle,
+                    message: text.nothingToDeliverMessage,
+                  ),
+                ],
+              )
+            : ListView(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                children: [
+                  if (board.active.isNotEmpty) ...[
+                    SectionHeader(text.sectionOnTheGo),
+                    for (final delivery in board.active)
+                      _RunTile(delivery: delivery),
                   ],
-                )
-              : ListView(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  children: [
-                    if (board.active.isNotEmpty) ...[
-                      SectionHeader(text.sectionOnTheGo),
-                      for (final delivery in board.active)
-                        _RunTile(delivery: delivery),
-                    ],
-                    if (board.finished.isNotEmpty) ...[
-                      SectionHeader(text.sectionDoneToday),
-                      for (final delivery in board.finished)
-                        _RunTile(delivery: delivery, dimmed: true),
-                    ],
-                    const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      // Was "this is the whole outlet's board", which stopped
-                      // being true when the server began scoping runs to the
-                      // signed-in rider. A rider seeing only their own work
-                      // needs to know that is deliberate, or a quiet shift
-                      // reads as a broken app.
-                      text.yourRunsOnly,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      textAlign: TextAlign.center,
-                    ),
+                  if (board.finished.isNotEmpty) ...[
+                    SectionHeader(text.sectionDoneToday),
+                    for (final delivery in board.finished)
+                      _RunTile(delivery: delivery, dimmed: true),
                   ],
-                ),
-        ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Text(
+                    // Was "this is the whole outlet's board", which stopped
+                    // being true when the server began scoping runs to the
+                    // signed-in rider. A rider seeing only their own work
+                    // needs to know that is deliberate, or a quiet shift
+                    // reads as a broken app.
+                    text.yourRunsOnly,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+      ),
     );
   }
+}
+
+/// The outlet this rider is collecting from, or null while the branch list is
+/// still in flight.
+String? _outletName(WidgetRef ref) {
+  final branchId = ref.watch(sessionProvider).branchId;
+  if (branchId == null) return null;
+  return ref
+      .watch(branchesProvider)
+      .valueOrNull
+      ?.where((b) => b.id == branchId)
+      .map((b) => b.name)
+      .firstOrNull;
 }
 
 /// The shift control, pinned above the board.
@@ -126,87 +154,108 @@ class _DutyBar extends ConsumerWidget {
     final text = appText(context);
 
     return profile.when(
-      loading: () => const SizedBox(height: 4, child: LinearProgressIndicator()),
+      loading: () =>
+          const SizedBox(height: 4, child: LinearProgressIndicator()),
       // A rider whose login is not linked to a roster record cannot be helped by
       // retrying, so they are told who can help instead.
-      error: (error, _) => Container(
-        width: double.infinity,
-        color: context.statusFill(AppStatusColors.cancelled)
-            .withValues(alpha: 0.12),
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Row(
-          children: [
-            Icon(
-              Icons.badge_outlined,
-              size: 18,
-              color: context.statusText(AppStatusColors.cancelled),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Text(
-                error is ApiException && error.kind == ApiErrorKind.forbidden
-                    ? text.riderNotLinked
-                    : text.riderProfileUnavailable,
-                style: theme.textTheme.bodySmall,
-              ),
-            ),
-          ],
-        ),
+      error: (error, _) => AppNotice(
+        tone: NoticeTone.danger,
+        icon: Icons.badge_outlined,
+        title: error is ApiException && error.kind == ApiErrorKind.forbidden
+            ? text.riderNotLinked
+            : text.riderProfileUnavailable,
+        margin: EdgeInsets.zero,
       ),
       data: (me) {
         final busy = ref.watch(_dutyBusyProvider);
+        final onShift = me.isOnShift;
+
         return AnimatedContainer(
           // Clocking on is the one thing that changes what the rest of this
-          // screen means; the bar changing colour under the thumb is the
+          // screen means; the card changing colour under the thumb is the
           // confirmation, so it is worth animating rather than snapping.
           duration: AppMotion.of(context),
           curve: AppMotion.standard,
-          width: double.infinity,
-          color: me.isOnShift
-              ? context.statusFill(AppStatusColors.available)
-                  .withValues(alpha: 0.12)
-              : theme.colorScheme.surfaceContainerHighest,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.md,
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(me.displayName, style: theme.textTheme.titleSmall),
-                    Text(
-                      me.isOnShift
-                          ? text.onShiftSummary(me.liveRuns, me.deliveredToday)
-                          : text.offShift,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
+          child: AppCard(
+            // Green while on shift, plain while off — the accent rail and the
+            // tint come from the same "available" status the rest of the product
+            // uses for "ready to work", resolved for the brightness by AppCard.
+            accent: onShift ? AppStatusColors.available : null,
+            raised: true,
+            child: Row(
+              children: [
+                // The rider, at the size a person's own name deserves on the
+                // device they were handed at the start of a shift. This is the
+                // closest thing this app has to a profile, so it says who is
+                // signed in, whether they are clocked on, and what they have
+                // done today.
+                Container(
+                  width: 44,
+                  height: 44,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: onShift
+                        ? context
+                            .statusFill(AppStatusColors.available)
+                            .withValues(alpha: 0.18)
+                        : theme.colorScheme.surfaceContainerHighest,
+                  ),
+                  child: Icon(
+                    onShift
+                        ? Icons.two_wheeler_rounded
+                        : Icons.bedtime_outlined,
+                    size: 22,
+                    color: onShift
+                        ? context.statusText(AppStatusColors.available)
+                        : theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        me.displayName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleMedium,
                       ),
-                    ),
-                  ],
+                      Text(
+                        onShift
+                            ? text.onShiftSummary(
+                                me.liveRuns, me.deliveredToday)
+                            : text.offShift,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              if (busy)
-                const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              else if (me.isOnShift)
-                TextButton(
-                  // Refused server-side while holding work, so it is disabled
-                  // here rather than offered and then rejected.
-                  onPressed: me.canEndShift ? () => _setDuty(ref, false) : null,
-                  child: Text(text.endShift),
-                )
-              else
-                FilledButton(
-                  onPressed: () => _setDuty(ref, true),
-                  child: Text(text.startShift),
-                ),
-            ],
+                const SizedBox(width: AppSpacing.sm),
+                if (busy)
+                  const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else if (onShift)
+                  TextButton(
+                    // Refused server-side while holding work, so it is disabled
+                    // here rather than offered and then rejected.
+                    onPressed:
+                        me.canEndShift ? () => _setDuty(ref, false) : null,
+                    child: Text(text.endShift),
+                  )
+                else
+                  FilledButton(
+                    onPressed: () => _setDuty(ref, true),
+                    child: Text(text.startShift),
+                  ),
+              ],
+            ),
           ),
         );
       },
@@ -239,79 +288,84 @@ class _RunTile extends StatelessWidget {
     final text = appText(context);
     final accent = delivery.status.color;
 
-    return Card(
+    return AppCard(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        onTap: () => context.push(Routes.run(delivery.id)),
-        child: Opacity(
-          opacity: dimmed ? 0.65 : 1,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      onTap: () => context.push(Routes.run(delivery.id)),
+      // The rail down the leading edge carries the run's status in the one place
+      // a rider glancing at the board while holding a bag will actually see it.
+      // Not on finished runs: a column of coloured rails where most of them are
+      // history is a column of rails nobody reads.
+      accent: dimmed ? null : delivery.status.color,
+      padding: EdgeInsets.only(
+        // Clear of the rail.
+        left: dimmed ? AppSpacing.lg : AppSpacing.lg + AppSpacing.xs,
+        right: AppSpacing.lg,
+        top: AppSpacing.lg,
+        bottom: AppSpacing.lg,
+      ),
+      child: Opacity(
+        opacity: dimmed ? 0.65 : 1,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        delivery.orderNo.isEmpty
-                            ? delivery.deliveryNo
-                            : delivery.orderNo,
-                        style: theme.textTheme.titleMedium
-                            ?.copyWith(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    StatusBadge(
-                      label: delivery.status.labelIn(strings(context)),
-                      color: accent,
-                      icon: delivery.status.icon,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.location_on_outlined,
-                        size: 18, color: theme.colorScheme.onSurfaceVariant),
-                    const SizedBox(width: AppSpacing.xs),
-                    Expanded(
-                      child: Text(
-                        delivery.address ?? text.noAddress,
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                    ),
-                  ],
-                ),
-                if (delivery.etaMinutes != null ||
-                    delivery.assignedAt != null) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    [
-                      if (delivery.etaMinutes != null)
-                        text.etaMinutes(delivery.etaMinutes!),
-                      if (delivery.assignedAt != null)
-                        text.assignedAt(
-                            DateFormat.Hm().format(delivery.assignedAt!)),
-                    ].join(' · '),
-                    style: theme.textTheme.bodySmall
-                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                Expanded(
+                  child: Text(
+                    delivery.orderNo.isEmpty
+                        ? delivery.deliveryNo
+                        : delivery.orderNo,
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
-                ],
-                if (!delivery.isOwnFleet) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  StatusBadge(
-                    // An aggregator's rider is tracked through their platform;
-                    // offering buttons here would be a lie.
-                    label: text.notYours(delivery.provider),
-                    color: theme.colorScheme.outline,
-                    icon: Icons.info_outline,
-                  ),
-                ],
+                ),
+                StatusBadge(
+                  label: delivery.status.labelIn(strings(context)),
+                  color: accent,
+                  icon: delivery.status.icon,
+                ),
               ],
             ),
-          ),
+            const SizedBox(height: AppSpacing.sm),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.location_on_outlined,
+                    size: 18, color: theme.colorScheme.onSurfaceVariant),
+                const SizedBox(width: AppSpacing.xs),
+                Expanded(
+                  child: Text(
+                    delivery.address ?? text.noAddress,
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                ),
+              ],
+            ),
+            if (delivery.etaMinutes != null || delivery.assignedAt != null) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                [
+                  if (delivery.etaMinutes != null)
+                    text.etaMinutes(delivery.etaMinutes!),
+                  if (delivery.assignedAt != null)
+                    text.assignedAt(
+                        DateFormat.Hm().format(delivery.assignedAt!)),
+                ].join(' · '),
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+            ],
+            if (!delivery.isOwnFleet) ...[
+              const SizedBox(height: AppSpacing.sm),
+              StatusBadge(
+                // An aggregator's rider is tracked through their platform;
+                // offering buttons here would be a lie.
+                label: text.notYours(delivery.provider),
+                color: theme.colorScheme.outline,
+                icon: Icons.info_outline,
+              ),
+            ],
+          ],
         ),
       ),
     );

@@ -12,6 +12,9 @@ class AppTextUr extends AppText {
   String get floorTitle => 'فلور';
 
   @override
+  String get back => 'واپس';
+
+  @override
   String get switchOutlet => 'آؤٹ لیٹ بدلیں';
 
   @override

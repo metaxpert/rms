@@ -2,7 +2,9 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rms_core/rms_core.dart';
 
 import 'support/shots.dart';
@@ -228,6 +230,45 @@ void main() {
           ),
         ));
   });
+
+  // The two screens every user of every app meets first, and the only two the
+  // guest-facing and staff-facing halves of the product genuinely share.
+  testWidgets('splash', (t) async {
+    await shoot(t,
+        name: 'core-splash-light',
+        size: const Size(390, 844),
+        brightness: Brightness.light,
+        flavor: AppFlavor.customer,
+        home: const SplashScreen(
+          flavor: AppFlavor.customer,
+          title: 'RMS Guest',
+        ));
+  });
+
+  for (final (label, size, brightness) in [
+    ('core-sign-in-light', const Size(390, 900), Brightness.light),
+    ('core-sign-in-dark', const Size(390, 900), Brightness.dark),
+    // The landscape split, which is what a till and a manager's tablet
+    // actually run at.
+    ('core-sign-in-tablet-light', const Size(1194, 834), Brightness.light),
+  ]) {
+    testWidgets('sign in — $label', (t) async {
+      // Session.load goes to SharedPreferences, which without mock values sits
+      // on a platform channel that never answers under flutter_test.
+      SharedPreferences.setMockInitialValues(const {});
+      final session = await Session.load(secretStore: InMemorySecretStore());
+
+      await shoot(t,
+          name: label,
+          size: size,
+          brightness: brightness,
+          flavor: AppFlavor.waiter,
+          home: ProviderScope(
+            overrides: [sessionProvider.overrideWithValue(session)],
+            child: const SignInScreen(title: 'Waiter sign in'),
+          ));
+    });
+  }
 
   testWidgets('error state', (t) async {
     await shoot(t,

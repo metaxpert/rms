@@ -45,8 +45,18 @@ class _CartScreenState extends ConsumerState<CartScreen> {
       }
     });
 
-    return Scaffold(
-      appBar: AppBar(title: Text(text.yourBasket)),
+    return HeroScaffold(
+      header: AppHeroHeader(
+        title: text.yourBasket,
+        subtitle: cart.isEmpty ? null : text.basketWithCount(cart.itemCount),
+        // The basket is pushed over the menu, so it needs the way back that the
+        // app bar used to provide for free.
+        leading: HeroIconButton(
+          icon: Icons.arrow_back_rounded,
+          tooltip: text.backToMenu,
+          onPressed: () => context.pop(),
+        ),
+      ),
       body: cart.isEmpty
           ? EmptyView(
               icon: Icons.shopping_bag_outlined,
@@ -61,14 +71,25 @@ class _CartScreenState extends ConsumerState<CartScreen> {
           : ListView(
               padding: const EdgeInsets.all(AppSpacing.lg),
               children: [
+                // One card per line, rather than rows separated by nothing. A
+                // basket is a list of things a guest is about to pay for and
+                // each one has its own quantity control — the boundaries are
+                // worth drawing, and the stepper needs a surface to sit on.
                 for (var index = 0; index < cart.lines.length; index++)
-                  _CartLine(
-                    line: cart.lines[index],
-                    onQty: checkout.isPlacing
-                        ? null
-                        : (qty) => controller.setQty(index, qty),
+                  AppCard(
+                    margin: const EdgeInsets.only(bottom: AppSpacing.md),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.md,
+                    ),
+                    child: _CartLine(
+                      line: cart.lines[index],
+                      onQty: checkout.isPlacing
+                          ? null
+                          : (qty) => controller.setQty(index, qty),
+                    ),
                   ),
-                const Divider(height: AppSpacing.xl),
+                const SizedBox(height: AppSpacing.sm),
                 _ChannelPicker(
                   channel: _channel,
                   enabled: !checkout.isPlacing,
@@ -118,33 +139,42 @@ class _CartScreenState extends ConsumerState<CartScreen> {
             ),
       bottomNavigationBar: cart.isEmpty
           ? null
-          : SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                child: SizedBox(
-                  height: AppSizes.primaryActionHeight,
-                  child: FilledButton.icon(
-                    onPressed: _canPlace(checkout) ? _place : null,
-                    icon: checkout.isPlacing
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white),
-                          )
-                        : const Icon(Icons.send_rounded),
-                    // Shrinks rather than ellipsising. "Place o…" on the button
-                    // that takes a guest's money is not an acceptable last
-                    // resort; a couple of points smaller is.
-                    label: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        checkout.isPlacing
-                            ? text.sending
-                            : checkout.pending != null
-                                ? text.tryAgain
-                                : text.placeOrder,
-                        maxLines: 1,
+          // Lifted off the list, like the basket bar on the menu. The two bars
+          // are the same control at two points in the same journey and were
+          // drawn differently.
+          : DecoratedBox(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                boxShadow: AppElevation.lift(Theme.of(context).brightness),
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: SizedBox(
+                    height: AppSizes.primaryActionHeight,
+                    child: FilledButton.icon(
+                      onPressed: _canPlace(checkout) ? _place : null,
+                      icon: checkout.isPlacing
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Icon(Icons.send_rounded),
+                      // Shrinks rather than ellipsising. "Place o…" on the button
+                      // that takes a guest's money is not an acceptable last
+                      // resort; a couple of points smaller is.
+                      label: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          checkout.isPlacing
+                              ? text.sending
+                              : checkout.pending != null
+                                  ? text.tryAgain
+                                  : text.placeOrder,
+                          maxLines: 1,
+                        ),
                       ),
                     ),
                   ),
@@ -324,7 +354,8 @@ class _QtyStepper extends StatelessWidget {
           step(
             icon: Icons.add_rounded,
             tooltip: moreTooltip,
-            onPressed: onQty == null || qty >= 99 ? null : () => onQty!(qty + 1),
+            onPressed:
+                onQty == null || qty >= 99 ? null : () => onQty!(qty + 1),
           ),
         ],
       ),
@@ -407,26 +438,31 @@ class _Totals extends StatelessWidget {
       );
     }
 
-    return Column(
-      children: [
-        row(text.subtotal, totals.subtotal),
-        if (!totals.tax.isZero) row(text.tax, totals.tax),
-        if (!totals.serviceCharge.isZero)
-          row(text.serviceCharge, totals.serviceCharge),
-        if (!totals.rounding.isZero) row(text.rounding, totals.rounding),
-        const Divider(),
-        row(text.total, totals.total, emphasise: true),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          // The restaurant re-prices every line when the order is placed. Saying
-          // so is better than a guest arguing at a counter about a figure this
-          // app quoted from a menu that had since changed.
-          text.priceConfirmedNote,
-          style: theme.textTheme.bodySmall
-              ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-          textAlign: TextAlign.center,
-        ),
-      ],
+    // On its own card. This is the part of the screen a guest checks before
+    // committing money, and as a bare column in the middle of a scroll view it
+    // was indistinguishable from the lines above it.
+    return AppCard(
+      child: Column(
+        children: [
+          row(text.subtotal, totals.subtotal),
+          if (!totals.tax.isZero) row(text.tax, totals.tax),
+          if (!totals.serviceCharge.isZero)
+            row(text.serviceCharge, totals.serviceCharge),
+          if (!totals.rounding.isZero) row(text.rounding, totals.rounding),
+          const Divider(),
+          row(text.total, totals.total, emphasise: true),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            // The restaurant re-prices every line when the order is placed. Saying
+            // so is better than a guest arguing at a counter about a figure this
+            // app quoted from a menu that had since changed.
+            text.priceConfirmedNote,
+            style: theme.textTheme.bodySmall
+                ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

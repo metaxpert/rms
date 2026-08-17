@@ -265,6 +265,70 @@ void main() {
     });
   });
 
+  group('the brand panel', () {
+    test('its ink clears AA on every stop of the gradient, in both brightnesses',
+        () {
+      // This is the test the dark mode of the hero header did not have.
+      //
+      // In a light Material 3 scheme `primary` is a deep tone and `onPrimary` is
+      // white, which is the panel everyone pictures. In a dark scheme the roles
+      // invert — `primary` becomes a pale tint meant for text — so painting the
+      // same gradient there produced a bright lavender slab with dark ink on it:
+      // legible, and the loudest thing on an otherwise dark screen. Dark mode
+      // therefore builds the panel from `primaryContainer` and takes its ink
+      // from `onPrimaryContainer`, and this holds that pairing to AA at every
+      // stop rather than only at the one a screenshot happened to catch.
+      for (final flavor in AppFlavor.values) {
+        for (final brightness in Brightness.values) {
+          final scheme = (brightness == Brightness.light
+                  ? AppTheme.light(flavor: flavor)
+                  : AppTheme.dark(flavor: flavor))
+              .colorScheme;
+          final ink = AppGradients.ink(scheme);
+
+          for (final gradient in [
+            AppGradients.hero(scheme),
+            AppGradients.action(scheme),
+          ]) {
+            for (final stop in gradient.colors) {
+              expect(
+                contrast(ink, stop),
+                greaterThanOrEqualTo(4.5),
+                reason: '${flavor.name} ${brightness.name}: ink on '
+                    '${stop.toARGB32().toRadixString(16)}',
+              );
+            }
+          }
+        }
+      }
+    });
+
+    test('it is a panel, not a lamp: never brighter than a dark canvas expects',
+        () {
+      // A brand header is chrome. On a dark scheme it must not out-glow the
+      // content it sits above — the figures are the point of the screen, and a
+      // header measured at 0.175 luminance against a 0.007 canvas was the
+      // brightest thing on it.
+      for (final flavor in AppFlavor.values) {
+        final scheme = AppTheme.dark(flavor: flavor).colorScheme;
+        for (final stop in AppGradients.hero(scheme).colors) {
+          expect(
+            stop.computeLuminance(),
+            lessThan(0.16),
+            reason: '${flavor.name} dark header stop is too bright',
+          );
+        }
+      }
+    });
+
+    test('a control on the panel keeps a platform-legal target', () {
+      // 44 looked better in a row of three and failed the waiter app's
+      // accessibility suite on the spot. The header is chrome, but chrome is
+      // still tapped.
+      expect(AppSizes.chromeTouchTarget, greaterThanOrEqualTo(48));
+    });
+  });
+
   group('touch targets', () {
     test('every button style clears the service-floor minimum', () {
       // Material says 48. Staff moving quickly mis-tap at that size, and a

@@ -12,6 +12,9 @@ class AppTextEn extends AppText {
   String get floorTitle => 'Floor';
 
   @override
+  String get back => 'Back';
+
+  @override
   String get switchOutlet => 'Switch outlet';
 
   @override

@@ -87,6 +87,15 @@ class AppTextUr extends AppText {
   }
 
   @override
+  String get sectionRightNow => 'ابھی';
+
+  @override
+  String get summaryOnTables => 'میزوں پر باقی';
+
+  @override
+  String get summaryTaken => 'آج کی وصولی';
+
+  @override
   String get kpiOpenBills => 'کھلے بل';
 
   @override

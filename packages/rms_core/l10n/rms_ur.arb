@@ -10,6 +10,8 @@
   "errorUnknownTitle": "کچھ غلط ہو گیا",
   "errorReference": "حوالہ: {traceId}",
   "signIn": "سائن ان",
+  "signInHeading": "جاری رکھنے کے لیے سائن ان کریں",
+  "signInBlurb": "آپ کا ریستوران، ہر ڈیوائس پر۔",
   "signInEmail": "ای میل",
   "signInPassword": "پاس ورڈ",
   "signInEmailMissing": "اپنا ای میل درج کریں",
@@ -64,5 +66,6 @@
   "waitJustNow": "ابھی",
   "waitMinutes": "{minutes} منٹ",
   "waitHoursMinutes": "{hours} گھنٹے {minutes} منٹ",
-  "chooseOutlet": "اپنا آؤٹ لیٹ منتخب کریں"
+  "chooseOutlet": "اپنا آؤٹ لیٹ منتخب کریں",
+  "chooseOutletBlurb": "آپ جو کچھ دیکھیں گے وہ اسی آؤٹ لیٹ کا ہوگا۔"
 }

@@ -47,15 +47,33 @@ class _BillScreenState extends ConsumerState<BillScreen> {
     final settled = _orderId == null
         ? null
         : ref.watch(settleControllerProvider(_orderId!)).order;
+
+    // Shared by the settled view and the live bill, so backing out of a
+    // settlement does not change the shape of the screen under the waiter.
+    AppHeroHeader header({String? subtitle}) => AppHeroHeader(
+          title: title,
+          subtitle: subtitle,
+          leading: HeroIconButton(
+            icon: Icons.arrow_back_rounded,
+            tooltip: text.back,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        );
+
     if (settled != null && settled.status == OrderStatus.settled) {
-      return Scaffold(
-        appBar: AppBar(title: Text(title)),
+      return HeroScaffold(
+        header:
+            header(subtitle: settled.orderNo.isEmpty ? null : settled.orderNo),
         body: _SettledView(order: settled),
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
+    return HeroScaffold(
+      header: header(
+        subtitle:
+            fetched == null || fetched.orderNo.isEmpty ? null : fetched.orderNo,
+      ),
+      overlap: AppSpacing.md,
       body: orderAsync.when(
         loading: () => LoadingView(
           message: text.fetchingBill,
@@ -139,8 +157,7 @@ class _BillBody extends ConsumerWidget {
     if (!current.isOpen) {
       return EmptyView(
         icon: Icons.block_rounded,
-        title: text.billIsStatus(
-            current.status.labelIn(shared).toLowerCase()),
+        title: text.billIsStatus(current.status.labelIn(shared).toLowerCase()),
         message: text.billCannotSettle,
       );
     }
@@ -192,7 +209,8 @@ class _BillBody extends ConsumerWidget {
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Text(
                     settle.error!.message,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.error),
                   ),
                 ),
             ],
@@ -288,7 +306,10 @@ class _TotalsBlock extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [Text(label, style: style), Text(amount.display, style: style)],
+          children: [
+            Text(label, style: style),
+            Text(amount.display, style: style)
+          ],
         ),
       );
     }
@@ -572,8 +593,10 @@ class _SettleBar extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
-          border: Border(top: BorderSide(color: theme.colorScheme.outlineVariant)),
+          color:
+              theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+          border:
+              Border(top: BorderSide(color: theme.colorScheme.outlineVariant)),
           // Lifted off the list it is pinned over, so the bill scrolling
           // underneath reads as passing behind the bar rather than ending at it.
           boxShadow: AppElevation.lift(theme.brightness),

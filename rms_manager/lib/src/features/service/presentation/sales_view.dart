@@ -96,12 +96,10 @@ class _Summary extends StatelessWidget {
           ),
         );
 
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
+    // Was a flat grey well. The takings of a service are the one thing on this
+    // tab worth looking at, and a well is what the rest of the product uses for
+    // input fields.
+    return AppCard(
       child: Column(
         children: [
           Row(
