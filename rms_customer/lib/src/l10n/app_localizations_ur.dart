@@ -237,4 +237,44 @@ class AppTextUr extends AppText {
   String semanticsStep(String label, String state) {
     return '$label: $state';
   }
+
+  @override
+  String get mapRecenter => 'دوبارہ مرکز میں';
+
+  @override
+  String get trackLive => 'لائیو';
+
+  @override
+  String get trackStale => 'ابھی اپ ڈیٹ نہیں ہو رہا';
+
+  @override
+  String get trackNoPositionYet =>
+      'آپ کے رائیڈر نے ابھی اپنی لوکیشن شیئر کرنا شروع نہیں کی۔';
+
+  @override
+  String trackLastSeen(String ago) {
+    return 'آخری بار $ago دیکھا گیا';
+  }
+
+  @override
+  String trackEta(int minutes) {
+    return '$minutes منٹ کی دوری';
+  }
+
+  @override
+  String trackDistance(String km) {
+    return '$km کلومیٹر دور';
+  }
+
+  @override
+  String get trackRouteEstimated => 'تخمینہ — سڑک کا راستہ دستیاب نہیں تھا';
+
+  @override
+  String get alertNearby => 'آپ کا رائیڈر چند منٹ کی دوری پر ہے۔';
+
+  @override
+  String get alertAlmostThere => 'آپ کا رائیڈر تقریباً آپ کے دروازے پر ہے۔';
+
+  @override
+  String get alertArrived => 'آپ کا رائیڈر پہنچ گیا ہے۔';
 }

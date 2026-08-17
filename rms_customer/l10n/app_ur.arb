@@ -67,5 +67,16 @@
   "semanticsHappeningNow": "ابھی ہو رہا ہے",
   "semanticsDone": "مکمل",
   "semanticsToCome": "ابھی باقی",
-  "semanticsStep": "{label}: {state}"
+  "semanticsStep": "{label}: {state}",
+  "mapRecenter": "دوبارہ مرکز میں",
+  "trackLive": "لائیو",
+  "trackStale": "ابھی اپ ڈیٹ نہیں ہو رہا",
+  "trackNoPositionYet": "آپ کے رائیڈر نے ابھی اپنی لوکیشن شیئر کرنا شروع نہیں کی۔",
+  "trackLastSeen": "آخری بار {ago} دیکھا گیا",
+  "trackEta": "{minutes} منٹ کی دوری",
+  "trackDistance": "{km} کلومیٹر دور",
+  "trackRouteEstimated": "تخمینہ — سڑک کا راستہ دستیاب نہیں تھا",
+  "alertNearby": "آپ کا رائیڈر چند منٹ کی دوری پر ہے۔",
+  "alertAlmostThere": "آپ کا رائیڈر تقریباً آپ کے دروازے پر ہے۔",
+  "alertArrived": "آپ کا رائیڈر پہنچ گیا ہے۔"
 }

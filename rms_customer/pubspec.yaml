@@ -25,6 +25,15 @@ dependencies:
   go_router: ^17.5.0
   cupertino_icons: ^1.0.6
 
+  # The live delivery map. OpenStreetMap tiles through flutter_map rather than
+  # google_maps_flutter: no API key, no billing account and no native config to
+  # keep in step across two platforms, which matters for an app a restaurant
+  # builds itself. It is also a plain Flutter widget layer, so the map themes with
+  # the design system and honours dark mode instead of being an opaque platform
+  # view sitting on top of it.
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

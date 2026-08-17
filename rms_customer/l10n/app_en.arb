@@ -115,5 +115,37 @@
         "type": "String"
       }
     }
-  }
+  },
+  "mapRecenter": "Recentre",
+  "trackLive": "Live",
+  "trackStale": "Not updating right now",
+  "trackNoPositionYet": "Your rider has not started sharing their position yet.",
+  "trackLastSeen": "Last seen {ago}",
+  "@trackLastSeen": {
+    "placeholders": {
+      "ago": {
+        "type": "String"
+      }
+    }
+  },
+  "trackEta": "{minutes} min away",
+  "@trackEta": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "trackDistance": "{km} km away",
+  "@trackDistance": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "trackRouteEstimated": "Estimate — the road route was unavailable",
+  "alertNearby": "Your rider is a few minutes away.",
+  "alertAlmostThere": "Your rider is almost at your door.",
+  "alertArrived": "Your rider has arrived."
 }

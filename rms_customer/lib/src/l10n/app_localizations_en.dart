@@ -238,4 +238,44 @@ class AppTextEn extends AppText {
   String semanticsStep(String label, String state) {
     return '$label: $state';
   }
+
+  @override
+  String get mapRecenter => 'Recentre';
+
+  @override
+  String get trackLive => 'Live';
+
+  @override
+  String get trackStale => 'Not updating right now';
+
+  @override
+  String get trackNoPositionYet =>
+      'Your rider has not started sharing their position yet.';
+
+  @override
+  String trackLastSeen(String ago) {
+    return 'Last seen $ago';
+  }
+
+  @override
+  String trackEta(int minutes) {
+    return '$minutes min away';
+  }
+
+  @override
+  String trackDistance(String km) {
+    return '$km km away';
+  }
+
+  @override
+  String get trackRouteEstimated => 'Estimate — the road route was unavailable';
+
+  @override
+  String get alertNearby => 'Your rider is a few minutes away.';
+
+  @override
+  String get alertAlmostThere => 'Your rider is almost at your door.';
+
+  @override
+  String get alertArrived => 'Your rider has arrived.';
 }

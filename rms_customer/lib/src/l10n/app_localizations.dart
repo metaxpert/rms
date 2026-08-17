@@ -504,6 +504,72 @@ abstract class AppText {
   /// In en, this message translates to:
   /// **'{label}: {state}'**
   String semanticsStep(String label, String state);
+
+  /// No description provided for @mapRecenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Recentre'**
+  String get mapRecenter;
+
+  /// No description provided for @trackLive.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get trackLive;
+
+  /// No description provided for @trackStale.
+  ///
+  /// In en, this message translates to:
+  /// **'Not updating right now'**
+  String get trackStale;
+
+  /// No description provided for @trackNoPositionYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rider has not started sharing their position yet.'**
+  String get trackNoPositionYet;
+
+  /// No description provided for @trackLastSeen.
+  ///
+  /// In en, this message translates to:
+  /// **'Last seen {ago}'**
+  String trackLastSeen(String ago);
+
+  /// No description provided for @trackEta.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min away'**
+  String trackEta(int minutes);
+
+  /// No description provided for @trackDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km away'**
+  String trackDistance(String km);
+
+  /// No description provided for @trackRouteEstimated.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate — the road route was unavailable'**
+  String get trackRouteEstimated;
+
+  /// No description provided for @alertNearby.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rider is a few minutes away.'**
+  String get alertNearby;
+
+  /// No description provided for @alertAlmostThere.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rider is almost at your door.'**
+  String get alertAlmostThere;
+
+  /// No description provided for @alertArrived.
+  ///
+  /// In en, this message translates to:
+  /// **'Your rider has arrived.'**
+  String get alertArrived;
 }
 
 class _AppTextDelegate extends LocalizationsDelegate<AppText> {

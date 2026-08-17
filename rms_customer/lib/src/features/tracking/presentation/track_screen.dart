@@ -9,6 +9,7 @@ import '../../../app/router/app_router.dart';
 import '../../../l10n/app_text.dart';
 import '../../orders/data/customer_order_repository.dart';
 import '../application/order_progress.dart';
+import 'live_tracking.dart';
 
 /// Following an order from the kitchen to the door.
 ///
@@ -179,6 +180,17 @@ class _TrackBody extends StatelessWidget {
           ),
         ),
         if (unsentAddress != null) _AddressWarning(address: unsentAddress!),
+        // The map, once there is a delivery job to draw. Above the order lines and
+        // below the rail: the rail says what stage the food is at, and this says
+        // where it physically is — a customer wants the second only once the first
+        // says it has left.
+        if (tracked.delivery != null) ...[
+          const SizedBox(height: AppSpacing.lg),
+          AppCard(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            child: LiveTracking(deliveryId: tracked.delivery!.id),
+          ),
+        ],
         const SizedBox(height: AppSpacing.lg),
         if (order.lines.isNotEmpty) _OrderLines(order: order),
         const SizedBox(height: AppSpacing.lg),
