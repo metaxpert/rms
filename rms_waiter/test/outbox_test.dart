@@ -140,7 +140,8 @@ void main() {
 
       await container.read(outboxControllerProvider.notifier).drain();
 
-      expect(server.createCount, 0, reason: 'the table must not be billed twice');
+      expect(server.createCount, 0,
+          reason: 'the table must not be billed twice');
       expect(server.calls, contains('place'));
       expect(
         container.read(outboxControllerProvider).lastResults.single.succeeded,
@@ -171,9 +172,15 @@ void main() {
       final server = FakeOrderServer()
         ..failAlways['lookup'] =
             ApiException(ApiErrorKind.network, 'Still no wifi.');
+      // `drain` reads the queue against the real clock, so these have to sit
+      // inside PendingSend.maxAge or the store calls them a previous service's
+      // and there is nothing left to stop at. Oldest first, as the queue drains.
+      final now = DateTime.now();
       final container = await containerWith(server, queued: [
-        pending(tableId: 't1', startedAt: DateTime(2026, 8, 13, 19)),
-        pending(tableId: 't2', startedAt: DateTime(2026, 8, 13, 20)),
+        pending(
+            tableId: 't1', startedAt: now.subtract(const Duration(hours: 2))),
+        pending(
+            tableId: 't2', startedAt: now.subtract(const Duration(hours: 1))),
       ]);
 
       await container.read(outboxControllerProvider.notifier).drain();
@@ -245,7 +252,8 @@ void main() {
       final controller = container.read(outboxControllerProvider.notifier);
 
       await controller.drain();
-      expect(container.read(outboxControllerProvider).lastResults, hasLength(1));
+      expect(
+          container.read(outboxControllerProvider).lastResults, hasLength(1));
 
       controller.acknowledge();
       expect(container.read(outboxControllerProvider).lastResults, isEmpty);
