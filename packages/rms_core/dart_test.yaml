@@ -1,0 +1,9 @@
+# The screenshot harness renders real screens to PNG for design review. It is
+# not an assertion suite, it needs the SDK's font cache on disk, and its goldens
+# are regenerated rather than compared — so it stays out of `flutter test` and
+# out of CI.
+#
+#   flutter test test/shots_test.dart --update-goldens --run-skipped
+tags:
+  shots:
+    skip: "Screenshot harness; run with --update-goldens --run-skipped"
