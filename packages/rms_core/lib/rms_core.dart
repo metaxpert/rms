@@ -68,9 +68,14 @@ export 'src/widgets/app_surfaces.dart';
 export 'src/widgets/skeletons.dart';
 export 'src/widgets/splash_screen.dart';
 
+// Local notifications. No push: there is no device-token endpoint in the
+// backend to register with, so nothing here can wake a killed process.
+export 'src/notifications/delivery_alerts.dart';
+
 // Domain vocabulary, mirroring the backend exactly
 export 'src/domain/branch.dart';
 export 'src/domain/delivery.dart';
+export 'src/domain/delivery_tracking.dart';
 export 'src/domain/kds_ticket.dart';
 export 'src/domain/menu.dart';
 export 'src/domain/order_detail.dart';

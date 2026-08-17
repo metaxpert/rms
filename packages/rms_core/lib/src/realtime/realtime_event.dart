@@ -16,6 +16,15 @@ enum RestaurantEventType {
   billSettled('restaurant.bill_settled.v1'),
   deliveryAssigned('restaurant.delivery_assigned.v1'),
   deliveryCompleted('restaurant.delivery_completed.v1'),
+
+  /// A rider's position, while a delivery is in flight.
+  ///
+  /// The one event on this feed that is not a durable business fact: it is true
+  /// for a few seconds and the next one supersedes it entirely. It also does not
+  /// arrive in the tenant room — the gateway publishes it to a per-delivery room a
+  /// client must be authorised to join, so a screen that has not subscribed will
+  /// never see it no matter how long it listens.
+  deliveryLocation('restaurant.delivery_location.v1'),
   reservationCreated('restaurant.reservation_created.v1'),
 
   /// A type this build does not know. Deliberately still delivered: a newer
@@ -75,6 +84,32 @@ class RealtimeEvent {
   String? get orderId => _string(const ['orderId', 'order_id', 'id']);
   String? get branchId => _string(const ['branchId', 'branch_id']);
   String? get tableCode => _string(const ['table', 'tableCode', 'table_code']);
+  String? get deliveryId => _string(const ['deliveryId', 'delivery_id']);
+
+  /// The position carried by a [RestaurantEventType.deliveryLocation] event, or
+  /// null for any other event — and for a location event whose payload is not
+  /// shaped as documented.
+  ///
+  /// Null rather than a guess. A map that drew `0,0` because a key was missing
+  /// would put a rider in the Gulf of Guinea, which is worse than not drawing.
+  ({double lat, double lng, DateTime at, double? speedKph, double? headingDeg})?
+      get position {
+    final lat = (payload['lat'] as num?)?.toDouble();
+    final lng = (payload['lng'] as num?)?.toDouble();
+    final at = DateTime.tryParse('${payload['at']}');
+    if (lat == null || lng == null || at == null) return null;
+    if (lat.abs() > 90 || lng.abs() > 180) return null;
+    return (
+      lat: lat,
+      lng: lng,
+      // The phone's own timestamp for the fix, not arrival time — which is what
+      // lets a screen say "last seen four minutes ago" instead of leaving a
+      // stale marker looking confident.
+      at: at.toLocal(),
+      speedKph: (payload['speedKph'] as num?)?.toDouble(),
+      headingDeg: (payload['headingDeg'] as num?)?.toDouble(),
+    );
+  }
 
   String? _string(List<String> keys) {
     for (final key in keys) {

@@ -52,6 +52,14 @@ abstract class RealtimeTransport {
   void connect();
   void disconnect();
   void dispose();
+
+  /// Send a message to the gateway.
+  ///
+  /// Added for delivery subscriptions and deliberately kept this general: the
+  /// alternative was a `subscribeToDelivery` on the transport, which would push a
+  /// restaurant concept into the layer whose whole job is to know nothing but
+  /// Socket.IO.
+  void emit(String event, Object? payload);
 }
 
 typedef RealtimeTransportFactory = RealtimeTransport Function({
@@ -128,7 +136,15 @@ class RealtimeClient {
       url: urlProvider(),
       token: tokenProvider,
       callbacks: RealtimeCallbacks(
-        onConnected: () => _setStatus(RealtimeStatus.live),
+        onConnected: () {
+          _setStatus(RealtimeStatus.live);
+          // Rooms belong to a socket, so a reconnect starts with none. Replaying
+          // them here is what stops a recovered connection from reporting itself
+          // "live" while delivering no positions.
+          for (final deliveryId in _watched) {
+            _transport?.emit('delivery:subscribe', {'deliveryId': deliveryId});
+          }
+        },
         onDisconnected: (_) => _setStatus(RealtimeStatus.offline),
         // A connect error is not fatal: the transport keeps retrying with
         // backoff. Reporting it as `offline` rather than tearing down means a
@@ -140,12 +156,44 @@ class RealtimeClient {
     _transport!.connect();
   }
 
+  /// Follow one delivery's live position.
+  ///
+  /// Rider positions do **not** arrive in the tenant room. They are published to
+  /// a per-delivery room the gateway only admits an authorised client to, so
+  /// without this call a screen listening for
+  /// [RestaurantEventType.deliveryLocation] hears nothing at all — which is the
+  /// failure mode worth knowing about, because it looks exactly like a rider who
+  /// has not started moving.
+  ///
+  /// Re-sent automatically on every reconnect: a room is a property of a socket,
+  /// so a dropped connection silently loses it. [subscribedDeliveries] is the
+  /// record that makes that replay possible.
+  void subscribeToDelivery(String deliveryId) {
+    if (deliveryId.isEmpty) return;
+    _watched.add(deliveryId);
+    _transport?.emit('delivery:subscribe', {'deliveryId': deliveryId});
+  }
+
+  void unsubscribeFromDelivery(String deliveryId) {
+    _watched.remove(deliveryId);
+    _transport?.emit('delivery:unsubscribe', {'deliveryId': deliveryId});
+  }
+
+  /// The deliveries this client wants to follow, whether or not the socket is up.
+  Set<String> get subscribedDeliveries => Set.unmodifiable(_watched);
+
+  final _watched = <String>{};
+
   /// Close the feed and stop retrying — used on sign-out, where continuing to
   /// hold a tenant-scoped socket open would leak the next user's events to a
   /// screen the previous user was looking at.
   void disconnect() {
     final transport = _transport;
     _transport = null;
+    // Cleared, not kept: `disconnect` is sign-out, and replaying the previous
+    // user's delivery rooms onto the next session's socket is precisely the leak
+    // this method exists to prevent.
+    _watched.clear();
     transport?.disconnect();
     transport?.dispose();
     _setStatus(RealtimeStatus.idle);
@@ -278,6 +326,9 @@ class _SocketIoTransport implements RealtimeTransport {
 
   @override
   void disconnect() => _socket.disconnect();
+
+  @override
+  void emit(String event, Object? payload) => _socket.emit(event, payload);
 
   @override
   void dispose() {

@@ -23,6 +23,22 @@ class _FakeTransport implements RealtimeTransport {
   /// proves a reconnect does not replay a 15-minute-old JWT.
   final presentedTokens = <String?>[];
 
+  /// Messages sent to the gateway, in order — which is what proves a reconnect
+  /// re-joins the delivery rooms it had before the drop.
+  final emitted = <(String, Object?)>[];
+
+  /// The same list flattened to strings.
+  ///
+  /// Records compare their fields with `==`, and two `Map` literals with equal
+  /// contents are not `==` — so asserting on `emitted` directly fails on payloads
+  /// that are visibly identical. Flattening sidesteps a confusing red test.
+  List<String> get emittedSummary => emitted
+      .map((e) => '${e.$1}:${(e.$2 as Map?)?['deliveryId'] ?? ''}')
+      .toList(growable: false);
+
+  @override
+  void emit(String event, Object? payload) => emitted.add((event, payload));
+
   @override
   void connect() => connectCalls++;
 
@@ -226,6 +242,58 @@ void main() {
       await transport.simulateOpen();
 
       expect(transport.presentedTokens, ['token-1', 'token-2']);
+    });
+
+    test('a delivery subscription is sent to the gateway', () async {
+      // Rider positions are published to a per-delivery room, not the tenant
+      // room, so this call is the difference between a live map and a screen
+      // that listens forever and hears nothing.
+      client.connect();
+      await transport.simulateOpen();
+      client.subscribeToDelivery('d-1');
+
+      expect(transport.emittedSummary, contains('delivery:subscribe:d-1'));
+      expect(client.subscribedDeliveries, {'d-1'});
+    });
+
+    test('a reconnect re-joins the rooms it had before the drop', () async {
+      // A room belongs to a socket. Without the replay, a recovered connection
+      // reports itself live and delivers no positions — which on a customer's map
+      // is indistinguishable from a rider who has parked.
+      client.connect();
+      await transport.simulateOpen();
+      client.subscribeToDelivery('d-1');
+      transport.emitted.clear();
+
+      transport.simulateDrop();
+      await transport.simulateOpen();
+
+      expect(transport.emittedSummary, ['delivery:subscribe:d-1']);
+    });
+
+    test('unsubscribing stops it being replayed', () async {
+      client.connect();
+      await transport.simulateOpen();
+      client.subscribeToDelivery('d-1');
+      client.unsubscribeFromDelivery('d-1');
+      transport.emitted.clear();
+
+      transport.simulateDrop();
+      await transport.simulateOpen();
+
+      expect(transport.emitted, isEmpty);
+      expect(client.subscribedDeliveries, isEmpty);
+    });
+
+    test('signing out forgets the rooms', () async {
+      // `disconnect` is sign-out. Replaying the previous user's delivery rooms
+      // onto the next session's socket is the leak this method exists to prevent.
+      client.connect();
+      await transport.simulateOpen();
+      client.subscribeToDelivery('d-1');
+
+      client.disconnect();
+      expect(client.subscribedDeliveries, isEmpty);
     });
 
     test('a drop is reported as offline, not torn down', () async {
